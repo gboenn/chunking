@@ -44,7 +44,21 @@ tidy:
 	rm -f $(OBJS)
 
 install:
-	 cp chunking /usr/local/bin/.
+	cp chunking /usr/local/bin/.
+	mkdir /usr/local/share/chunking/
+	cp ./text/all_partitions_until_41_parts_only_2s_and_3s.txt /usr/local/share/chunking/
+	cp ./text/all_COPRIME_partitions_until_120_with_2_distinct_parts.txt /usr/local/share/chunking/
+	cp ./text/all_COPRIME_partitions_until_120_with_3_distinct_parts.txt /usr/local/share/chunking/	
+	cp ./text/all_COPRIME_partitions_until_120_with_4_distinct_parts.txt /usr/local/share/chunking/
+	cp ./text/all_COPRIME_partitions_until_120_with_5_distinct_parts.txt /usr/local/share/chunking/
+	cp ./text/resistor.txt /usr/local/share/chunking/
+	cp ./text/release.txt /usr/local/share/chunking/
+	cp ./text/arch.txt /usr/local/share/chunking/
+	cp ./text/catenary.txt /usr/local/share/chunking/
+	cp ./text/alternating.txt /usr/local/share/chunking/
+	cp ./text/growth.txt /usr/local/share/chunking/
+	cp ./text/decrease.txt /usr/local/share/chunking/
+	cp ./text/bracelets.txt /usr/local/share/chunking/
 
 Alea.o: Alea.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
