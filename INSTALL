@@ -1,0 +1,8 @@
+1. open terminal
+2. cd into source code directory
+3. make
+If build succeeds:
+4. make install 
+With make install, chunking is copied into /usr/local/bin. Support data in ascii text format are copied into /usr/local/share/chunking
+To uninstall chunking and its resources, use: make uninstall. 
+The user needs write permissions for install and unistall. 
