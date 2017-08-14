@@ -1,0 +1,5 @@
+$p.13 24 = 9 + 4 + 11
+i i X : : I I I I X
+> > X I H H : X
+- > - : : I H I X
+i i > ! I I > I I
