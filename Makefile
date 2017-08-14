@@ -60,6 +60,10 @@ install:
 	cp ./text/decrease.txt /usr/local/share/chunking/
 	cp ./text/bracelets.txt /usr/local/share/chunking/
 
+uninstall:
+	rm /usr/local/bin/chunking
+	rm -r /usr/local/share/chunking/
+
 Alea.o: Alea.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
 
