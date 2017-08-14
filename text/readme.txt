@@ -11,3 +11,4 @@ This folder contains data files that are essential for chunking.
 ./text/alternating.txt
 ./text/growth.txt
 ./text/decrease.txt
+./text/bracelets.txt
