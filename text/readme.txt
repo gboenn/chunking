@@ -1,4 +1,5 @@
 This folder contains data files that are essential for chunking.
+The following files will be installed in /usr/local/share/chunking/
 ./text/all_partitions_until_41_parts_only_2s_and_3s.txt
 ./text/all_COPRIME_partitions_until_120_with_2_distinct_parts.txt
 ./text/all_COPRIME_partitions_until_120_with_3_distinct_parts.txt
