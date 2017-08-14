@@ -1008,11 +1008,19 @@ bool Modul::StringToFloat(string s, float* val) {
 
 void Modul::LoadAllPartitions () {
     //called by GetPartitionVector (int n, int& k, int cond, vector<float>* v)
+    /*
   LoadPartitions ("./text/all_partitions_until_41_parts_only_2s_and_3s.txt", 1);
   LoadPartitions ("./text/all_COPRIME_partitions_until_120_with_2_distinct_parts.txt", 2);
   LoadPartitions ("./text/all_COPRIME_partitions_until_120_with_3_distinct_parts.txt", 3);
   LoadPartitions ("./text/all_COPRIME_partitions_until_120_with_4_distinct_parts.txt", 4);
   LoadPartitions ("./text/all_COPRIME_partitions_until_120_with_5_distinct_parts.txt", 5);
+*/
+    LoadPartitions ("/usr/local/share/chunking/all_partitions_until_41_parts_only_2s_and_3s.txt", 1);
+    LoadPartitions ("/usr/local/share/chunking/all_COPRIME_partitions_until_120_with_2_distinct_parts.txt", 2);
+    LoadPartitions ("/usr/local/share/chunking/all_COPRIME_partitions_until_120_with_3_distinct_parts.txt", 3);
+    LoadPartitions ("/usr/local/share/chunking/all_COPRIME_partitions_until_120_with_4_distinct_parts.txt", 4);
+    LoadPartitions ("/usr/local/share/chunking/all_COPRIME_partitions_until_120_with_5_distinct_parts.txt", 5);
+
 }
 
 void Modul::LoadPartitions (string filename, int k) {
@@ -1290,6 +1298,7 @@ void Modul::LoadForms () {
 // loads all musical forms into corresponding vectors
     // called by ctor of Modul()
   vector<string> s;
+    /*
   s.push_back("./text/resistor.txt");
   s.push_back("./text/release.txt");
   s.push_back("./text/arch.txt");
@@ -1297,6 +1306,15 @@ void Modul::LoadForms () {
   s.push_back("./text/alternating.txt");
   s.push_back("./text/growth.txt");
   s.push_back("./text/decrease.txt");
+    */
+    s.push_back("/usr/local/share/chunking/resistor.txt");
+    s.push_back("/usr/local/share/chunking/release.txt");
+    s.push_back("/usr/local/share/chunking/arch.txt");
+    s.push_back("/usr/local/share/chunking/catenary.txt");
+    s.push_back("/usr/local/share/chunking/alternating.txt");
+    s.push_back("/usr/local/share/chunking/growth.txt");
+    s.push_back("/usr/local/share/chunking/decrease.txt");
+    
   int k = 0;
   int size = s.size();
   vector<float>* b =  new vector<float>;
@@ -1384,7 +1402,8 @@ void Modul::LoadForms () {
 }
 
 void Modul::LoadBracelets () {
-  ifstream file ("./text/bracelets.txt");
+//  ifstream file ("./text/bracelets.txt");
+  ifstream file ("/usr/local/share/chunking/bracelets.txt");
   string line;
   string cell;
 
