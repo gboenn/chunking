@@ -32,6 +32,8 @@ TARGETS = chunking
 INCLUDES =
 LIBGC =
 
+.PHONY: install uninstall
+
 all: $(TARGETS)
 
 chunking: $(OBJS) $(HDRS)
