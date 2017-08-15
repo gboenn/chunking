@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
 #endif
 //    GC_find_leak = 1;
 
-	if (argc > 1) {
+	if (argc > 2) {
 		if (!strcmp("-m", argv[1])) {
 			Interpret interpreter;
 			interpreter.SetModulFunct (argv[2]);
@@ -23,10 +23,9 @@ int main(int argc, char* argv[]) {
 			interpreter.Dispatch (text, module, 1);
 			return 0;
 		}
-		else {
-		  cout << "Usage: chunking -m <command> <agruments>" << endl;
-		}
 	}
+	
+	cout << "Usage: chunking -m <command> <agruments>" << endl;
 
 #if 0
 	TextIO text("init program...");

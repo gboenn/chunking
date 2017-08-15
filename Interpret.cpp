@@ -543,16 +543,26 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     }
     
     if (ms == modulTable[kbwt]) {
+      if (args_obj[0].text[0] != '\0') {
         string s1 = args_obj[0].text;
         mdl.BWT (s1);
+      }
+      else {
+	cout << "Usage: chunking -m bwt <string>" << endl;
+      }
     }
 
     if (ms == modulTable[kbwtmel]) {
+      if (args_obj[2].text[0] != '\0') {
         string s1 = args_obj[0].text;
         char* c1 = args_obj[1].text;
         int i1 = atoi (c1);
         string s2 = args_obj[2].text;
         mdl.BWTmelodies (s1, i1, s2);
+      }
+      else {
+	cout << "Usage: chunking -m bwtmel <string> <int> <string>" << endl;
+      }
     }
     
     if (ms == modulTable[knotenames]) {
