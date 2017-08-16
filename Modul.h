@@ -1914,12 +1914,40 @@ public:
         map<string,int>::iterator map_it;
         stringstream lineStream (notes);
         string cell;
+        vector<int> midinotes;
+        while (getline(lineStream, cell, ' ')) {
+            map_it = notename_midi_map.find(cell);
+            if (map_it != notename_midi_map.end()) {
+                midinotes.push_back (map_it->second);
+                cout << char(midi_to_asciipitch (map_it->second));
+            }
+        }
+        cout << endl;
+        for (vector<int>::iterator it=midinotes.begin() ; it!=midinotes.end(); ++it) {
+            cout << *it;
+            if (it+1 != midinotes.end())
+                cout << ", ";
+        }
+        cout << endl;
+    }
+    
+    string notenames2midinotes (string notes) {
+        map<string,int>::iterator map_it;
+        stringstream lineStream (notes);
+        string cell;
+        vector<int> midinotes;
         while (getline(lineStream, cell, ' ')) {
             map_it = notename_midi_map.find(cell);
             if (map_it != notename_midi_map.end())
-                cout << char(midi_to_asciipitch (map_it->second));
+                midinotes.push_back (map_it->second);
         }
-        cout << endl;
+        string note_string;
+        for (vector<int>::iterator it=midinotes.begin() ; it!=midinotes.end(); ++it) {
+            note_string += *it;
+            if (it+1 != midinotes.end())
+                note_string += ", ";
+        }
+        return note_string;
     }
 
 
