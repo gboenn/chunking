@@ -327,6 +327,11 @@ class Modul
     void BWT (string word);
     void BWTmelodies (string word, int trans, string gestalt);
     void notenames2asciinames (string notes);
+        void notenames2midinotes (string filename);
+        void iBWTspecific (string input, int k, int l);
+        void iBWTpathway (string shorthand, string filename);
+        void iBWTonBWTword (string bwtword);
+        
 };
 
 
@@ -1941,9 +1946,10 @@ public:
             if (map_it != notename_midi_map.end())
                 midinotes.push_back (map_it->second);
         }
+        
         string note_string;
         for (vector<int>::iterator it=midinotes.begin() ; it!=midinotes.end(); ++it) {
-            note_string += *it;
+            note_string += to_string(*it);
             if (it+1 != midinotes.end())
                 note_string += ", ";
         }

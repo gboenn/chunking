@@ -145,6 +145,8 @@ enum
     kbwt,
     kbwtmel,
     knotenames,
+    knotes2midi,
+    kbwtpath,
 	kNumModules
 };	
 
@@ -281,7 +283,9 @@ static const char* modulTable[kNumModules] =
     "printphrases",
     "bwt",
     "bwtmel",
-    "notenames"
+    "notenames",
+    "notes2midi",
+    "bwtpath"
     };
 
 #endif

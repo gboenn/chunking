@@ -3,12 +3,9 @@
 #endif
 
 Alea::Alea()
-{	
-	time_t now;
-	unsigned int seed = (unsigned int)time( &now );
-	srand( seed );
+{
+    srand(time(0));
 	rand_max = (double)RAND_MAX;
-	////cout << "rand_max: " << rand_max << endl;
 }
 
 double Alea::Uniform( double kmin, double kmax )
@@ -188,6 +185,22 @@ double Alea::Weibull( double s, double t )
 	}
 	a = 1. / (1. - r0);
 	return ( s * ( pow( log(a), (1. / t) ) ) );
+}
+
+vector<int> Alea::Shuffle (int n) {
+    vector<int> randomindex;
+    int i =  0;
+    for (; i < n; i++) {
+        randomindex.push_back(i);
+    }
+    i = n;
+    while (i-- > 0) {
+        int j = Uniform (0., i);
+        int temp = randomindex[j];
+        randomindex[j] = randomindex[i];
+        randomindex[i] = temp;
+    }
+    return randomindex;
 }
 
 void Alea::See()

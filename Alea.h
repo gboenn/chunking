@@ -31,6 +31,8 @@ public:
 	double Poisson( double xlambda );
 	double Weibull( double s, double t );
 
+    vector<int> Shuffle (int n);
+    
 	void See();
 };
 

@@ -165,13 +165,11 @@ string Christoffel::burrows_wheeler_trans () {
         sort(rwords.begin(), rwords.end(), greater<string>());
     }
     
-    //cout << "BWT: ";
     for (vector<string>::reverse_iterator it=rwords.rbegin(); it!=rwords.rend(); ++it) {
-        //cout << *it << ", ";
         bwt_word = bwt_word + ((*it).at (lenm1));
     }
-    cout << endl;
-    cout << "BWT-word: " << bwt_word << endl;
+    
+    //cout << "BWT-word: " << bwt_word << endl;
         
     return bwt_word;
     
@@ -285,6 +283,36 @@ string Christoffel::burrows_wheeler_inverse2 (int k) {
     return bwt_i_word;
 }
 
+string Christoffel::burrows_wheeler_inverse_substring (int k, int l) {
+// returns the l-th substring in column k of the iBWT
+    
+    if (bwt_word == "") {
+        burrows_wheeler_trans ();
+    }
+    
+    vector<string> iwords;
+    int len = length_word ();
+    if (l > len-1) l = len - 1;
+    if (l < 0) l = 0;
+    
+    if (k > len) k = len;
+    if (k < 1) k = 1;
+    
+    int i = 0;
+    for (; i < len; i++)
+        iwords.push_back("");
+    
+    while (k > 0) {
+        for (i=0; i < len; i++) {
+            string w = iwords.at(i);
+            char c = bwt_word[i];
+            iwords.at(i) =  c + w;
+        }
+        sort(iwords.rbegin(), iwords.rend(), greater<string>());
+        --k;
+    }
+    return iwords.at(l);
+}
 
 void Christoffel::display_all () {
     this->print_words ();
@@ -518,7 +546,7 @@ string Christoffel::word_to_rhythm_chunks3 (string w) {
             chunks = chunks + "(.) ";
     }
     
-    cout << chunks << endl;
+    //cout << chunks << endl;
     return chunks;
 }
 

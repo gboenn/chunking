@@ -94,7 +94,9 @@ public:
     vector<string> GetShorthand () { return shorthand; }
     
     int count_beats_in_word (string w);
-    void SetMinMaxBeatCount (int min, int max) {minb = min; maxb=max;}
+    void SetMinMaxBeatCount (int min, int max) { minb = min; maxb=max;}
+    void SetBWTword (string word) { bwt_word = word; }
+    string burrows_wheeler_inverse_substring (int k, int l);
     
 private:
     string word;

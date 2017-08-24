@@ -2455,8 +2455,8 @@ void Modul::BWT (string word) {
     int j = 1;
     for (; j <= len; j++) {
         string temp = c.burrows_wheeler_inverse2 (j);
-        cout << "$ Block #" << j << " " << temp << endl;
-        fptr << "$ Block #" << j << " " << temp << endl;
+        cout << "$ Block #" << j << " " << temp << endl << endl;
+        fptr << "$ Block #" << j << " " << temp << endl << endl;
         stringstream strs (temp);
         string pat;
         while (getline (strs, pat, ',')) {
@@ -2635,34 +2635,29 @@ void Modul::AnalysePhrases (string filename, int minbeat, int maxbeat) {
 			string temp = "";
 			if (atoi(rowlink->data->c_str()) == 0) {
                 if (rowlink->data->find ("$") == string::npos) {
-                
-                
-				irow = new DList<int>;
-				for (; rowlink != NULL; rowlink	= rowlink->next) {
-					string cur = *rowlink->data;
-					test += cur;
-					shstring += (cur + " ");
-					if (atoi(cur.c_str()) == 0) {
-						
-						for ( string::iterator it=cur.begin(); it!=cur.end(); ++it)
-						{
-                            if (char(*it) != ' ') { //ignore empty spaces
-                                cout << *it;
-                                int code = dec->decode_shorthand_length (int(*it));
-                                irow->append (new int(code));
-                                temp += dec->decode_shorthand_symbol (int(*it));
+                    irow = new DList<int>;
+                    for (; rowlink != NULL; rowlink	= rowlink->next) {
+                        string cur = *rowlink->data;
+                        test += cur;
+                        shstring += (cur + " ");
+                        if (atoi(cur.c_str()) == 0) {
+                            for ( string::iterator it=cur.begin(); it!=cur.end(); ++it) {
+                                if (char(*it) != ' ') { //ignore empty spaces
+                                    cout << *it;
+                                    int code = dec->decode_shorthand_length (int(*it));
+                                    irow->append (new int(code));
+                                    temp += dec->decode_shorthand_symbol (int(*it));
+                                }
                             }
-						}
-						cout << " | ";
-					}
-				}
-				imatrix->append (irow);					
-				shorthand_matrix->append(new string(shstring));
-				
-				//cout << " levenshtein:" << (levenshtein((char*)test.c_str(), (char*)s.c_str()));
-				//cout << endl;
-				cmatrix->append (new string(temp));
-            }
+                            cout << " | ";
+                        }
+                    }
+                    imatrix->append (irow);
+                    shorthand_matrix->append(new string(shstring));
+                    //cout << " levenshtein:" << (levenshtein((char*)test.c_str(), (char*)s.c_str()));
+                    //cout << endl;
+                    cmatrix->append (new string(temp));
+                }
 			}
 		}
 	}
@@ -3700,6 +3695,98 @@ void Modul::Cbaum (int p, int q) {
 void Modul::notenames2asciinames (string notes) {
     Decoder dec;
     dec.notenames2asciinames (notes);
+}
+
+void Modul::notenames2midinotes (string filename) {
+    ifstream file (filename.c_str());
+    string line;
+    string notes;
+    Decoder dec;
+    
+    while (file) {
+        getline (file,line);
+        notes = dec.notenames2midinotes (line);
+        cout << notes << endl;
+    }
+    
+}
+
+void Modul::iBWTspecific (string input, int k, int l) {
+
+}
+
+void Modul::iBWTpathway (string shorthand, string filename) {
+    
+    ifstream file (filename.c_str());
+    string line;
+    string cell;
+    vector<int> bwtrows;
+    while (file) {
+        getline (file,line);
+        stringstream lineStream (line);
+        while (getline( lineStream, cell, ',')) {
+            bwtrows.push_back (atoi(cell.c_str()));
+        }
+    }
+    
+    Decoder dec;
+    string shstring;
+    string temp = "";
+    if (atoi(shorthand.c_str()) == 0) {
+        if (shorthand.find ("$") == string::npos) {
+            for (string::iterator it=shorthand.begin(); it!=shorthand.end(); ++it) {
+                if (char(*it) != ' ') { //ignore empty spaces
+                    //cout << *it;
+                    //int code = dec.decode_shorthand_length (int(*it));
+                    //cout << "=" << code << ";"; //irow->append (new int(code));
+                    temp += dec.decode_shorthand_symbol (int(*it));
+                }
+            }
+            cout << endl;
+        }
+    }
+    
+    Christoffel c;
+    c.SetWord (temp);
+    int wordlength = c.length_word ();
+    //cout << shorthand << endl;
+    //" " << temp << " " << wordlength << endl;
+    int p = 10;
+    Alea a;
+    while (p-- > 0) {
+        cout << shorthand << endl;
+        vector<int> v (a.Shuffle (wordlength));
+        int l = 0;
+        for (vector<int>::iterator itr = bwtrows.begin(); itr != bwtrows.end(); ++itr, l++) {
+            if (l == wordlength) l = 0;
+            
+            int kindex = *itr;
+            if (kindex > -1 && kindex < wordlength) {
+                string word = c.burrows_wheeler_inverse_substring (kindex, v[l]);
+                cout << c.word_to_rhythm_chunks3 (word) << endl;
+            }
+        }
+        cout << endl;
+        int z = 100;
+        while (z-- > 0) {
+            a.Shuffle (wordlength);
+        }
+    }
+    
+    
+#if 0
+    int N = 10;
+    Alea a;
+    vector<int> v (a.Shuffle (N));
+    for (int i = 0; i < N; i++) {
+        cout << v[i] << " ";
+    }
+    cout << endl;
+#endif
+}
+
+void Modul::iBWTonBWTword (string bwtword) {
+    
 }
 
 

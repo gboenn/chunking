@@ -570,6 +570,17 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         mdl.notenames2asciinames (s1);
     }
     
+    if (ms == modulTable[knotes2midi]) {
+        string s1 = args_obj[0].text;
+        mdl.notenames2midinotes (s1);
+    }
+    
+    if (ms == modulTable[kbwtpath]) {
+        string s1 = args_obj[0].text;
+        string s2 = args_obj[1].text;
+        mdl.iBWTpathway (s1, s2);
+    }
+    
 	for (int i = 0; i < MAXLINES; i++)
 		args_obj[i].text[0] = '\0';
 
