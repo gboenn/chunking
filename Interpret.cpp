@@ -581,6 +581,12 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         mdl.iBWTpathway (s1, s2);
     }
     
+    if (ms == modulTable[kbwtmatrix]) {
+        string s1 = args_obj[0].text;
+        
+        mdl.iBWTspecific (s1, 0, 0);
+    }
+    
 	for (int i = 0; i < MAXLINES; i++)
 		args_obj[i].text[0] = '\0';
 

@@ -1779,50 +1779,8 @@ void i4_partition_print ( int n, int npart, int a[], int mult[] )
 }
 
 
-//****************************************************************************80
 
 int partition_rhythm_print (int n, int npart, int a[], int mult[], int must_be_prime, int no_ones, int max_prime, int max_num, int min_num, int c, int ku, int div)
-
-//****************************************************************************80
-//
-//  Purpose:
-//
-//    I4_PARTITION_PRINT prints a partition of an integer.
-//
-//  Discussion:
-//
-//    A partition of an int N is a representation of the integer as
-//    the sum of nonzero integers:
-//
-//      N = A1 + A2 + A3 + ...
-//
-//    It is standard practice to gather together all the values that 
-//    are equal, and replace them in the sum by a single term, multiplied
-//    by its "multiplicity":
-//
-//      N = M1 * A1 + M2 * A2 + ... + M(NPART) * A(NPART)
-//    
-//    In this representation, every A is a unique positive number, and 
-//    no M is zero (or negative).
-//
-//  Modified:
-//
-//    29 June 2003
-//
-//  Author:
-//
-//    John Burkardt
-//
-//  Parameters:
-//
-//    Input, int N, the integer to be partitioned.
-//
-//    Input, int NPART, the number of "parts" in the partition.
-//
-//    Input, int A[NPART], the parts of the partition.  
-//
-//    Input, int MULT[NPART], the multiplicities of the parts.
-//
 {
 	int i;
 	

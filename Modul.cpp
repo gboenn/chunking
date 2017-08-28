@@ -3018,9 +3018,7 @@ void Modul::PrintPhrases (string filename, string pitches) {
 }
 
 void Modul::CreateFareyPulses (int n, DList<Ratio>* rlist) {
-		
 	Ratio r(0,1);
-	
 	double step = 1./n;
 	double cur = 0.f;
 	while (cur <= 1.2) {
@@ -3032,12 +3030,13 @@ void Modul::CreateFareyPulses (int n, DList<Ratio>* rlist) {
 			break;
 		}
 	}
-		
-	cout << endl;
 }
 
 void Modul::FilterFareyPulsesWithBinary (DList<Ratio>* rlist, DList<Ratio>* patlist, string pattern) {
-	
+	//A list of ratios rlist is filtered by a binary pattern, e.g. 1011000, where '1' indicates a match
+    //with the position of an element in rlist.
+    //The pattern can aslo be a string of characters, then 'a' would indicate a match as well.
+    //This is useful if the string is a Christoffel word over the alphabet {a,b}, for example.
 	DLink<Ratio>* rl = rlist->first ();
 	
 	//cout << "pattern = " << pattern.length() << " pulses " << rlist->GetSize () << " " << rl << endl;
@@ -3046,7 +3045,7 @@ void Modul::FilterFareyPulsesWithBinary (DList<Ratio>* rlist, DList<Ratio>* patl
 	{
 		char c = *it;
 		//cout << c << " " << rl << endl;
-		if (c == '1') {
+		if (c == '1' || c == 'a') {
 			patlist->append (new Ratio (rl->data->GetP(), rl->data->GetQ()));
 		}
 	}
@@ -3712,11 +3711,60 @@ void Modul::notenames2midinotes (string filename) {
 }
 
 void Modul::iBWTspecific (string input, int k, int l) {
-
+    
+    Decoder dec;
+    string temp = "";
+    if (atoi(input.c_str()) == 0) {
+        if (input.find ("$") == string::npos) {
+            for (string::iterator it=input.begin(); it!=input.end(); ++it) {
+                if (char(*it) != ' ') { //ignore empty spaces
+                    temp += dec.decode_shorthand_symbol (int(*it));
+                    //this converts the shorthand string into a binary string in temp
+                }
+            }
+        }
+    }
+    
+    Christoffel c;
+    c.SetWord (temp);
+    int wordlength = c.length_word ();
+    DList<Ratio>* rlist = new DList<Ratio>; // for Farey Seq
+    DList<Ratio>* patlist = new DList<Ratio>; // for filtered Farey Seq.
+    
+    for (int q = 1; q <= wordlength; q++) {
+        for (int i = 0; i < wordlength; i++) {
+            string word = c.burrows_wheeler_inverse_substring (q, i);
+            // perform farey filter and complexity measure
+            if (q > 1) {
+                int n = int(word.length());
+                CreateFareyPulses (n, rlist);
+                FilterFareyPulsesWithBinary (rlist, patlist, word);
+                DLink<Ratio>* rl = patlist->first ();
+                float ac = 0.f;
+                rl = patlist->first ();
+                float patlen = patlist->GetSize ();
+                for (; rl != NULL; rl = rl->next) {
+                    ac += rl->data->Indig_ab ();
+                }
+                cout << q << " " << i << " " << word << " ";
+                cout << "num beats: " << patlen << " density: " << (patlen/n) << " abs. impact: " << ac << " rel. impact: " << (ac/patlen);
+                cout << endl;
+                rlist->destroy ();
+                patlist->destroy ();
+            } else {
+                cout << q << " " << i << " " << word << endl;
+            }
+            //cout << c.word_to_rhythm_chunks3 (word) << endl;
+        }
+    }
+    rlist->destroy ();
+    delete rlist;
+    patlist->destroy ();
+    delete patlist;
 }
 
 void Modul::iBWTpathway (string shorthand, string filename) {
-    
+    //chunking -m bwtpath
     ifstream file (filename.c_str());
     string line;
     string cell;
@@ -3730,27 +3778,22 @@ void Modul::iBWTpathway (string shorthand, string filename) {
     }
     
     Decoder dec;
-    string shstring;
     string temp = "";
     if (atoi(shorthand.c_str()) == 0) {
         if (shorthand.find ("$") == string::npos) {
             for (string::iterator it=shorthand.begin(); it!=shorthand.end(); ++it) {
                 if (char(*it) != ' ') { //ignore empty spaces
-                    //cout << *it;
-                    //int code = dec.decode_shorthand_length (int(*it));
-                    //cout << "=" << code << ";"; //irow->append (new int(code));
                     temp += dec.decode_shorthand_symbol (int(*it));
+                    //this converts the shorthand string into a binary string in temp
                 }
             }
-            cout << endl;
         }
     }
     
     Christoffel c;
     c.SetWord (temp);
     int wordlength = c.length_word ();
-    //cout << shorthand << endl;
-    //" " << temp << " " << wordlength << endl;
+    //cout << shorthand << " " << temp << " " << wordlength << endl;
     int p = 10;
     Alea a;
     while (p-- > 0) {
@@ -3772,17 +3815,6 @@ void Modul::iBWTpathway (string shorthand, string filename) {
             a.Shuffle (wordlength);
         }
     }
-    
-    
-#if 0
-    int N = 10;
-    Alea a;
-    vector<int> v (a.Shuffle (N));
-    for (int i = 0; i < N; i++) {
-        cout << v[i] << " ";
-    }
-    cout << endl;
-#endif
 }
 
 void Modul::iBWTonBWTword (string bwtword) {
