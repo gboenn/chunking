@@ -3794,15 +3794,24 @@ void Modul::iBWTpathway (string shorthand, string filename) {
     c.SetWord (temp);
     int wordlength = c.length_word ();
     //cout << shorthand << " " << temp << " " << wordlength << endl;
+    int num_word_start_a = 0;
+    for (int i = 0; i < wordlength; i++) {
+        string word = c.burrows_wheeler_inverse_substring (1, i);
+        if (word[0] == 'b') { // we will ignore words that start with b
+            num_word_start_a = i;
+            break;
+        }
+    }
+    //cout << shorthand << " " << temp << " " << wordlength << " " << num_word_start_a << endl;
+    
     int p = 10;
     Alea a;
     while (p-- > 0) {
         cout << shorthand << endl;
-        vector<int> v (a.Shuffle (wordlength));
+        vector<int> v (a.Shuffle (num_word_start_a));
         int l = 0;
         for (vector<int>::iterator itr = bwtrows.begin(); itr != bwtrows.end(); ++itr, l++) {
-            if (l == wordlength) l = 0;
-            
+            if (l == num_word_start_a) l = 0;
             int kindex = *itr;
             if (kindex > -1 && kindex < wordlength) {
                 string word = c.burrows_wheeler_inverse_substring (kindex, v[l]);
@@ -3812,7 +3821,7 @@ void Modul::iBWTpathway (string shorthand, string filename) {
         cout << endl;
         int z = 100;
         while (z-- > 0) {
-            a.Shuffle (wordlength);
+            a.Shuffle (num_word_start_a);
         }
     }
 }
