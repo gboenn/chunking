@@ -566,25 +566,64 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     }
     
     if (ms == modulTable[knotenames]) {
+      if (args_obj[0].text[0] != '\0') {
         string s1 = args_obj[0].text;
         mdl.notenames2asciinames (s1);
+      }
+      else {
+	cout << "Usage: chunking -m notenames <string>" << endl;
+	cout << "Returns: ascii code for pitches as one character per pitch, useful for Burrows-Wheeler." << endl;
+	cout << "Returns also a list of MIDI note numbers." << endl; 
+	cout << "Example: chunking -m notenames 'C4 C#4 D4 D#4'" << endl;
+	cout << "c6d7" << endl;
+	cout << "60, 61, 62, 63" << endl;
+      }
+
     }
     
     if (ms == modulTable[knotes2midi]) {
+      if (args_obj[0].text[0] != '\0') {
         string s1 = args_obj[0].text;
         mdl.notenames2midinotes (s1);
+      }
+      else {
+	cout << "Usage: chunking -m notes2midi <file name>" << endl;
+	cout << "Input: Name of a text file containing lines of note names, for example:" << endl;
+	cout << "C4 C4 G4 G4 A4 A4 G4" << endl;
+	cout << "F4 F4 E4 E4 D4 D4 C4" << endl;
+	cout << "Output: Lines of comma-separated Midi note numbers, for example:" << endl;
+	cout << "60, 60, 67, 67, 69, 69, 67" << endl;
+	cout << "65, 65, 64, 64, 62, 62, 60" << endl;
+	cout << "After being saved as a file, the output can be used together with printphtases to merge the pitches with rhythmic phrases." << endl;
+      }
     }
     
     if (ms == modulTable[kbwtpath]) {
+      if (args_obj[1].text[0] != '\0') {
         string s1 = args_obj[0].text;
         string s2 = args_obj[1].text;
         mdl.iBWTpathway (s1, s2);
+      }
+      else {
+	cout << "Usage: chunking -m bwtpath <shorthand string> <file name>" << endl;
+	cout << "Input: 1. A string of rhythm shorthand, for example:" << endl;
+	cout << "'IXIIXIIIXX'" << endl;
+	cout << "Internally, the algorithm converts the shorthand into a word over the alphabet {a,b}, " << endl;
+	cout << "where 'a' represents a note onset, and 'b' represents inter-onset pulses" << endl;
+	cout << "2. A file containing a random list of row numbers of the inverse Burrows Wheeler (iBWT) matrix." << endl;
+	cout << "The iBWT matrix has as many rows as the word has characters." << endl;
+	cout << "An example file of row numbers may contain: 14, 10, 7, 5, 3, 1." << endl;
+      }
     }
     
     if (ms == modulTable[kbwtmatrix]) {
+      if (args_obj[0].text[0] != '\0') {
         string s1 = args_obj[0].text;
-        
         mdl.iBWTspecific (s1, 0, 0);
+      }
+      else {
+	cout << "Usage: chunking -m bwtmatrix <shorthand string>" << endl;
+      }
     }
     
 	for (int i = 0; i < MAXLINES; i++)
