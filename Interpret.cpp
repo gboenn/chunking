@@ -366,11 +366,14 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     {
         if (args_obj[0].text[0] != '\0' &&
             args_obj[1].text[0] != '\0' &&
-            args_obj[2].text[0] == '\0')
+            args_obj[3].text[0] == '\0')
         {
             string s1 = args_obj[0].text;
             string s2 = args_obj[1].text;
-            mdl.PrintPhrases (s1, s2);
+            float f1 = 90.f;
+            if (args_obj[2].text[0] != '\0')
+                f1 = atof(args_obj[2].text);
+            mdl.PrintPhrases (s1, s2, f1);
         } else if (args_obj[0].text[0] != '\0' &&
                    args_obj[1].text[0] == '\0')
         {

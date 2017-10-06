@@ -183,6 +183,7 @@ Modul::Modul( string filtyp, unsigned long chan, unsigned long samframs,
     default_pitch.push_back ("69");
     mel_matrix.push_back (default_pitch);
     
+    BPM = 90.;
 	LoadForms();
 } 
  
@@ -1877,7 +1878,7 @@ void Modul::WriteToLilyfile (ofstream& s, string pattern, bool init, bool finish
           //s << "\\midi {\\tempo 4 = 120 }" << endl << "}" << endl;
       } else {
           s << "\\layout {}" << endl;
-          s << "\\midi {\\tempo 4 = 120 }" << endl;
+          s << "\\midi {\\tempo 8 = " << BPM << " }" << endl;
       }
     s << "}" << endl;
     return;
@@ -2850,8 +2851,7 @@ void Modul::AnalysePhrases (string filename, int minbeat, int maxbeat) {
 }
 
 
-
-void Modul::PrintPhrases (string filename, string pitches) {
+void Modul::PrintPhrases (string filename, string pitches, float bpm) {
     
     ifstream file (filename.c_str());
     string line;
@@ -2879,7 +2879,8 @@ void Modul::PrintPhrases (string filename, string pitches) {
         cerr << "cannot write file: " << orcfile << endl;
     float onset = 0.f;
     //float onset_sentence = 0.f; float onset_phrase = 0.f;
-    float period = .22f;
+    float period = 60.f/bpm; //.22f;
+    BPM = bpm;
 
     while (file) {
         getline (file,line);
