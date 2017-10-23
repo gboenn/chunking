@@ -628,7 +628,18 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 	cout << "Usage: chunking -m bwtmatrix <shorthand string>" << endl;
       }
     }
-    
+
+    if (ms == modulTable[kdb]) {
+      if (args_obj[0].text[0] != '\0') {
+	string s1 = args_obj[0].text;
+	mdl.DB_search (s1);
+      }
+      else {
+	cout << "Usage: chunking -m db <search string in shorthand notation>" << endl;
+	cout << "The search string may contain '%' for extended search." << endl;
+      }
+    }
+
 	for (int i = 0; i < MAXLINES; i++)
 		args_obj[i].text[0] = '\0';
 

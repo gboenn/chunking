@@ -322,6 +322,7 @@ class Modul
     void WriteToCsoundScore2 (ofstream& s, string pattern, float* onset, float period);
 	void PrintSentenceStatement (ofstream& s, vector<float>* v, float* onset, float period, int instr);
     void PrintPhrases (string filename, string pitches, float bpm);
+    void PrintPolyPhrases (string filename, string pitches, float bpm);
     vector<vector<string> > GetPitches () { return mel_matrix; }
     void SetPitchLine (int i) { pitch_line = i; }
     int GetPitchLine () { return pitch_line; }
@@ -332,10 +333,8 @@ class Modul
         void iBWTspecific (string input, int k, int l);
         void iBWTpathway (string shorthand, string filename);
         void iBWTonBWTword (string bwtword);
-        
+	void DB_search (string searchstring);
 };
-
-
 
 class Decoder {
 private:

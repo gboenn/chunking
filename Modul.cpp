@@ -17,14 +17,14 @@
 #include "SubdivisionFilter.h"
 #include "Christoffel.h"
 #include <iostream>
-
+#include <sqlite3.h>
 
 #include "gc_switch_ssh.h"
 #if BOEHM_GC_SWITCH
 #define GC_THREADS
 //#include "gc/gc_alloc.h"
 #include "gc.h"
-//#include "gc_cpp.h"
+OA//#include "gc_cpp.h"
 inline void * operator new(size_t n) { return GC_malloc(n); }
 inline void operator delete(void *) {}
 inline void * operator new[](size_t n) { return GC_malloc(n); }
@@ -1403,7 +1403,7 @@ void Modul::LoadForms () {
 }
 
 void Modul::LoadBracelets () {
-//  ifstream file ("./text/bracelets.txt");
+
   ifstream file ("/usr/local/share/chunking/bracelets.txt");
   string line;
   string cell;
@@ -2466,7 +2466,6 @@ void Modul::BWT (string word) {
         }
     }
     cout << endl;
-    //fptr << endl;
 }
 
 void Modul::BWTmelodies (string word, int trans, string gestalt) {
@@ -3136,7 +3135,7 @@ void Modul::CompareCRhythms (int m, int n, int m2, int n2) {
     //remove duplicates:                                                                                                                              
     for(size_t i = 0; i < r1.size (); i++) {
       for(size_t j = 0; j < r1.size(); j++) {
-	if(r1[i] == r1[j] && i != j) {
+	if(!r1[i].compare(r1[j]) && i != j) {
 	  r1.erase(r1.begin()+j);
 	  j--;
 	}
@@ -3158,7 +3157,7 @@ void Modul::CompareCRhythms (int m, int n, int m2, int n2) {
 
     for(size_t i = 0; i < r2.size (); i++) {
       for(size_t j = 0; j < r2.size(); j++) {
-	if(r2[i] == r2[j] && i != j) {
+	if(!r2[i].compare(r2[j]) && i != j) {
 	  r2.erase(r2.begin()+j);
 	  j--;
 	}
@@ -3166,7 +3165,7 @@ void Modul::CompareCRhythms (int m, int n, int m2, int n2) {
     }
     
     for(size_t i = 0; i < r2.size (); i++) {
-      if (r1[i] == "") {
+      if (r2[i] == "") {
         r2.erase(r2.begin()+i);
 	i--;
       } 
@@ -3176,7 +3175,7 @@ void Modul::CompareCRhythms (int m, int n, int m2, int n2) {
     }
     cout << endl << "===" << endl;
 
-    cout << (r1.size ()) << " " << (r2.size()) << endl << "------------" << endl;
+    //cout << (r1.size ()) << " " << (r2.size()) << endl << "------------" << endl;
     c_num_elem += r1.size ();
     c2_num_elem += r2.size ();
 
@@ -3206,15 +3205,15 @@ void Modul::CompareCRhythms (int m, int n, int m2, int n2) {
 
   cout << "There are " << c_num_elem << " unique elements in C(" << m << "/" << n << ") from sub-string size 2 to " <<  limit << endl;
   float c_perc = float(c_num_elem) / (float(limit - 1) * float(m+n));
-  cout << (c_perc * 100.f) << " \%" << endl;
+  //cout << (c_perc * 100.f) << " \%" << endl;
   cout << "There are " << c2_num_elem << " unique elements in C(" << m2 << "/" << n2 << ") from sub-string size 2 to " <<  limit << endl;
   float c2_perc = float(c2_num_elem) / (float(limit - 1) * float(m2+n2));
-  cout << (c2_perc * 100.f) << " \%" << endl;
+  //cout << (c2_perc * 100.f) << " \%" << endl;
   cout << "There are " << intersection_elem << " common elements." << endl;
   c_perc = float(intersection_elem) / (float(limit - 1) * float(m+n));
-  cout << (c_perc * 100.f) << " \% of C(" << m << "/" << n << ") from sub-string size 2 to " <<  limit << endl;
+  //cout << (c_perc * 100.f) << " \% of C(" << m << "/" << n << ") from sub-string size 2 to " <<  limit << endl;
   c2_perc = float(intersection_elem) / (float(limit - 1) * float(m2+n2));
-  cout << (c2_perc * 100.f) << " \% of C(" << m2 << "/" << n2 << ") from sub-string size 2 to " <<  limit << endl;
+  //cout << (c2_perc * 100.f) << " \% of C(" << m2 << "/" << n2 << ") from sub-string size 2 to " <<  limit << endl;
 
   cout << "Ratio of the number of common elements over the unique elements in C(" << m << "/" << n << "): " << (float(intersection_elem)/float(c_num_elem)) << endl;
   cout << "Ratio of the number of common elements over the unique elements in C(" << m2 << "/" << n2 << "): " << (float(intersection_elem)/float(c2_num_elem)) << endl;
@@ -3828,9 +3827,229 @@ void Modul::iBWTpathway (string shorthand, string filename) {
 }
 
 void Modul::iBWTonBWTword (string bwtword) {
-    
+// performs an iBWT process on an input word over the alphabet A={a,b}
 }
 
+void Modul::PrintPolyPhrases (string filename, string pitches, float bpm) {
+// like PrintPhrases, but creating polyphonic scores
 
+    ifstream file (filename.c_str());
+    string line;
+    string cell;
+    
+    DList<DList<string> >* smatrix;
+    DList<DList<int> >* imatrix;
+    DList<string>* cmatrix;
+    DList<string>* srow;
+    DList<int>* irow;
+    
+    DList<string>* shorthand_matrix;
+    
+    smatrix = new DList<DList<string> >;
+    imatrix = new DList<DList<int> >;
+    cmatrix = new DList<string>;
+    
+    shorthand_matrix = new DList<string>;
+    
+    //output of csound score file
+    ofstream fptr2;
+    string orcfile = "print_phrase.sco";
+    fptr2.open (orcfile.c_str(), ios_base::out );
+    if (!fptr2)
+        cerr << "cannot write file: " << orcfile << endl;
+    float onset = 0.f;
+    //float onset_sentence = 0.f; float onset_phrase = 0.f;
+    float period = 60.f/bpm; //.22f;
+    BPM = bpm;
+    
+    while (file) {
+        getline (file,line);
+        stringstream lineStream (line);
+        srow = new DList<string>;
+        while (getline( lineStream, cell, '\t')) {
+            srow->append(new string(cell.c_str()));
+        }
+        if( srow->GetSize() ) {
+            smatrix->append (srow);
+        } else {
+            srow->destroy ();
+            delete srow;
+        }
+    }
+    
+    Decoder* dec = new Decoder;
+    
+    //dec->printmap ();
+    
+    DLink<DList<string> >* slink = smatrix->first ();
+    
+    for (; slink!= NULL; slink = slink->next) {
+        int fn = slink->data->GetSize ();
+        if (fn > 0) {
+            DLink<string>* rowlink = slink->data->first ();
+            string test;
+            string shstring;
+            string temp = "";
+            if (atoi(rowlink->data->c_str()) == 0) {
+                if (rowlink->data->find ("$") == string::npos) {
+                    //if (rowlink->data->find ("S"))
+                    // create a new staff in lilypond, score output for csound with start time reset to 0
+                    irow = new DList<int>;
+                    for (; rowlink != NULL; rowlink	= rowlink->next) {
+                        string cur = *rowlink->data;
+                        test += cur;
+                        shstring += (cur + " ");
+                        if (atoi(cur.c_str()) == 0) {
+                            for ( string::iterator it=cur.begin(); it!=cur.end(); ++it) {
+                                if (char(*it) != ' ') { //ignore empty spaces
+                                    cout << *it;
+                                    int code = dec->decode_shorthand_length (int(*it));
+                                    irow->append (new int(code));
+                                    temp += dec->decode_shorthand_symbol (int(*it));
+                                }
+                            }
+                            cout << " | ";
+                        }
+                    }
+                    imatrix->append (irow);
+                    shorthand_matrix->append(new string(shstring));
+                    cmatrix->append (new string(temp));
+                }
+            }
+        }
+    }
+    
+    cout << endl;
+    
+    DList<int>* durations = new DList<int>;
+    
+    mel_matrix.erase (mel_matrix.begin (), mel_matrix.end ());
+    // for loading melody lines  in midi pitch format, can be float for micro-tuning
+    LoadMelodyFromFile(pitches, mel_matrix);
+    // LoadMelodyFromFile needs modification to include to react on 'S' statement for new staff
+    
+    for (int i=0; i < int (mel_matrix.size()); i++) {
+        for (int j=0; j < int (mel_matrix.at(i).size()); j++) {
+            cout << mel_matrix.at(i).at(j) << " ";
+        }
+        cout << endl;
+    }
+    
+    DList<Ratio>* rlist = new DList<Ratio>;
+    DList<Ratio>* patlist = new DList<Ratio>;
+    DLink<string>* clink = cmatrix->first ();
+    DLink<string>* shlink = shorthand_matrix->first ();
+    int linecount = 0;
+    ofstream fptr;
+    string lilyfile = "print_phrase.ly";
+    fptr.open(lilyfile.c_str(), ios_base::out );
+    if( !fptr )
+        cerr << "cannot write file: " << lilyfile << endl;
+    fptr << "\\version \"2.18.2\"" << endl;
+    WriteToLilyfile (fptr, " ", true, false, false);
+    
+    for (; clink!= NULL; clink = clink->next, shlink = shlink->next, linecount++) {
+        if (linecount > (mel_matrix.size()-1)) linecount = 0;
+        SetPitchLine (linecount);
+        
+        //output of lilypond file
+        WriteToLilyfile (fptr, *shlink->data, false, false, false);
+        
+        //output to csound orc
+        WriteToCsoundScore2 (fptr2, *shlink->data, &onset, period);
+        
+        //cout << "shorthand " << *shlink->data << endl;
+        string cur = *clink->data;
+        //cout << "cmatrix " << cur << endl;
+        int count = 0;
+        for (string::iterator it=cur.begin(); it!=cur.end(); ++it) {
+            char test = *it;
+            if (test == '1') {
+                if (count > 0) {
+                    durations->append(new int(count));
+                    count = 1;
+                }
+                else {
+                    count++;
+                }
+            }
+            else {
+                count++;
+            }
+        }
+        durations->append(new int(count));
+        
+        durations->destroy ();
+        rlist->destroy ();
+        patlist->destroy ();
+    }
+    WriteToLilyfile (fptr, " ", false, true, false);
+    
+    smatrix->destroy ();
+    delete smatrix;
+    imatrix->destroy ();
+    delete imatrix;
+    cmatrix->destroy ();
+    delete cmatrix;
+    rlist->destroy ();
+    delete rlist;
+    durations->destroy ();
+    delete durations;
+    patlist->destroy ();
+    delete patlist;
+    shorthand_matrix->destroy ();
+    delete shorthand_matrix;
 
+}
+
+void Modul::DB_search (string searchstring) {
+
+  sqlite3 *rhy;
+  int db_err;
+
+  db_err = sqlite3_open("/usr/local/share/chunking/rhy.db", &rhy);
+
+  if (db_err) {
+    fprintf (stderr, "Error opening database: %s\n", sqlite3_errmsg(rhy));
+  } 
+
+  //string searchstring = "%XI%";
+
+  sqlite3_stmt *statement;
+
+  string sql = "PRAGMA case_sensitive_like = true";
+  if (sqlite3_prepare (rhy, sql.c_str(), -1, &statement, 0) != SQLITE_OK) {
+    cerr << "error when setting case_sensitive_like = true." << endl;
+    sqlite3_close (rhy);
+    return;
+  }
+
+  sql = "SELECT pattern, name FROM rhythm WHERE pattern LIKE '" + searchstring + "'";
+
+  if (sqlite3_prepare (rhy, sql.c_str(), -1, &statement, 0) == SQLITE_OK) {
+    //int ctotal = sqlite3_column_count (statement);
+      int res = 0;
+      while (1) {
+	res = sqlite3_step(statement);
+	if (res == SQLITE_ROW) {
+	  string rhythm = (char*)sqlite3_column_text(statement, 0);
+	  string name = (char*)sqlite3_column_text(statement, 1);
+	  cout << "$ " << name << endl;
+	  cout << rhythm << endl;
+#if 0
+	  for (int i = 0; i < ctotal; i++) {
+	    string s = (char*)sqlite3_column_text(statement, i);
+	    cout << s << " " ;
+	  }
+	  cout << endl;
+#endif
+	}
+	if (res == SQLITE_DONE || res==SQLITE_ERROR) {
+	  break;
+	}    
+      }
+  }
+
+  sqlite3_close (rhy);
+}
 

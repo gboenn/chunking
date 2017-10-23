@@ -29,15 +29,16 @@ CFLAGS = -g -O0 -Wall
 PROFILER =
 TARGETS = chunking
 #LIBPTHREADS = -lpthreads -framework Cocoa
-INCLUDES =
 LIBGC =
+SQLITE = -lsqlite3
+INCLUDES = 
 
 .PHONY: install uninstall
 
 all: $(TARGETS)
 
 chunking: $(OBJS) $(HDRS)
-	$(CC) $(PROFILER) $(OBJS) $(LIBGC) -o chunking
+	$(CC) $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) -o chunking
 
 clean:
 	rm -f $(TARGETS) $(OBJS)
@@ -61,6 +62,7 @@ install:
 	cp ./text/growth.txt /usr/local/share/chunking/
 	cp ./text/decrease.txt /usr/local/share/chunking/
 	cp ./text/bracelets.txt /usr/local/share/chunking/
+	cp rhy.db /usr/local/share/chunking/
 
 uninstall:
 	rm /usr/local/bin/chunking
