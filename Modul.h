@@ -287,7 +287,7 @@ class Modul
 		void DisplayDatabase ();
 		DLink<float>* GetPulSeqFirst () {return real_pulseq->first (); }
 	
-		void AnalysePhrases (string filename, int minbeat, int maxbeato);
+		void AnalysePhrases (string filename, int minbeat, int maxbeat, int bwt_out_flag);
 		void FilterFareyPulsesWithBinary (DList<Ratio>* rlist, DList<Ratio>* patlist, string pattern);
 		void CreateFareyPulses (int n, DList<Ratio>* rlist) ;
         void PrintFareySeq (int n);
@@ -334,6 +334,11 @@ class Modul
         void iBWTpathway (string shorthand, string filename);
         void iBWTonBWTword (string bwtword);
 	void DB_search (string searchstring);
+        void DB_insert_from_file (string filename, string patname, string origin, string composer);
+        void extract_from_analysephrases_output (string filename);
+        void Shortening (string rhythm);
+        void ShorteningProcess (string rhythm);
+        void Jumping (string rhythm, int n, int k);
 };
 
 class Decoder {
@@ -1233,6 +1238,7 @@ public:
 				Set(-3);
 				break;
 			default:
+                code = "";
 				return code;
 		}	
 		return code;

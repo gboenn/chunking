@@ -341,20 +341,22 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 		if (args_obj[0].text[0] != '\0' &&
             args_obj[1].text[0] != '\0' &&
             args_obj[2].text[0] != '\0' &&
-            args_obj[3].text[0] == '\0')
+            args_obj[4].text[0] == '\0')
 	    {
 			string s1 = args_obj[0].text;
             int i2 = atoi (args_obj[1].text);
             int i3 = atoi (args_obj[2].text);
-            
-			mdl.AnalysePhrases (s1, i2, i3);
+            int i4 = 1; // default is to print the ibwt matrix to the shell
+            if (args_obj[3].text[0] != '\0')
+                i4 = atoi (args_obj[3].text);
+			mdl.AnalysePhrases (s1, i2, i3, i4);
         } else if (args_obj[0].text[0] != '\0' &&
                    args_obj[1].text[0] == '\0')
         {
             string s1 = args_obj[0].text;
             int i2 = 1;
             int i3 = 1000;
-            mdl.AnalysePhrases (s1, i2, i3);
+            mdl.AnalysePhrases (s1, i2, i3, 1);
             
         } else {
             cerr << "usage: chunking -m anaphrases <shorthand.txt>" << endl;
@@ -597,7 +599,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 	cout << "Output: Lines of comma-separated Midi note numbers, for example:" << endl;
 	cout << "60, 60, 67, 67, 69, 69, 67" << endl;
 	cout << "65, 65, 64, 64, 62, 62, 60" << endl;
-	cout << "After being saved as a file, the output can be used together with printphtases to merge the pitches with rhythmic phrases." << endl;
+	cout << "After being saved as a file, the output can be used together with printphrases to merge the pitches with rhythmic phrases." << endl;
       }
     }
     
@@ -620,26 +622,92 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     }
     
     if (ms == modulTable[kbwtmatrix]) {
-      if (args_obj[0].text[0] != '\0') {
+      if (args_obj[0].text[0] != '\0' &&
+          args_obj[1].text[0] == '\0') {
         string s1 = args_obj[0].text;
         mdl.iBWTspecific (s1, 0, 0);
       }
-      else {
-	cout << "Usage: chunking -m bwtmatrix <shorthand string>" << endl;
+      else if (args_obj[0].text[0] != '\0' &&
+               args_obj[1].text[0] != '\0') {
+          string s1 = args_obj[0].text;
+          int i1 = atoi(args_obj[1].text);
+          mdl.iBWTspecific (s1, i1, 0);
+      }
+    else{
+        cout << "Usage: chunking -m bwtmatrix <shorthand string>" << endl;
+        cout << "Usage: chunking -m bwtmatrix <shorthand string> <integer: length>" << endl;
       }
     }
 
     if (ms == modulTable[kdb]) {
       if (args_obj[0].text[0] != '\0') {
-	string s1 = args_obj[0].text;
-	mdl.DB_search (s1);
+          string s1 = args_obj[0].text;
+          mdl.DB_search (s1);
       }
       else {
-	cout << "Usage: chunking -m db <search string in shorthand notation>" << endl;
-	cout << "The search string may contain '%' for extended search." << endl;
+          cout << "Usage: chunking -m db <search string in shorthand notation>" << endl;
+          cout << "The search string may contain '%' for extended search." << endl;
       }
     }
+    
+    if (ms == modulTable[kdb_insert]) {
+        if (args_obj[0].text[0] != '\0' &&
+            args_obj[3].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            string s2 = args_obj[1].text;
+            string s3 = args_obj[2].text;
+            string s4 = args_obj[3].text;
+            mdl.DB_insert_from_file (s1,s2,s3,s4);
+        }
+        else {
+            cout << "Usage: chunking -m dbinsert <filename> <name> <origin> <composer>" << endl;
+            cout << "File containing shorthand notation. One line creates new entry in the table rhythm of rhy.db." << endl;
+        }
+    }
+    
+    if (ms == modulTable[kextract]) {
+        if (args_obj[0].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            mdl.extract_from_analysephrases_output (s1);
+        }
+        else {
+            cout << "Usage: chunking -m extract_local_comp <filename>" << endl;
+        }
+        
+    }
 
+    if (ms == modulTable[kshortening]) {
+        if (args_obj[0].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            mdl.Shortening (s1);
+        }
+        else {
+            cout << "Usage: chunking -m shortening <shorthand string>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[ksproc]) {
+        if (args_obj[0].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            mdl.ShorteningProcess (s1);
+        }
+        else {
+            cout << "Usage: chunking -m sproc <shorthand string>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[kjump]) {
+        if (args_obj[2].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            int i1 = atoi (args_obj[1].text);
+            int i2 = atoi (args_obj[2].text);
+            mdl.Jumping (s1, i1, i2);
+        }
+        else {
+            cout << "Usage: chunking -m jump <shorthand string> <n_symbols int> <k_times int>" << endl;
+        }
+    }
+    
 	for (int i = 0; i < MAXLINES; i++)
 		args_obj[i].text[0] = '\0';
 

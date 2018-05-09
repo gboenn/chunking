@@ -259,7 +259,7 @@ void Modul::FareyToBinaryRhythm (int farey_index, int dig, int flag) {
 		//s2_3_5,
 		//s2_3_5_7,
 		SmoothFilter* sf = new SmoothFilter; 
-		sf->SetFilterVal (s2_3);
+		sf->SetFilterVal (s2_3_5);
 		Visitor* v = sf;
 		afar->Accept (*v); 
 		afar->SetFareySeq (sf->GetRatioList ()); // override Ratio list in Farey object
@@ -2507,6 +2507,13 @@ void Modul::BWTmelodies (string word, int trans, string gestalt) {
     }
     cout << endl;
     */
+    cout << "Original:" << endl;
+    string original = "";
+    for (vector<int>::iterator it=pitches.begin() ; it!=pitches.end(); ++it) {
+      original += char(dec->midi_to_asciipitch(*it));
+      cout << *it << " = " << char(dec->midi_to_asciipitch(*it)) << ", ";
+    }
+    cout << endl;
     cout << "Inversion:" << endl;
     int count = pitches.size(); string inversion = "";
     int cur = pitches[0]; int i=1;
@@ -2542,6 +2549,9 @@ void Modul::BWTmelodies (string word, int trans, string gestalt) {
     }
     if (gestalt == "q") {
         word = inv_retrograde;
+    }
+    if (gestalt == "g") {
+      word = original;
     }
     //word = inversion;
     //word = retrograde;
@@ -2581,7 +2591,7 @@ void Modul::BWTmelodies (string word, int trans, string gestalt) {
     delete dec;
 }
 
-void Modul::AnalysePhrases (string filename, int minbeat, int maxbeat) {
+void Modul::AnalysePhrases (string filename, int minbeat, int maxbeat, int bwt_out_flag) {
 	ifstream file (filename.c_str());
 	string line;
 	string cell;
@@ -2675,7 +2685,7 @@ void Modul::AnalysePhrases (string filename, int minbeat, int maxbeat) {
 
 			int ncur = 0;
 			for (; rowlink->next != NULL; rowlink = rowlink->next) {
-                cout << *rowlink->data << ",";
+                //cout << *rowlink->data << ",";
                 int cur = *rowlink->data;
                 ncur = *rowlink->next->data;
                 if (ncur == -2) ncur = -1;
@@ -2689,7 +2699,7 @@ void Modul::AnalysePhrases (string filename, int minbeat, int maxbeat) {
                 }
             }
 			if (ncur > 0) durations->append (new int(ncur));
-			cout << ncur << endl;
+			//cout << ncur << endl;
 			DLink<int>* durs = durations->first ();
 			for (; durs != NULL; durs = durs->next) {
 			  cout << *durs->data << " ";
@@ -2761,11 +2771,13 @@ void Modul::AnalysePhrases (string filename, int minbeat, int maxbeat) {
 	  cout << endl;
 	  durations->destroy ();
 
-        cout << "BWT of input" << endl;
+        if (bwt_out_flag)
+            cout << "BWT of input" << endl;
         Christoffel c;
         c.SetWord (cur);
         c.SetMinMaxBeatCount (minbeat, maxbeat);
-        c.display_all ();
+        if (bwt_out_flag)
+            c.display_all ();
         vector<string> shorthand = c.GetShorthand ();
         vector<string> sh2;
         //remove duplicates:
@@ -3712,6 +3724,13 @@ void Modul::notenames2midinotes (string filename) {
 
 void Modul::iBWTspecific (string input, int k, int l) {
     
+    // output shorthand strings to text file
+    ofstream fptrt;
+    string textsfile = "ibwt_" + to_string(k) + ".txt";
+    fptrt.open (textsfile.c_str(), ios_base::out);
+    if (!fptrt)
+        cerr << "cannot write file: " << textsfile << endl;
+    
     Decoder dec;
     string temp = "";
     if (atoi(input.c_str()) == 0) {
@@ -3749,6 +3768,11 @@ void Modul::iBWTspecific (string input, int k, int l) {
                 cout << q << " " << i << " " << word << " ";
                 cout << "num beats: " << patlen << " density: " << (patlen/n) << " abs. impact: " << ac << " rel. impact: " << (ac/patlen);
                 cout << endl;
+                if (q == k) {
+                    fptrt << (c.word_to_rhythm_chunks3 (word)) << endl;
+                } else if (k == 0) {
+                    fptrt << (c.word_to_rhythm_chunks3 (word)) << endl;
+                }
                 rlist->destroy ();
                 patlist->destroy ();
             } else {
@@ -3757,6 +3781,7 @@ void Modul::iBWTspecific (string input, int k, int l) {
             //cout << c.word_to_rhythm_chunks3 (word) << endl;
         }
     }
+    fptrt.close ();
     rlist->destroy ();
     delete rlist;
     patlist->destroy ();
@@ -4002,6 +4027,71 @@ void Modul::PrintPolyPhrases (string filename, string pitches, float bpm) {
 
 }
 
+void Modul::DB_insert_from_file (string filename, string patname, string origin, string composer) {
+    
+    srand (time(NULL));
+    //int rnum = rand();
+    
+    sqlite3 *rhy;
+    int db_err;
+    
+    db_err = sqlite3_open("/usr/local/share/chunking/rhy.db", &rhy);
+    
+    if (db_err) {
+        fprintf (stderr, "Error opening database: %s\n", sqlite3_errmsg(rhy));
+    }
+    
+    string sql;
+    char *err_msg = 0;
+    
+    /*
+     /// code for creating a table with a random name
+    char tn [64];
+    sprintf (tn, "r_%d", rnum);
+    string tablename = tn;
+    char *err_msg = 0;
+    
+    sql = "CREATE TABLE " + tablename + " (pattern TEXT, name TEXT, origin TEXT, composer TEXT);";
+    cout << sql << endl;
+    
+    int rc = sqlite3_exec(rhy, sql.c_str(), 0, 0, &err_msg);
+    
+    if (rc != SQLITE_OK) {
+        cerr << "error " << err_msg << "when creating new table " << tablename << "." << endl;
+        sqlite3_close (rhy);
+        return;
+    }
+    */
+    
+
+    /// read file, and insert data into table rhythm
+    
+    ifstream file (filename.c_str());
+    string line;
+    
+    while (file) {
+        getline (file,line);
+        // ignore line with comments
+        if (line != "") {
+            if (line.find ("$") == string::npos) {
+                cout << line << endl;
+                string sql = "INSERT INTO rhythm VALUES (\"" + line + "\", \"" + patname + "\", \"" + origin + "\", \"" + composer + "\"); ";
+                cout << sql << endl;
+                int rc = sqlite3_exec(rhy, sql.c_str(), 0, 0, &err_msg);
+                if (rc != SQLITE_OK) {
+                    cerr << "error " << err_msg << " when inserting into table rhythm." << endl;
+                    sqlite3_close (rhy);
+                    return;
+                }
+            }
+        }
+    }
+
+    // close db
+    sqlite3_close (rhy);
+
+}
+
 void Modul::DB_search (string searchstring) {
 
   sqlite3 *rhy;
@@ -4024,18 +4114,21 @@ void Modul::DB_search (string searchstring) {
     return;
   }
 
-  sql = "SELECT pattern, name FROM rhythm WHERE pattern LIKE '" + searchstring + "'";
-
+  sql = "SELECT pattern, name, origin, composer FROM rhythm WHERE pattern LIKE '" + searchstring + "'";
+    int countrow = 0;
   if (sqlite3_prepare (rhy, sql.c_str(), -1, &statement, 0) == SQLITE_OK) {
     //int ctotal = sqlite3_column_count (statement);
       int res = 0;
       while (1) {
-	res = sqlite3_step(statement);
-	if (res == SQLITE_ROW) {
-	  string rhythm = (char*)sqlite3_column_text(statement, 0);
-	  string name = (char*)sqlite3_column_text(statement, 1);
-	  cout << "$ " << name << endl;
-	  cout << rhythm << endl;
+          res = sqlite3_step(statement);
+          if (res == SQLITE_ROW) {
+              countrow++;
+              string rhythm = (char*)sqlite3_column_text(statement, 0);
+              string name = (char*)sqlite3_column_text(statement, 1);
+              string origin = (char*)sqlite3_column_text(statement, 2);
+              string composer = (char*)sqlite3_column_text(statement, 3);
+              cout << "$ " << name << " " << origin << " " << composer << " " << countrow << endl;
+              cout << rhythm << endl;
 #if 0
 	  for (int i = 0; i < ctotal; i++) {
 	    string s = (char*)sqlite3_column_text(statement, i);
@@ -4043,13 +4136,97 @@ void Modul::DB_search (string searchstring) {
 	  }
 	  cout << endl;
 #endif
-	}
-	if (res == SQLITE_DONE || res==SQLITE_ERROR) {
-	  break;
-	}    
+          }
+          if (res == SQLITE_DONE || res==SQLITE_ERROR) {
+              break;
+          }
       }
   }
 
   sqlite3_close (rhy);
+}
+
+void Modul::extract_from_analysephrases_output (string filename) {
+    ifstream file (filename.c_str());
+    string line;
+    
+    while (file) {
+        getline (file,line);
+        if (line.find ("n: ") != string::npos || line.find ("ANTI") != string::npos) {
+            cout << line << endl;
+        }
+    }
+    
+}
+
+void Modul::Shortening (string rhythm) {
+    string copy_rhythm = rhythm;
+    cout << "$ cycling through " << rhythm << endl;
+    while (!rhythm.empty ()) {
+        cout << rhythm << endl;
+        rhythm.pop_back ();
+    }
+    rhythm = copy_rhythm;
+    cout << "$ from the front of" << rhythm << endl;
+    while (!rhythm.empty ()) {
+        cout << rhythm << endl;
+        reverse(rhythm.begin (), rhythm.end ());
+        rhythm.pop_back ();
+        reverse(rhythm.begin (), rhythm.end ());
+    }
+  
+}
+
+void Modul::ShorteningProcess (string rhythm) {
+    int count = 0;
+    vector<string> seq;
+    string copy_rhythm = rhythm;
+    cout << "$ cycling through " << rhythm << endl;
+    while (!rhythm.empty ()) {
+        ++count;
+        cout << rhythm << endl;
+        seq.push_back(rhythm);
+        rhythm.pop_back ();
+    }
+    vector<string> seq2;
+    rhythm = copy_rhythm;
+    cout << "$ from the front of " << rhythm << endl;
+    while (!rhythm.empty ()) {
+        cout << rhythm << endl;
+        seq2.push_back(rhythm);
+        reverse(rhythm.begin (), rhythm.end ());
+        rhythm.pop_back ();
+        reverse(rhythm.begin (), rhythm.end ());
+    }
+    cout << "$ interleaved backwards of " << rhythm << endl;
+    while (--count > 0) {
+        cout << *(seq2.end ()) << endl;
+        seq.pop_back ();
+        cout << *(seq.end ()) << endl;
+        seq2.pop_back ();
+    }
+    
+}
+
+void Modul::Jumping (string rhythm, int n, int k) {
+    size_t rlen = rhythm.length ();
+    string output = rhythm;
+    if (n > int(rlen)) {
+        n = rlen;
+        int i = 0;
+        for (; i < k; i++) {
+            output += '\n';
+            output += rhythm;
+        }
+    }
+    else {
+        int i = 0;
+        for (; i < k; i++) {
+            output += '\n';
+            output += rhythm.substr(rlen-n, n);
+        }
+    }
+    cout << "$ jumping needle for " << k << " times the last " << n << " symbols." << endl;
+    cout << output << endl;
 }
 

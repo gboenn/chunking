@@ -149,6 +149,11 @@ enum
     kbwtpath,
     kbwtmatrix,
 	kdb,
+    kdb_insert,
+    kextract,
+    kshortening,
+    ksproc,
+    kjump,
 	kNumModules
 };	
 
@@ -289,7 +294,12 @@ static const char* modulTable[kNumModules] =
     "notes2midi",
     "bwtpath",
 	"bwtmatrix",
-	"db"
+	"db",
+    "dbinsert",
+    "extract_local_comp",
+    "shortening",
+    "sproc",
+    "jump"
     };
 
 #endif
