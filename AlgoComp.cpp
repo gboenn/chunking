@@ -348,23 +348,23 @@ double Digest (int enteger)
     int exponent = 0; 
     while( i < MAX_PRIMES ) 
     { 
-	int prime = primes[i];
-	if (enteger == prime) 
-	{ 
-	    result += (((prime - 1)*(prime - 1)) / double (prime)); 
-	    return (result * 2.); 
-	} 
-	while (!(enteger % prime)) 
-	{ 
-	    exponent++; 
-	    enteger /= prime; 
-	} 
-	if (exponent) 
-	{
-	    result += (exponent * (((prime - 1)*(prime - 1)) / double (prime)));
-	} 
-	i++; 
-	exponent = 0; 
+        int prime = primes[i];
+        if (enteger == prime)
+        {
+            result += (((prime - 1)*(prime - 1)) / double (prime));
+            return (result * 2.);
+        }
+        while (!(enteger % prime))
+        {
+            exponent++;
+            enteger /= prime;
+        }
+        if (exponent)
+        {
+            result += (exponent * (((prime - 1)*(prime - 1)) / double (prime)));
+        }
+        i++;
+        exponent = 0;
     } 
     return (result * 2.); 
 } 
@@ -982,22 +982,22 @@ void float_to_cfrac ( double r, int n, int a[], int p[], int q[] )
     return; 
   } 
  
-//  x = new double[n+1]; 
- 
-  r_copy = fabs ( r ); 
+  r_copy = fabs ( r ); // the absolute value of r
  
   p[0] = 1; 
   q[0] = 0; 
  
-  p[1] = ( int ) r_copy; 
+  p[1] = ( int ) r_copy; // the floor of the abs value of r
   q[1] = 1; 
-  x[0] = r_copy; 
-  a[0] = ( int ) x[0]; 
+  x[0] = r_copy; // the absolute value of r
+  a[0] = ( int ) x[0]; // the floor of the abs value of r
  
   for ( i = 1; i <= n; i++ ) 
   { 
-    x[i] = 1.0E+00 / ( x[i-1] - ( double ) a[i-1] ); 
-    a[i] = ( int ) x[i]; 
+    x[i] = 1.0E+00 / ( x[i-1] - ( double ) a[i-1] );
+// ^^^^ first time (i=1) this is 1. / (the abs val of r - the floor of the abs val of r)
+      // i.e. the positive decimal part
+    a[i] = ( int ) x[i]; // this is now the floor of the above
     p[i+1] = a[i] * p[i] + p[i-1]; 
     q[i+1] = a[i] * q[i] + q[i-1]; 
   } 
@@ -1009,13 +1009,6 @@ void float_to_cfrac ( double r, int n, int a[], int p[], int q[] )
       p[i] = -p[i]; 
     } 
   } 
- #if 0
-  for ( i = 1; i <= n; i++ ) 
-  {
-      if (&x[i] != NULL)
-	  delete &x[i]; 
-  }
-#endif
 
   return; 
 } 
