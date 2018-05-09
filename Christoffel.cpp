@@ -6,7 +6,7 @@
 //
 //
 
-#include "christoffel.h"
+#include "Christoffel.h"
 
 
 string Christoffel::CheckWord (string input) {
