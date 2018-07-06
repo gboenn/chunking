@@ -154,6 +154,9 @@ enum
     kshortening,
     ksproc,
     kjump,
+    kmutate,
+    kswap,
+    ksilence,
 	kNumModules
 };	
 
@@ -299,7 +302,10 @@ static const char* modulTable[kNumModules] =
     "extract_local_comp",
     "shortening",
     "sproc",
-    "jump"
+    "jump",
+    "mutate",
+    "swap",
+    "silence"
     };
 
 #endif

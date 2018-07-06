@@ -708,6 +708,40 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         }
     }
     
+    if (ms == modulTable[kmutate]) {
+        if (args_obj[1].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            int i1 = atoi (args_obj[1].text);
+            mdl.Mutation (s1, i1);
+        }
+        else {
+            cout << "Usage: chunking -m mutate <shorthand string> <k_times int>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[kswap]) {
+        if (args_obj[1].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            int i1 = atoi (args_obj[1].text);
+            mdl.Swap (s1, i1);
+        }
+        else {
+            cout << "Usage: chunking -m swap <shorthand string> <k_times int>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[ksilence]) {
+        if (args_obj[2].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            int i1 = atoi (args_obj[1].text);
+            int i2 = atoi (args_obj[2].text);
+            mdl.Silence (s1, i1, i2);
+        }
+        else {
+            cout << "Usage: chunking -m silence <shorthand string> <from_pos int> <to_pos int>" << endl;
+        }
+    }
+    
 	for (int i = 0; i < MAXLINES; i++)
 		args_obj[i].text[0] = '\0';
 

@@ -339,6 +339,9 @@ class Modul
         void Shortening (string rhythm);
         void ShorteningProcess (string rhythm);
         void Jumping (string rhythm, int n, int k);
+        string Mutation (string rhythm, int n);
+        string Swap (string rhythm, int n);
+        string Silence (string rhythm, int n, int k);
 };
 
 class Decoder {

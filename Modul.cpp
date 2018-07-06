@@ -32,6 +32,7 @@ inline void operator delete[](void *) {}
 #endif
 
 #define END(array) (array + (sizeof (array) / sizeof (int)))
+#define REMOVE_SPACES(x) x.erase(remove(x.begin(), x.end(), ' '), x.end())
 
 TextIO t("run..."); 
 
@@ -1320,7 +1321,7 @@ void Modul::LoadForms () {
   int size = s.size();
   vector<float>* b =  new vector<float>;
   for (; k < size; k++) {
-    fstream file (s[k].c_str());
+      fstream file (s[k].c_str(), fstream::in);
     if (!file)
       cout << "error with files in LoadForms." << endl;
     //    cout << file << " " << s[k] <<endl;
@@ -2456,16 +2457,19 @@ void Modul::BWT (string word) {
     int j = 1;
     for (; j <= len; j++) {
         string temp = c.burrows_wheeler_inverse2 (j);
-        cout << "$ Block #" << j << " " << temp << endl << endl;
-        fptr << "$ Block #" << j << " " << temp << endl << endl;
+        cout << "$ Block #" << j << " " << temp  << endl;
+        fptr << "$ Block #" << j << " " << temp  << endl;
         stringstream strs (temp);
         string pat;
+        
         while (getline (strs, pat, ',')) {
-            cout << pat << endl;
-            fptr << pat << endl;
+            REMOVE_SPACES(pat);
+            if (!pat.empty ()) {
+                cout << pat << endl;
+                fptr << pat << endl;
+            }
         }
     }
-    cout << endl;
 }
 
 void Modul::BWTmelodies (string word, int trans, string gestalt) {
@@ -2863,7 +2867,15 @@ void Modul::AnalysePhrases (string filename, int minbeat, int maxbeat, int bwt_o
 
 
 void Modul::PrintPhrases (string filename, string pitches, float bpm) {
-    
+    // add flag for deciding to print drum staff in lilypond
+    // write new method in Decoder class to translate MIDI pitches (GM drum map)
+    // to lilypond codes for drum set. Needs to modify AdvanceNote() with a flag
+    // plus a table in Decoder to store the lilypond codes
+    //mus = \drummode {
+    //    cymc cyms cymr hh hhc hho hhho hhp
+    //    cb hc bd sn ss tomh tommh tomml toml tomfh tomfl }
+    // other styles are possible with less lines on staff
+    // add flag to method WriteToLilyfile in order to call the new Decoder method
     ifstream file (filename.c_str());
     string line;
     string cell;
@@ -2876,11 +2888,11 @@ void Modul::PrintPhrases (string filename, string pitches, float bpm) {
     
     DList<string>* shorthand_matrix;
     
-    smatrix = new DList<DList<string> >;
-    imatrix = new DList<DList<int> >;
-    cmatrix = new DList<string>;
+    smatrix = new DList<DList<string> >; //contains the rhythm file line by line
+    imatrix = new DList<DList<int> >; // the lengths of the shorthand on one line as int
+    cmatrix = new DList<string>; // the binary code of the rhythm
     
-    shorthand_matrix = new DList<string>;
+    shorthand_matrix = new DList<string>; // the input line by line with filtered out comments
     
     //output of csound score file
     ofstream fptr2;
@@ -2918,31 +2930,33 @@ void Modul::PrintPhrases (string filename, string pitches, float bpm) {
         int fn = slink->data->GetSize ();
         if (fn > 0) {
             DLink<string>* rowlink = slink->data->first ();
-            string test;
+            //string test;
             string shstring;
             string temp = "";
             if (atoi(rowlink->data->c_str()) == 0) {
-                if (rowlink->data->find ("$") == string::npos) {
+                if (rowlink->data->find ("$") == string::npos) { // if the line does not start with a comment
                     irow = new DList<int>;
                     for (; rowlink != NULL; rowlink	= rowlink->next) {
                         string cur = *rowlink->data;
-                        test += cur;
+                        //test += cur;
                         shstring += (cur + " ");
                         if (atoi(cur.c_str()) == 0) {
                             for ( string::iterator it=cur.begin(); it!=cur.end(); ++it) {
                                 if (char(*it) != ' ') { //ignore empty spaces
                                     cout << *it;
                                     int code = dec->decode_shorthand_length (int(*it));
+                                    // stores the lengths of the shorthand symbol in pulses
                                     irow->append (new int(code));
-                                    temp += dec->decode_shorthand_symbol (int(*it));
+                                    temp += dec->decode_shorthand_symbol (int(*it)); //decodes
+                                    // into a string of binary code '1' = onset | '0' = rest
                                 }
                             }
                             cout << " | ";
                         }
                     }
-                    imatrix->append (irow);
-                    shorthand_matrix->append(new string(shstring));
-                    cmatrix->append (new string(temp));
+                    imatrix->append (irow); // the lengths of the shorthand on one line as int
+                    shorthand_matrix->append(new string(shstring)); // remember the input shorthand
+                    cmatrix->append (new string(temp)); // the binary code of the rhythm (line)
                 }
             }
         }
@@ -2963,11 +2977,10 @@ void Modul::PrintPhrases (string filename, string pitches, float bpm) {
         cout << endl;
     }
 
-    DList<Ratio>* rlist = new DList<Ratio>;
-    DList<Ratio>* patlist = new DList<Ratio>;
-    DLink<string>* clink = cmatrix->first ();
-    DLink<string>* shlink = shorthand_matrix->first ();
+    DLink<string>* clink = cmatrix->first (); // the binary code of the rhythm
+    DLink<string>* shlink = shorthand_matrix->first (); // the input shorthand line by line
     int linecount = 0;
+    // prepare lilypond file outpout
     ofstream fptr;
     string lilyfile = "print_phrase.ly";
     fptr.open(lilyfile.c_str(), ios_base::out );
@@ -2981,7 +2994,7 @@ void Modul::PrintPhrases (string filename, string pitches, float bpm) {
         SetPitchLine (linecount);
         
         //output of lilypond file
-        WriteToLilyfile (fptr, *shlink->data, false, false, false);
+        WriteToLilyfile (fptr, *shlink->data, false, false, true);
         
         //output to csound orc
         WriteToCsoundScore2 (fptr2, *shlink->data, &onset, period);
@@ -2989,12 +3002,15 @@ void Modul::PrintPhrases (string filename, string pitches, float bpm) {
         //cout << "shorthand " << *shlink->data << endl;
         string cur = *clink->data;
         //cout << "cmatrix " << cur << endl;
+        
+        // calculates and prints all durations in number of pulses
         int count = 0;
         for (string::iterator it=cur.begin(); it!=cur.end(); ++it) {
             char test = *it;
             if (test == '1') {
                 if (count > 0) {
                     durations->append(new int(count));
+                    cout << count << " ";
                     count = 1;
                 }
                 else {
@@ -3006,12 +3022,11 @@ void Modul::PrintPhrases (string filename, string pitches, float bpm) {
             }
         }
         durations->append(new int(count));
-        
+        cout << count << endl;
         durations->destroy ();
-        rlist->destroy ();
-        patlist->destroy ();
+        
     }
-    WriteToLilyfile (fptr, " ", false, true, false);
+    WriteToLilyfile (fptr, " ", false, true, true);
     
     smatrix->destroy ();
     delete smatrix;
@@ -3019,12 +3034,8 @@ void Modul::PrintPhrases (string filename, string pitches, float bpm) {
     delete imatrix;
     cmatrix->destroy ();
     delete cmatrix;
-    rlist->destroy ();
-    delete rlist;
     durations->destroy ();
     delete durations;
-    patlist->destroy ();
-    delete patlist;
     shorthand_matrix->destroy ();
     delete shorthand_matrix;
 }
@@ -4004,8 +4015,7 @@ void Modul::PrintPolyPhrases (string filename, string pitches, float bpm) {
         }
         durations->append(new int(count));
         
-        durations->destroy ();
-        rlist->destroy ();
+        durations->destroy ();        rlist->destroy ();
         patlist->destroy ();
     }
     WriteToLilyfile (fptr, " ", false, true, false);
@@ -4198,13 +4208,14 @@ void Modul::ShorteningProcess (string rhythm) {
         rhythm.pop_back ();
         reverse(rhythm.begin (), rhythm.end ());
     }
-    cout << "$ interleaved backwards of " << rhythm << endl;
+    cout << "$ interleaved backwards of " << copy_rhythm << endl;
     while (--count > 0) {
+        seq2.pop_back ();
         cout << *(seq2.end ()) << endl;
         seq.pop_back ();
         cout << *(seq.end ()) << endl;
-        seq2.pop_back ();
     }
+    cout << copy_rhythm << endl;
     
 }
 
@@ -4230,3 +4241,168 @@ void Modul::Jumping (string rhythm, int n, int k) {
     cout << output << endl;
 }
 
+string Modul::Mutation (string rhythm, int n) {
+    // random mutations, n = number of mutations
+    size_t rlen = rhythm.length ();
+    if (n > int(rlen)) {
+        n = rlen;
+    }
+    vector <int> mutpos;
+    srand (time(NULL));
+    int m = n;
+    while (--m >= 0) {
+        int r = rand() % rlen;
+        //cout << r;
+        mutpos.push_back(r);
+    }
+    int i = 0;
+    cout << "mutations at positions: ";
+    for (; i < n; i++) {
+        cout << mutpos.at(i) << ", ";
+    }
+    cout << endl;
+    string dual = "I:v";
+    int dual_length = dual.length ();
+    string ternary = "-iX><w";
+    int ternary_length = ternary.length ();
+    i = 0;
+    for (string::iterator it=rhythm.begin(); it!=rhythm.end(); ++it, i++) {
+        int k = 0;
+        int flag = 0;
+#if 1
+        for (; k < n; k++) {
+            if (i == mutpos.at(k)) {
+                flag = 1;
+                break;
+            }
+        }
+        if (flag) {
+            for (string::iterator it2=dual.begin(); it2!=dual.end(); ++it2) {
+                if (int(*it2) == int(*it)) {
+                    char c = *it;
+                    while (1) {
+                        c = dual[rand() % dual_length];
+                        if (int(c) != int(*it))
+                            break;
+                    }
+                    rhythm[i] = c;
+                    break;
+                }
+            }
+            for (string::iterator it2=ternary.begin(); it2!=ternary.end(); ++it2) {
+                if (int(*it2) == int(*it)) {
+                    char c = *it;
+                    while (1) {
+                        c = ternary[rand() % ternary_length];
+                        if (int(c) != int(*it))
+                            break;
+                    }
+                    rhythm[i] = c;
+                    break;
+                }
+            }
+        }
+#endif
+    }
+
+    cout << rhythm << endl;
+    return rhythm;
+}
+
+string Modul::Swap (string rhythm, int n) {
+    //random swap(s), n = number of swaps
+    size_t rlen = rhythm.length ();
+    vector <int> mutpos;
+    srand (time(NULL));
+    int m = n;
+    int lenm1 = rlen - 1;
+    while (--m >= 0) {
+        int r = rand() % lenm1;
+        mutpos.push_back(r);
+    }
+    int i = 0;
+    cout << "swapping at positions: ";
+    for (; i < n; i++) {
+        cout << mutpos.at(i) << ", ";
+    }
+    cout << endl;
+    for (i=0; i < n; i++) {
+        char c = rhythm[mutpos.at(i)];
+        rhythm[mutpos.at(i)] = rhythm[mutpos.at(i)+1];
+        rhythm[mutpos.at(i)+1] = c;
+        //cout << "swap at pos: " << i << endl;
+    }
+    
+    cout << rhythm << endl;
+    return rhythm;
+}
+
+string Modul::Silence (string rhythm, int n, int k) {
+    // renders a silence with symbols between pos n and k
+
+    // check whether there is already silence in the string
+    // if yes, then remove the brackets
+    int i = 0;
+    for (string::iterator it=rhythm.begin(); it!=rhythm.end(); ++it, i++) {
+        if (int(*it) == 40 || int(*it) == 41) // == '(' or ')'
+            rhythm.erase(rhythm.begin()+i);
+    }
+    // check boundaries and assert (n<k)
+    // k can be >= list length in which case the right bracket is simply appended
+    size_t rlen = rhythm.length ();
+    if (k == n) k++;
+    if (k < n) {
+        int t = n;
+        n = k;
+        k = t;
+    }
+    if (n < 0) n = 0;
+    if (n > rlen - 1) n = rlen - 1;
+    i = 0;
+    for (string::iterator it=rhythm.begin(); it!=rhythm.end(); ++it, i++) {
+        if (i == n)
+            rhythm.insert(it, '(');
+        if (i == k+1) // insert is always before index, and since we already inserted a char (n<k)...
+            rhythm.insert(it, ')');
+    }
+    if (k >= rlen)
+        rhythm.push_back(')'); // the above loop cannot go past the list
+    
+    cout << rhythm << endl;
+    return rhythm;
+}
+
+
+// pre-jump
+// like jump but with the first n characters repeated k times before full string
+
+// 1. random silence
+// 2. silence between first and last symbol
+// 3. silence but first
+// 4. silence but last
+
+// hourglass (shortening + reverse shortening)
+// tail (shortening)
+// river (reverse shortening)
+// barrel (reverse shortening + shortening)
+
+// mutation with change from ternary to binary, or vice versa
+
+// Modul::Fragment (string rhythm)
+// random fragment from string, no rotation (length of result != length of string)
+// prepend '#' assert that there is no '!'
+// if there is '!' replace with @ and flag replace @ after selection
+// pick random number n = {1 ... length_of_string-1}
+// perform bwt; go to block n
+// pick from block n random string not containing any '#'
+
+// Modul::Rotation (string rhythm)
+// random rotation preserving length of string
+// perform bwt; select random entry from last block != original string
+// no sorting required
+
+// Modul::FragmentRotation (string rhythm)
+// random fragment with rotation
+// choose random number n = {1 ... length_of_string}
+// perform bwt; select random entry from block n with entry != original string
+// no sorting required
