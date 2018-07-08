@@ -336,7 +336,7 @@ class Modul
 	void DB_search (string searchstring);
         void DB_insert_from_file (string filename, string patname, string origin, string composer);
         void extract_from_analysephrases_output (string filename);
-        void Shortening (string rhythm);
+        void Shortening (string rhythm, int flag);
         void ShorteningProcess (string rhythm);
         void Jumping (string rhythm, int n, int k, int flag);
         string Mutation (string rhythm, int n);

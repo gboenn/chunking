@@ -4168,22 +4168,24 @@ void Modul::extract_from_analysephrases_output (string filename) {
     
 }
 
-void Modul::Shortening (string rhythm) {
-    string copy_rhythm = rhythm;
-    cout << "$ cycling through " << rhythm << endl;
-    while (!rhythm.empty ()) {
-        cout << rhythm << endl;
-        rhythm.pop_back ();
+void Modul::Shortening (string rhythm, int flag) {
+    //string copy_rhythm = rhythm;
+    if (flag < 1) {
+        cout << "$ cycling through " << rhythm << endl;
+        while (!rhythm.empty ()) {
+            cout << rhythm << endl;
+            rhythm.pop_back ();
+        }
+    } else {
+    //rhythm = copy_rhythm;
+        cout << "$ from the front of " << rhythm << endl;
+        while (!rhythm.empty ()) {
+            cout << rhythm << endl;
+            reverse(rhythm.begin (), rhythm.end ());
+            rhythm.pop_back ();
+            reverse(rhythm.begin (), rhythm.end ());
+        }
     }
-    rhythm = copy_rhythm;
-    cout << "$ from the front of" << rhythm << endl;
-    while (!rhythm.empty ()) {
-        cout << rhythm << endl;
-        reverse(rhythm.begin (), rhythm.end ());
-        rhythm.pop_back ();
-        reverse(rhythm.begin (), rhythm.end ());
-    }
-  
 }
 
 void Modul::ShorteningProcess (string rhythm) {

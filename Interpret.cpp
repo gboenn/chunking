@@ -677,12 +677,13 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     }
 
     if (ms == modulTable[kshortening]) {
-        if (args_obj[0].text[0] != '\0') {
+        if (args_obj[1].text[0] != '\0') {
             string s1 = args_obj[0].text;
-            mdl.Shortening (s1);
+            int i1 = atoi (args_obj[1].text);
+            mdl.Shortening (s1, i1);
         }
         else {
-            cout << "Usage: chunking -m shortening <shorthand string>" << endl;
+            cout << "Usage: chunking -m shortening <shorthand string> <from_top? 0 (no) or 1 (yes)>" << endl;
         }
     }
     
@@ -705,7 +706,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
             mdl.Jumping (s1, i1, i2, i3);
         }
         else {
-            cout << "Usage: chunking -m jump <shorthand string> <n_symbols int> <k_times int> <from_start? bool>" << endl;
+            cout << "Usage: chunking -m jump <shorthand string> <n_symbols int> <k_times int> <from_start? 0 (no) or 1 (yes)>" << endl;
         }
     }
     
