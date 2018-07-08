@@ -3,9 +3,8 @@
 #include "Modul.h" 
 #endif 
 
-//#include "smf.h"
-#include "Alea.h"
-//#include "Llist1.h" 
+
+#include "Alea.h" 
 #include "DList.h" 
 #include "Farey.h" 
 #include "FareyVisitor.h" 
@@ -24,7 +23,7 @@
 #define GC_THREADS
 //#include "gc/gc_alloc.h"
 #include "gc.h"
-OA//#include "gc_cpp.h"
+//#include "gc_cpp.h"
 inline void * operator new(size_t n) { return GC_malloc(n); }
 inline void operator delete(void *) {}
 inline void * operator new[](size_t n) { return GC_malloc(n); }
@@ -4219,9 +4218,14 @@ void Modul::ShorteningProcess (string rhythm) {
     
 }
 
-void Modul::Jumping (string rhythm, int n, int k) {
+void Modul::Jumping (string rhythm, int n, int k, int flag) {
+    if (n == 0) {
+        cout << "n must be positive." << endl;
+        return;
+    }
     size_t rlen = rhythm.length ();
     string output = rhythm;
+    if (n < 0) n *= -1;
     if (n > int(rlen)) {
         n = rlen;
         int i = 0;
@@ -4231,13 +4235,25 @@ void Modul::Jumping (string rhythm, int n, int k) {
         }
     }
     else {
-        int i = 0;
-        for (; i < k; i++) {
-            output += '\n';
-            output += rhythm.substr(rlen-n, n);
+        if (flag == 0) {
+            int i = 0;
+            for (; i < k; i++) {
+                output += '\n';
+                output += rhythm.substr(rlen-n, n);
+            }
+        } else {
+            int i = 0;
+            for (; i < k; i++) {
+                output += '\n';
+                output += rhythm.substr(0, n);
+            }
         }
     }
-    cout << "$ jumping needle for " << k << " times the last " << n << " symbols." << endl;
+    if (flag == 0) {
+        cout << "$ jumping needle for " << k << " times the last " << n << " symbols." << endl;
+    } else {
+        cout << "$ jumping needle for " << k << " times the first " << n << " symbols." << endl;
+    }
     cout << output << endl;
 }
 
@@ -4391,7 +4407,7 @@ string Modul::Silence (string rhythm, int n, int k) {
 // Modul::Fragment (string rhythm)
 // random fragment from string, no rotation (length of result != length of string)
 // prepend '#' assert that there is no '!'
-// if there is '!' replace with @ and flag replace @ after selection
+// if there is '!' replace with '.-'
 // pick random number n = {1 ... length_of_string-1}
 // perform bwt; go to block n
 // pick from block n random string not containing any '#'
