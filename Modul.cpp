@@ -4267,7 +4267,10 @@ string Modul::Mutation (string rhythm, int n) {
     srand (time(NULL));
     int m = n;
     while (--m >= 0) {
-        int r = rand() % rlen;
+        int r = 0;
+        int i = 10000;
+        while (--i > 0)
+            r = rand() % rlen;
         //cout << r;
         mutpos.push_back(r);
     }
@@ -4391,6 +4394,7 @@ string Modul::Silence (string rhythm, int n, int k) {
 
 // pre-jump
 // like jump but with the first n characters repeated k times before full string
+// now (8 Jul 2018) part of Modul::Jumping
 
 // 1. random silence
 // 2. silence between first and last symbol
