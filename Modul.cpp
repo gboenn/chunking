@@ -4371,11 +4371,13 @@ string Modul::Silence (string rhythm, int n, int k) {
     // check boundaries and assert (n<k)
     // k can be >= list length in which case the right bracket is simply appended
     size_t rlen = rhythm.length ();
-    if (k == n) k++;
+    if (k == n) {
+        cout << rhythm << " has " << rlen << " characters. <from_pos> and <to_pos> should be different." << endl;
+        return rhythm;
+    }
     if (k < n) {
-        int t = n;
-        n = k;
-        k = t;
+        cout << rhythm << " has " << rlen << " characters. <from_pos> should be smaller than <to_pos>." << endl;
+        return rhythm;
     }
     if (n < 0) n = 0;
     if (n > rlen - 1) n = rlen - 1;
