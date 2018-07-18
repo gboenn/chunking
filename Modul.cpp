@@ -4168,24 +4168,95 @@ void Modul::extract_from_analysephrases_output (string filename) {
     
 }
 
-void Modul::Shortening (string rhythm, int flag) {
+string Modul::Shortening (string rhythm, int flag) {
     //string copy_rhythm = rhythm;
+    string result;
     if (flag < 1) {
         cout << "$ cycling through " << rhythm << endl;
         while (!rhythm.empty ()) {
-            cout << rhythm << endl;
+            result += rhythm;
+            result += '\n';
+            
             rhythm.pop_back ();
         }
     } else {
     //rhythm = copy_rhythm;
         cout << "$ from the front of " << rhythm << endl;
         while (!rhythm.empty ()) {
-            cout << rhythm << endl;
+            result += rhythm;
+            result += '\n';
             reverse(rhythm.begin (), rhythm.end ());
             rhythm.pop_back ();
             reverse(rhythm.begin (), rhythm.end ());
         }
     }
+    //cout << result;
+    return result;
+}
+
+string Modul::ProcessToShapes (string rhythm, int flag) {
+    string result = "";
+    //string temp = rhythm;
+    vector<string> rev;
+    int i, len;
+    switch (flag) {
+        case 0: // hourglass
+            while (!rhythm.empty ()) {
+                result += rhythm;
+                rev.push_back(rhythm);
+                result += '\n';
+                rhythm.pop_back ();
+            }
+            
+            len = rev.size ();
+            i = len - 2;
+            for (; i > -1; i--) {
+                result += rev.at(i);
+                result += '\n';
+            }
+            break;
+        case 1: // tail
+            while (!rhythm.empty ()) {
+                result += rhythm;
+                result += '\n';
+                rhythm.pop_back ();
+            }
+            break;
+        case 2: // river
+            while (!rhythm.empty ()) {
+                rev.push_back(rhythm);
+                rhythm.pop_back ();
+            }
+            len = rev.size ();
+            i = len - 1;
+            for (; i > -1; i--) {
+                result += rev.at(i);
+                result += '\n';
+            }
+            break;
+        case 3: // barrell
+            while (!rhythm.empty ()) {
+                rev.push_back(rhythm);
+                rhythm.pop_back ();
+            }
+            len = rev.size ();
+            i = len - 1;
+            for (; i > -1; i--) {
+                result += rev.at(i);
+                result += '\n';
+            }
+            for (i = 1; i < len; i++) {
+                result += rev.at(i);
+                result += '\n';
+            }
+            break;
+            
+        default:
+            break;
+    
+    }
+    //cout << result;
+    return result;
 }
 
 void Modul::ShorteningProcess (string rhythm) {
@@ -4220,13 +4291,13 @@ void Modul::ShorteningProcess (string rhythm) {
     
 }
 
-void Modul::Jumping (string rhythm, int n, int k, int flag) {
+string Modul::Jumping (string rhythm, int n, int k, int flag) {
     if (n == 0) {
-        cout << "n must be positive." << endl;
-        return;
+        cout << "$ n must be positive." << endl;
+        return rhythm;
     }
     size_t rlen = rhythm.length ();
-    string output = rhythm;
+    string output;
     if (n < 0) n *= -1;
     if (n > int(rlen)) {
         n = rlen;
@@ -4239,6 +4310,7 @@ void Modul::Jumping (string rhythm, int n, int k, int flag) {
     else {
         if (flag == 0) {
             int i = 0;
+            output = rhythm;
             for (; i < k; i++) {
                 output += '\n';
                 output += rhythm.substr(rlen-n, n);
@@ -4246,9 +4318,10 @@ void Modul::Jumping (string rhythm, int n, int k, int flag) {
         } else {
             int i = 0;
             for (; i < k; i++) {
-                output += '\n';
                 output += rhythm.substr(0, n);
+                output += '\n';
             }
+            output += rhythm;
         }
     }
     if (flag == 0) {
@@ -4256,8 +4329,77 @@ void Modul::Jumping (string rhythm, int n, int k, int flag) {
     } else {
         cout << "$ jumping needle for " << k << " times the first " << n << " symbols." << endl;
     }
-    cout << output << endl;
+    //cout << output << endl;
+    return output;
 }
+
+string Modul::Fragment (string rhythm) {
+    size_t rlen = rhythm.length ();
+    vector <int> mutpos;
+    srand (time(NULL));
+    int m = 2;
+    while (--m >= 0) {
+        int r = 0;
+        int i = 10000;
+        while (--i > 0)
+            r = rand() % rlen;
+        mutpos.push_back(r);
+    }
+    sort (mutpos.begin (), mutpos.end ());
+    string result = rhythm.substr (mutpos.at(0), mutpos.at(1));
+    //cout << result << endl;
+    return result;
+}
+
+string Modul::FragmentRotation (string rhythm) {
+    size_t rlen = rhythm.length ();
+    vector <int> mutpos;
+    srand (time(NULL));
+    int m = 2;
+    while (--m >= 0) {
+        int r = 0;
+        int i = 10000;
+        while (--i > 0)
+            r = rand() % rlen;
+        mutpos.push_back(r);
+    }
+    sort (mutpos.begin (), mutpos.end ());
+    string result = rhythm.substr (mutpos.at(0), mutpos.at(1));
+    
+    int r = 0;
+    int i = rand() % 10000;
+    while (--i > 0)
+        r = rand() % rlen;
+    
+    string temp = result;
+    while (--r >= 0) {
+        char last = temp.at(temp.length () - 1);
+        temp.erase(temp.length()-1);
+        temp = last + temp;
+    }
+    //cout << temp << endl;
+    return temp;
+}
+
+string Modul::Rotation (string rhythm) {
+    size_t rlen = rhythm.length () * 2;
+    srand (time(NULL));
+    int r = 0;
+    int i = rand() % 10000;
+    while (--i > 0)
+        r = rand() % rlen;
+    
+    string temp = rhythm;
+    while (--r >= 0) {
+        char last = temp.at(temp.length () - 1);
+        temp.erase(temp.length()-1);
+        temp = last + temp;
+    }
+    //cout << temp << endl;
+    return temp;
+    
+}
+
 
 string Modul::Mutation (string rhythm, int n) {
     // random mutations, n = number of mutations
@@ -4277,7 +4419,7 @@ string Modul::Mutation (string rhythm, int n) {
         mutpos.push_back(r);
     }
     int i = 0;
-    cout << "mutations at positions: ";
+    cout << "$ mutations at positions: ";
     for (; i < n; i++) {
         cout << mutpos.at(i) << ", ";
     }
@@ -4290,7 +4432,6 @@ string Modul::Mutation (string rhythm, int n) {
     for (string::iterator it=rhythm.begin(); it!=rhythm.end(); ++it, i++) {
         int k = 0;
         int flag = 0;
-#if 1
         for (; k < n; k++) {
             if (i == mutpos.at(k)) {
                 flag = 1;
@@ -4323,10 +4464,9 @@ string Modul::Mutation (string rhythm, int n) {
                 }
             }
         }
-#endif
     }
 
-    cout << rhythm << endl;
+    //cout << rhythm << endl;
     return rhythm;
 }
 
@@ -4342,7 +4482,7 @@ string Modul::Swap (string rhythm, int n) {
         mutpos.push_back(r);
     }
     int i = 0;
-    cout << "swapping at positions: ";
+    cout << "$ swapping at positions: ";
     for (; i < n; i++) {
         cout << mutpos.at(i) << ", ";
     }
@@ -4354,7 +4494,7 @@ string Modul::Swap (string rhythm, int n) {
         //cout << "swap at pos: " << i << endl;
     }
     
-    cout << rhythm << endl;
+    // cout << rhythm << endl;
     return rhythm;
 }
 
@@ -4372,11 +4512,11 @@ string Modul::Silence (string rhythm, int n, int k) {
     // k can be >= list length in which case the right bracket is simply appended
     size_t rlen = rhythm.length ();
     if (k == n) {
-        cout << rhythm << " has " << rlen << " characters. <from_pos> and <to_pos> should be different." << endl;
+        cout << "$ " << rhythm << " has " << rlen << " characters. <from_pos> and <to_pos> should be different." << endl;
         return rhythm;
     }
     if (k < n) {
-        cout << rhythm << " has " << rlen << " characters. <from_pos> should be smaller than <to_pos>." << endl;
+        cout << "$ " << rhythm << " has " << rlen << " characters. <from_pos> should be smaller than <to_pos>." << endl;
         return rhythm;
     }
     if (n < 0) n = 0;
@@ -4391,11 +4531,19 @@ string Modul::Silence (string rhythm, int n, int k) {
     if (k >= rlen)
         rhythm.push_back(')'); // the above loop cannot go past the list
     
-    cout << rhythm << endl;
+    //cout << rhythm << endl;
     return rhythm;
 }
 
-
+void Modul::Compose (string rhythm) {
+    string inter = rhythm + '\n';
+    inter += Swap (rhythm, 1) + '\n';
+    inter += Mutation (rhythm, 1) + '\n';
+    inter += Jumping (rhythm, 3, 2, 0) + '\n';
+    cout << "$ ===================" << endl;
+    cout << inter << endl;
+    
+}
 // pre-jump
 // like jump but with the first n characters repeated k times before full string
 // now (8 Jul 2018) part of Modul::Jumping
@@ -4405,6 +4553,7 @@ string Modul::Silence (string rhythm, int n, int k) {
 // 3. silence but first
 // 4. silence but last
 
+//Modul::ProcessToShapes()
 // hourglass (shortening + reverse shortening)
 // tail (shortening)
 // river (reverse shortening)
@@ -4414,11 +4563,6 @@ string Modul::Silence (string rhythm, int n, int k) {
 
 // Modul::Fragment (string rhythm)
 // random fragment from string, no rotation (length of result != length of string)
-// prepend '#' assert that there is no '!'
-// if there is '!' replace with '.-'
-// pick random number n = {1 ... length_of_string-1}
-// perform bwt; go to block n
-// pick from block n random string not containing any '#'
 
 // Modul::Rotation (string rhythm)
 // random rotation preserving length of string

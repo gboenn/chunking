@@ -680,7 +680,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         if (args_obj[1].text[0] != '\0') {
             string s1 = args_obj[0].text;
             int i1 = atoi (args_obj[1].text);
-            mdl.Shortening (s1, i1);
+            cout << mdl.Shortening (s1, i1) << endl;
         }
         else {
             cout << "Usage: chunking -m shortening <shorthand string> <from_top? 0 (no) or 1 (yes)>" << endl;
@@ -703,7 +703,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
             int i1 = atoi (args_obj[1].text);
             int i2 = atoi (args_obj[2].text);
             int i3 = atoi (args_obj[3].text);
-            mdl.Jumping (s1, i1, i2, i3);
+            cout << mdl.Jumping (s1, i1, i2, i3) << endl;
         }
         else {
             cout << "Usage: chunking -m jump <shorthand string> <n_symbols int> <k_times int> <from_start? 0 (no) or 1 (yes)>" << endl;
@@ -714,7 +714,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         if (args_obj[1].text[0] != '\0') {
             string s1 = args_obj[0].text;
             int i1 = atoi (args_obj[1].text);
-            mdl.Mutation (s1, i1);
+            cout << mdl.Mutation (s1, i1) << endl;
         }
         else {
             cout << "Usage: chunking -m mutate <shorthand string> <k_times int>" << endl;
@@ -725,7 +725,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         if (args_obj[1].text[0] != '\0') {
             string s1 = args_obj[0].text;
             int i1 = atoi (args_obj[1].text);
-            mdl.Swap (s1, i1);
+            cout << mdl.Swap (s1, i1) << endl;
         }
         else {
             cout << "Usage: chunking -m swap <shorthand string> <k_times int>" << endl;
@@ -737,10 +737,61 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
             string s1 = args_obj[0].text;
             int i1 = atoi (args_obj[1].text);
             int i2 = atoi (args_obj[2].text);
-            mdl.Silence (s1, i1, i2);
+            cout << mdl.Silence (s1, i1, i2) << endl;
         }
         else {
             cout << "Usage: chunking -m silence <shorthand string> <from_pos int> <to_pos int>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[kproc2shapes]) {
+        if (args_obj[1].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            int i1 = atoi (args_obj[1].text);
+            cout << mdl.ProcessToShapes (s1, i1);
+        }
+        else {
+            cout << "Usage: chunking -m shape <shorthand string> <flag int>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[kfragment]) {
+        if (args_obj[0].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            cout << mdl.Fragment (s1) << endl;
+        }
+        else {
+            cout << "Usage: chunking -m fragment <shorthand string>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[krotate]) {
+        if (args_obj[0].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            cout << mdl.Rotation (s1) << endl;
+        }
+        else {
+            cout << "Usage: chunking -m rotate <shorthand string>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[kfragrotate]) {
+        if (args_obj[0].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            cout << mdl.FragmentRotation (s1) << endl;
+        }
+        else {
+            cout << "Usage: chunking -m fragrotate <shorthand string>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[kcompose]) {
+        if (args_obj[0].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            mdl.Compose (s1);
+        }
+        else {
+            cout << "Usage: chunking -m compose <shorthand string>" << endl;
         }
     }
     

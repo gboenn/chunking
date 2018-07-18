@@ -336,12 +336,17 @@ class Modul
 	void DB_search (string searchstring);
         void DB_insert_from_file (string filename, string patname, string origin, string composer);
         void extract_from_analysephrases_output (string filename);
-        void Shortening (string rhythm, int flag);
+        string Shortening (string rhythm, int flag);
         void ShorteningProcess (string rhythm);
-        void Jumping (string rhythm, int n, int k, int flag);
+        string Jumping (string rhythm, int n, int k, int flag);
+        string Fragment (string rhythm);
+        string Rotation (string rhythm);
+        string FragmentRotation (string rhythm);
         string Mutation (string rhythm, int n);
         string Swap (string rhythm, int n);
         string Silence (string rhythm, int n, int k);
+        string ProcessToShapes (string rhythm, int flag);
+        void Compose (string rhythm);
 };
 
 class Decoder {

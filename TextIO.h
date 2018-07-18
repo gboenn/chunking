@@ -157,6 +157,11 @@ enum
     kmutate,
     kswap,
     ksilence,
+    kproc2shapes,
+    kfragment,
+    krotate,
+    kfragrotate,
+    kcompose,
 	kNumModules
 };	
 
@@ -305,7 +310,12 @@ static const char* modulTable[kNumModules] =
     "jump",
     "mutate",
     "swap",
-    "silence"
+    "silence",
+    "shape",
+    "fragment",
+    "rotate",
+    "fragrotate",
+    "compose"
     };
 
 #endif
