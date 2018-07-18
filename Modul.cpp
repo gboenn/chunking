@@ -4337,60 +4337,49 @@ string Modul::Fragment (string rhythm) {
     size_t rlen = rhythm.length ();
     vector <int> mutpos;
     srand (time(NULL));
-    int m = 2;
-    while (--m >= 0) {
-        int r = 0;
-        int i = 10000;
-        while (--i > 0)
-            r = rand() % rlen;
-        mutpos.push_back(r);
+    
+    int r = 0;
+    int i = rand() % 71;
+    while (--i > 0)
+        r = rand() % rlen;
+    mutpos.push_back(r);
+    while (1) {
+        int r2 = rand() % rlen;
+        if (r != r2) {
+            mutpos.push_back(r2);
+            break;
+        }
     }
+    
     sort (mutpos.begin (), mutpos.end ());
+    //cout << "Fragment: " << mutpos.at(0) << " " << mutpos.at(1) << endl;
     string result = rhythm.substr (mutpos.at(0), mutpos.at(1));
     //cout << result << endl;
     return result;
 }
 
 string Modul::FragmentRotation (string rhythm) {
-    size_t rlen = rhythm.length ();
-    vector <int> mutpos;
-    srand (time(NULL));
-    int m = 2;
-    while (--m >= 0) {
-        int r = 0;
-        int i = 10000;
-        while (--i > 0)
-            r = rand() % rlen;
-        mutpos.push_back(r);
-    }
-    sort (mutpos.begin (), mutpos.end ());
-    string result = rhythm.substr (mutpos.at(0), mutpos.at(1));
-    
-    int r = 0;
-    int i = rand() % 10000;
-    while (--i > 0)
-        r = rand() % rlen;
-    
-    string temp = result;
-    while (--r >= 0) {
-        char last = temp.at(temp.length () - 1);
-        temp.erase(temp.length()-1);
-        temp = last + temp;
-    }
+    string temp = Fragment (rhythm);
+    temp = Rotation (temp);
     //cout << temp << endl;
     return temp;
 }
 
 string Modul::Rotation (string rhythm) {
-    size_t rlen = rhythm.length () * 2;
+    size_t rlen = rhythm.length ();
     srand (time(NULL));
     int r = 0;
-    int i = rand() % 10000;
+    int i = rand() % 89;
     while (--i > 0)
         r = rand() % rlen;
     
     string temp = rhythm;
     while (--r >= 0) {
+        char last = temp.at(temp.length () - 1);
+        temp.erase(temp.length()-1);
+        temp = last + temp;
+    }
+    if (temp == rhythm) {
         char last = temp.at(temp.length () - 1);
         temp.erase(temp.length()-1);
         temp = last + temp;
@@ -4412,7 +4401,7 @@ string Modul::Mutation (string rhythm, int n) {
     int m = n;
     while (--m >= 0) {
         int r = 0;
-        int i = 10000;
+        int i = rand () % 97;
         while (--i > 0)
             r = rand() % rlen;
         //cout << r;
@@ -4494,7 +4483,7 @@ string Modul::Swap (string rhythm, int n) {
         //cout << "swap at pos: " << i << endl;
     }
     
-    // cout << rhythm << endl;
+    //cout << rhythm << endl;
     return rhythm;
 }
 
@@ -4536,14 +4525,33 @@ string Modul::Silence (string rhythm, int n, int k) {
 }
 
 void Modul::Compose (string rhythm) {
+    vector<string> piece;
+    piece.push_back (rhythm);
+    piece.push_back (Fragment (piece.at(0)));
+    piece.push_back (Mutation (piece.at(0), 1));
+    piece.push_back (FragmentRotation (piece.at(0)));
+    string b = Rotation (piece.at(0));
+    piece.push_back (b);
+    piece.push_back (Swap (b,1));
+    
+    int vsize = piece.size ();
+    int i = 0;
+    for (; i < vsize; ++i) {
+        cout << i << ": " << piece.at(i) << endl;
+    }
+    
+    
+#if 0
     string inter = rhythm + '\n';
     inter += Swap (rhythm, 1) + '\n';
     inter += Mutation (rhythm, 1) + '\n';
     inter += Jumping (rhythm, 3, 2, 0) + '\n';
     cout << "$ ===================" << endl;
     cout << inter << endl;
-    
+#endif
 }
+
+
 // pre-jump
 // like jump but with the first n characters repeated k times before full string
 // now (8 Jul 2018) part of Modul::Jumping
