@@ -1,4 +1,10 @@
- 
+///////////////////////////////////////////
+// Ratio.cpp
+// Copyright (C) 2018 Georg Boenn
+// GNU General Public License version 3.0
+// Free Software Foundation
+///////////////////////////////////////////
+
 #include "Ratio.h" 
 #include "AlgoComp.h" 
 #include "Farey.h"

@@ -1,4 +1,11 @@
-#ifndef	__Modul_h__ 
+///////////////////////////////////////////
+// Modul.h
+// Copyright (C) 2018 Georg Boenn
+// GNU General Public License version 3.0
+// Free Software Foundation
+///////////////////////////////////////////
+
+#ifndef	__Modul_h__
 #define	__Modul_h__ 
  
 #ifndef __Standards_h__ 

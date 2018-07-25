@@ -1,15 +1,10 @@
+///////////////////////////////////////////
+// DList.h
+// Copyright (C) 2018 Georg Boenn
+// GNU General Public License version 3.0
+// Free Software Foundation
+///////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////////////////////
-// Name:        DList.h 
-// Purpose:     Template-based Double Linked List 
-// Author:      Georg Boenn 
-// Modified by:	Georg Boenn 
-// Created:		07/01/05 
-// Created:		07/01/05 
-// Copyright:   (c) Georg Boenn 
-// Licence:     GNU General Public License v2 
-///////////////////////////////////////////////////////////////////////////// 
- 
 #ifndef __DList_h__ 
 #define __DList_h__ 
  

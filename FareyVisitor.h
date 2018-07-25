@@ -1,4 +1,12 @@
-#ifndef __FareyVisitor_h__ 
+///////////////////////////////////////////
+// FareyVisitor.h
+// Copyright (C) 2018 Georg Boenn
+// GNU General Public License version 3.0
+// Free Software Foundation
+///////////////////////////////////////////
+
+
+#ifndef __FareyVisitor_h__
 #define __FareyVisitor_h__ 
  
 #include "Farey.h" 

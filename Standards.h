@@ -1,3 +1,10 @@
+///////////////////////////////////////////
+// Standards.h
+// Copyright (C) 2018 Georg Boenn
+// GNU General Public License version 3.0
+// Free Software Foundation
+///////////////////////////////////////////
+
 #ifndef __Standards_h__
 #define __Standards_h__
 

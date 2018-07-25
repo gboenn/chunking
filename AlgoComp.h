@@ -1,4 +1,11 @@
-#ifndef __AlgoComp_h__ 
+///////////////////////////////////////////
+// AlgoComp.h
+// Copyright (C) 2018 Georg Boenn
+// GNU General Public License version 3.0
+// Free Software Foundation
+///////////////////////////////////////////
+
+#ifndef __AlgoComp_h__
 #define __AlgoComp_h__ 
  
 #ifndef __Standards_h__ 

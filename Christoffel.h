@@ -1,10 +1,9 @@
-//
-//  Christoffel.h
-//  
-//
-//  Created by georg.boenn on 2016-02-21.
-//
-//
+///////////////////////////////////////////
+// Christoffel.h
+// Copyright (C) 2018 Georg Boenn
+// GNU General Public License version 3.0
+// Free Software Foundation
+///////////////////////////////////////////
 
 #ifndef __christoffel_h__
 #define __christoffel_h__

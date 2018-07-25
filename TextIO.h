@@ -1,3 +1,10 @@
+///////////////////////////////////////////
+// TextIO.h
+// Copyright (C) 2018 Georg Boenn
+// GNU General Public License version 3.0
+// Free Software Foundation
+///////////////////////////////////////////
+
 #ifndef __TextIO_h__
 
 #define __TextIO_h__
@@ -350,19 +357,6 @@ class TextIO {
 		void CatchWords( TextIO& t, TextIO& p, int line_no );
 		void ShowWord( int line_no, string format="n" );
 		
-		void Show( string text );
-		void Show( string label, float f );
-		void Show( string label, double d );
-		void Show( string label, short s );
-		void Show( string label, int i );
-		void Show( string label, long l );
-		void Show( string label, unsigned short us );
-		void Show( string label, unsigned int ui );
-		void Show( string label, unsigned long ul );
-		void Show( string label, char c );
-		void Show( string label, unsigned char uc );
-		void Show( string label, string str );
-
 		int GetW_In_Line () const { return w_in_line; }		
 		string GetLine( int lne_no );
 		int GetCount () const { return count; }

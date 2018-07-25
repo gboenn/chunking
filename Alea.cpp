@@ -1,3 +1,10 @@
+///////////////////////////////////////////
+// Alea.cpp
+// Copyright (C) 2018 Georg Boenn
+// GNU General Public License version 3.0
+// Free Software Foundation
+///////////////////////////////////////////
+
 #ifndef	__Alea_h__
 #include "Alea.h"
 #endif

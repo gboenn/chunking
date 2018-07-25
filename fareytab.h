@@ -1,3 +1,10 @@
+///////////////////////////////////////////
+// fareytab.h
+// Copyright (C) 2018 Georg Boenn
+// GNU General Public License version 3.0
+// Free Software Foundation
+///////////////////////////////////////////
+
 #ifndef __fareytab_h__
 #define __fareytab_h__
 

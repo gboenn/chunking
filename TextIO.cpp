@@ -1,3 +1,10 @@
+///////////////////////////////////////////
+// TextIO.cpp
+// Copyright (C) 2018 Georg Boenn
+// GNU General Public License version 3.0
+// Free Software Foundation
+///////////////////////////////////////////
+
 #ifndef __TextIO_h__
 #include "TextIO.h"
 #endif
@@ -80,89 +87,4 @@ string TextIO::GetLine( int line_no )
   return (tl->data->text);
 }
 
-void TextIO::Show( string text )
-{
-  
-  cout << text << endl;
-  
-}
-
-void TextIO::Show( string label, float f )
-{
-  
-  cout << label << ": " << f << endl;
-  
-}
-
-void TextIO::Show( string label, double d )
-{
-  
-  cout << label << ": " << d << endl;
-  
-}
-
-void TextIO::Show( string label, short s )
-{
-  
-  cout << label << ": " << s << endl;
-  
-}
-
-void TextIO::Show( string label, int i )
-{
-  
-  cout << label << ": " << i << endl;
-  
-}
-
-void TextIO::Show( string label, long l )
-{
-  
-  cout << label << ": " << l << endl;
-  
-}
-
-void TextIO::Show( string label, unsigned short us )
-{
-  
-  cout << label << ": " << us << endl;
-  
-}
-
-void TextIO::Show( string label, unsigned int ui )
-{
-  
-  cout << label << ": " << ui << endl;
-  
-}
-
-void TextIO::Show( string label, unsigned long ul )
-{
-  
-  cout << label << ": " << ul << endl;
-  
-}
-
-void TextIO::Show( string label, char c )
-{
-  
-  cout << label << ": " << c << endl;
-  
-}
-
-void TextIO::Show( string label, unsigned char uc )
-{
-  
-  cout << label << ": " << uc << endl;
-  
-}
-
-
-
-void TextIO::Show( string label, string str )
-{
-
-        cout << label << ": " << str << endl;
-
-}
 

@@ -1,3 +1,10 @@
+///////////////////////////////////////////
+// Modul.cpp
+// Copyright (C) 2018 Georg Boenn
+// GNU General Public License version 3.0
+// Free Software Foundation
+///////////////////////////////////////////
+
 #define DEBUG_STR(var)
 #ifndef	__Modul_h__ 
 #include "Modul.h" 
@@ -4335,6 +4342,8 @@ string Modul::Jumping (string rhythm, int n, int k, int flag) {
 
 string Modul::Fragment (string rhythm) {
     size_t rlen = rhythm.length ();
+    if (rlen == 1)
+        return rhythm;
     vector <int> mutpos;
     srand (time(NULL));
     
@@ -4367,6 +4376,8 @@ string Modul::FragmentRotation (string rhythm) {
 
 string Modul::Rotation (string rhythm) {
     size_t rlen = rhythm.length ();
+    if (rlen == 1)
+        return rhythm;
     srand (time(NULL));
     int r = 0;
     int i = rand() % 89;
@@ -4527,12 +4538,17 @@ string Modul::Silence (string rhythm, int n, int k) {
 void Modul::Compose (string rhythm) {
     vector<string> piece;
     piece.push_back (rhythm);
-    piece.push_back (Fragment (piece.at(0)));
-    piece.push_back (Mutation (piece.at(0), 1));
-    piece.push_back (FragmentRotation (piece.at(0)));
-    string b = Rotation (piece.at(0));
+    piece.push_back (Fragment (piece.front ()));
+    piece.push_back (Mutation (piece.front (), 1));
+    piece.push_back (FragmentRotation (piece.front ()));
+    string b = Rotation (piece.front ());
     piece.push_back (b);
     piece.push_back (Swap (b,1));
+    piece.push_back (Rotation (piece.back ()));
+    piece.push_back (FragmentRotation (piece.front ()));
+    piece.push_back (Fragment (piece.back ()));
+    piece.push_back (Fragment (piece.front ()));
+    piece.push_back (Jumping (piece.back (), piece.back ().size (), 1, 1));
     
     int vsize = piece.size ();
     int i = 0;
