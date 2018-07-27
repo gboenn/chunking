@@ -600,7 +600,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         mdl.BWTmelodies (s1, i1, s2);
       }
       else {
-          cout << "Usage: chunking -m bwtmel <string of ascii notes> <integer denoting semitones for transposition> <optional: character denoting a type of transformation>" << endl;
+          cout << "Usage: chunking -m bwtmel <string of ascii notes> <integer denoting semitones for transposition> <optional: character denoting a type of transformation (g (original),u (inversion),k (retrograde),q (retrograde of inversion)>" << endl;
           cout << "Example: chunking -m bwtmel 'c6ef' 0 g" << endl;
       }
     }

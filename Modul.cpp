@@ -2457,10 +2457,10 @@ void Modul::BWT (string word) {
     if (!fptr)
         cerr << "cannot write file: " << bwtfile << endl;
 
-    cout << "BWT of " << word << endl;
+    cout << "BWT of " << word;
     Christoffel c;
     c.SetAsciiPitchWord (word);
-    c.burrows_wheeler_trans ();
+    cout << " = " << c.burrows_wheeler_trans ()  << endl;
     int len = c.length_word ();
     cout << "length = " << len << endl;
     int j = 1;
