@@ -278,18 +278,18 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 
 	if (ms == modulTable[kPropSeries])
 	{
-	    if (args_obj[0].text[0] != '\0' ||
-		args_obj[1].text[0] != '\0' ||
-		args_obj[2].text[0] != '\0' ||
-		args_obj[3].text[0] == '\0')
+	    if (args_obj[0].text[0] != '\0' &&
+            args_obj[1].text[0] != '\0' &&
+            args_obj[2].text[0] != '\0' &&
+            args_obj[3].text[0] == '\0')
 	    {
-		const char* c1 = args_obj[0].text;
-		float f1 = atof (c1);
-		const char* c2 = args_obj[1].text;
-		float i1 = atof (c2);
-		const char* c3 = args_obj[2].text;
-		float f2 = atof (c3);
-		proportion_series (f1, i1, f2);
+            const char* c1 = args_obj[0].text;
+            float f1 = atof (c1);
+            const char* c2 = args_obj[1].text;
+            float i1 = atof (c2);
+            const char* c3 = args_obj[2].text;
+            float f2 = atof (c3);
+            proportion_series (f1, i1, f2);
         } else {
             cout << "Usage: chunking -m propseries <chunk to divide iteratively: float> <number of iterations: int> <divisor: float>" << endl;
         }
@@ -297,28 +297,16 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 	
 	if (ms == modulTable[kPartition])
 	{
-	  if (args_obj[0].text[0] == '\0') {
-          cout << "Usage: chunking -m partition <n> <flag parts-must-be-prime> <flag parts-not-’1’>" << endl;
-          cout << "<max prime in parts> <max int in parts>" << endl;
-          cout << "<min int in parts>" << endl;
-          cout << "<int to add to all parts>" << endl;
-          cout << "<number of distinct parts, 0 := print all partitions>" << endl;
-          cout << "<flag for p. with all parts being equal>" << endl;
-          
-	    return;
-	  }
-
-	    if (args_obj[0].text[0] != '\0' ||
-			args_obj[1].text[0] != '\0' ||
-			args_obj[2].text[0] != '\0' ||
-			args_obj[3].text[0] != '\0' ||
-			args_obj[4].text[0] != '\0' ||
-			args_obj[5].text[0] != '\0' ||
-			args_obj[6].text[0] != '\0' ||
-			args_obj[7].text[0] != '\0' ||
-		        args_obj[8].text[0] != '\0' ||
-			args_obj[9].text[0] != '\0' || 
-		        args_obj[10].text[0] == '\0')
+	    if (args_obj[0].text[0] != '\0' &&
+			args_obj[1].text[0] != '\0' &&
+			args_obj[2].text[0] != '\0' &&
+			args_obj[3].text[0] != '\0' &&
+			args_obj[4].text[0] != '\0' &&
+			args_obj[5].text[0] != '\0' &&
+			args_obj[6].text[0] != '\0' &&
+			args_obj[7].text[0] != '\0' &&
+            args_obj[8].text[0] != '\0' &&
+			args_obj[9].text[0] == '\0' )
 	    {
 			const char* c1 = args_obj[0].text;
 			int i1 = atoi (c1);
@@ -337,9 +325,17 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 			const char* c8 = args_obj[7].text;
 			int i8 = atoi (c8);
 			const char* c9 = args_obj[8].text;
-                        int i9 = atoi (c9);
+            int i9 = atoi (c9);
 			partition (i1, i2, i3, i4, i5, i6, i7, i8, i9);
-	    }
+        } else {
+            cout << "Usage: chunking -m partition <n> <flag parts-must-be-prime> <flag parts-not-’1’>" << endl;
+            cout << "<max prime in parts> <max int in parts>" << endl;
+            cout << "<min int in parts>" << endl;
+            cout << "<int to add to all parts>" << endl;
+            cout << "<number of distinct parts, 0 := print all partitions>" << endl;
+            cout << "<flag for p. with all parts being equal>" << endl;
+            return;
+        }
 	}
 	
 	if (ms == modulTable[kanaphrases])
@@ -391,8 +387,8 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     
 	if (ms == modulTable[kintstrings])
 	{
-		if (args_obj[0].text[0] != '\0' ||
-			args_obj[1].text[0] != '\0' ||
+		if (args_obj[0].text[0] != '\0' &&
+			args_obj[1].text[0] != '\0' &&
 			args_obj[2].text[0] == '\0')
 	    {
 			string s1 = args_obj[0].text;
@@ -409,9 +405,9 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 	
 	if (ms == modulTable[kfarey2binary])
 	{
-		if (args_obj[0].text[0] != '\0' ||
-			args_obj[1].text[0] != '\0' ||
-			args_obj[2].text[0] != '\0' ||
+		if (args_obj[0].text[0] != '\0' &&
+			args_obj[1].text[0] != '\0' &&
+			args_obj[2].text[0] != '\0' &&
 			args_obj[3].text[0] == '\0')
 	    {
 			char* c1 = args_obj[0].text;
@@ -446,9 +442,9 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 	
 	if (ms == modulTable[kfpoly])
 	{
-		if (args_obj[0].text[0] != '\0' ||
-			args_obj[1].text[0] != '\0' ||
-			args_obj[2].text[0] != '\0' ||
+		if (args_obj[0].text[0] != '\0' &&
+			args_obj[1].text[0] != '\0' &&
+			args_obj[2].text[0] != '\0' &&
 			args_obj[3].text[0] == '\0')
 	    {
 			char* c1 = args_obj[0].text;
@@ -465,12 +461,11 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     
     if (ms == modulTable[kprintfarey])
     {
-        if (args_obj[0].text[0] != '\0' ||
+        if (args_obj[0].text[0] != '\0' &&
             args_obj[1].text[0] == '\0')
         {
             char* c1 = args_obj[0].text;
             int i1 = atoi (c1);
-            
             mdl.PrintFareySeq (i1);
         }
         else {
@@ -484,16 +479,14 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 	
 	if (ms == modulTable[kcrhythm])
     {
-        if (args_obj[0].text[0] != '\0' ||
-	    args_obj[1].text[0] != '\0' ||
+        if (args_obj[0].text[0] != '\0' &&
+            args_obj[1].text[0] != '\0' &&
             args_obj[2].text[0] == '\0')
         {
             char* c1 = args_obj[0].text;
             int i1 = atoi (c1);
-	    char* c2 = args_obj[1].text;
+            char* c2 = args_obj[1].text;
             int i2 = atoi (c2);
-
-            
             mdl.CRhythm (i1, i2);
         }
         else {
@@ -505,10 +498,10 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 
 	if (ms == modulTable[kcrhythm2])
 	  {
-	    if (args_obj[0].text[0] != '\0' ||
-		args_obj[1].text[0] != '\0' ||
-		args_obj[2].text[0] != '\0' ||
-		args_obj[3].text[0] != '\0' ||
+	    if (args_obj[0].text[0] != '\0' &&
+		args_obj[1].text[0] != '\0' &&
+		args_obj[2].text[0] != '\0' &&
+		args_obj[3].text[0] != '\0' &&
 		args_obj[4].text[0] == '\0')
 	      {
 		char* c1 = args_obj[0].text;
@@ -533,7 +526,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 	
 	if (ms == modulTable[klookup])
     {
-        if (args_obj[0].text[0] != '\0' ||
+        if (args_obj[0].text[0] != '\0' &&
             args_obj[1].text[0] == '\0')
         {
             string s1 = args_obj[0].text;
@@ -541,13 +534,13 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
             mdl.LookupRhythm (s1);
         } else {
             cout << "Usage: chunking -m lookup <shorthand pattern>" << endl;
-            cout << "Searches all Christoffel words, from C(1,1) to C(20,20), for a matching rhyth- mic pattern" << endl;
+            cout << "Searches all Christoffel words C(m,n), from C(1,1) to C(20,20), for a matching rhythmic pattern" << endl;
         }
         
     }
 	if (ms == modulTable[kloadpartition]) {
-	  if (args_obj[0].text[0] != '\0' ||
-	      args_obj[1].text[0] != '\0' ||
+	  if (args_obj[0].text[0] != '\0' &&
+	      args_obj[1].text[0] != '\0' &&
 	      args_obj[2].text[0] == '\0') {
 	  string s1 = args_obj[0].text;
 	  char* c1 = args_obj[1].text;
@@ -558,9 +551,9 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 	}
 
 	if (ms == modulTable[kgetpartition]) {
-        if (args_obj[0].text[0] != '\0' ||
-            args_obj[1].text[0] != '\0' ||
-            args_obj[2].text[0] == '\0') {
+        if (args_obj[0].text[0] != '\0' &&
+            args_obj[1].text[0] != '\0' &&
+            args_obj[2].text[0] != '\0') {
             char* c1 = args_obj[0].text;
             int i1 = atoi (c1);
             char* c2 = args_obj[1].text;
@@ -582,7 +575,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 	      int i2 = atoi (c2);
             //cout << i1 << " " << i2 << endl;
         if (i1 == 0 || i2 == 0) {
-            cout << "USAGE: chunking -m sentence n k" << endl;
+            cout << "Usage: chunking -m sentence n k" << endl;
             cout << "with n = number of pulses <= 120," << endl;
             cout << "and k = number of distinct parts <= 5" << endl;
         } else mdl.StartSentence (i1, i2);
@@ -594,7 +587,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         mdl.BWT (s1);
       }
       else {
-	cout << "Usage: chunking -m bwt <string>" << endl;
+          cout << "Usage: chunking -m bwt <string>" << endl;
       }
     }
 
@@ -607,7 +600,8 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         mdl.BWTmelodies (s1, i1, s2);
       }
       else {
-	cout << "Usage: chunking -m bwtmel <string> <int> <string>" << endl;
+          cout << "Usage: chunking -m bwtmel <string of ascii notes> <integer denoting semitones for transposition> <optional: character denoting a type of transformation>" << endl;
+          cout << "Example: chunking -m bwtmel 'c6ef' 0 g" << endl;
       }
     }
     
@@ -617,12 +611,12 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         mdl.notenames2asciinames (s1);
       }
       else {
-	cout << "Usage: chunking -m notenames <string>" << endl;
-	cout << "Returns: ascii code for pitches as one character per pitch, useful for Burrows-Wheeler." << endl;
-	cout << "Returns also a list of MIDI note numbers." << endl; 
-	cout << "Example: chunking -m notenames 'C4 C#4 D4 D#4'" << endl;
-	cout << "c6d7" << endl;
-	cout << "60, 61, 62, 63" << endl;
+        cout << "Usage: chunking -m notenames <string>" << endl;
+        cout << "Returns: ascii code for pitches as one character per pitch, useful for Burrows-Wheeler." << endl;
+        cout << "Returns also a list of MIDI note numbers." << endl;
+        cout << "Example: chunking -m notenames 'C4 C#4 D4 D#4'" << endl;
+        cout << "c6d7" << endl;
+        cout << "60, 61, 62, 63" << endl;
       }
 
     }
@@ -633,14 +627,14 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         mdl.notenames2midinotes (s1);
       }
       else {
-	cout << "Usage: chunking -m notes2midi <file name>" << endl;
-	cout << "Input: Name of a text file containing lines of note names, for example:" << endl;
-	cout << "C4 C4 G4 G4 A4 A4 G4" << endl;
-	cout << "F4 F4 E4 E4 D4 D4 C4" << endl;
-	cout << "Output: Lines of comma-separated Midi note numbers, for example:" << endl;
-	cout << "60, 60, 67, 67, 69, 69, 67" << endl;
-	cout << "65, 65, 64, 64, 62, 62, 60" << endl;
-	cout << "After being saved as a file, the output can be used together with printphrases to merge the pitches with rhythmic phrases." << endl;
+        cout << "Usage: chunking -m notes2midi <file name>" << endl;
+        cout << "Input: Name of a text file containing lines of note names, for example:" << endl;
+        cout << "C4 C4 G4 G4 A4 A4 G4" << endl;
+        cout << "F4 F4 E4 E4 D4 D4 C4" << endl;
+        cout << "Output: Lines of comma-separated Midi note numbers, for example:" << endl;
+        cout << "60, 60, 67, 67, 69, 69, 67" << endl;
+        cout << "65, 65, 64, 64, 62, 62, 60" << endl;
+        cout << "After being saved as a file, the output can be used together with printphrases to merge the pitches with rhythmic phrases." << endl;
       }
     }
     
@@ -651,14 +645,14 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         mdl.iBWTpathway (s1, s2);
       }
       else {
-	cout << "Usage: chunking -m bwtpath <shorthand string> <file name>" << endl;
-	cout << "Input: 1. A string of rhythm shorthand, for example:" << endl;
-	cout << "'IXIIXIIIXX'" << endl;
-	cout << "Internally, the algorithm converts the shorthand into a word over the alphabet {a,b}, " << endl;
-	cout << "where 'a' represents a note onset, and 'b' represents inter-onset pulses" << endl;
-	cout << "2. A file containing a random list of row numbers of the inverse Burrows Wheeler (iBWT) matrix." << endl;
-	cout << "The iBWT matrix has as many rows as the word has characters." << endl;
-	cout << "An example file of row numbers may contain: 14, 10, 7, 5, 3, 1." << endl;
+        cout << "Usage: chunking -m bwtpath <shorthand string> <file name>" << endl;
+        cout << "Input: 1. A string of rhythm shorthand, for example:" << endl;
+        cout << "'IXIIXIIIXX'" << endl;
+        cout << "Internally, the algorithm converts the shorthand into a word over the alphabet {a,b}, " << endl;
+        cout << "where 'a' represents a note onset, and 'b' represents inter-onset pulses" << endl;
+        cout << "2. A file containing a random list of row numbers of the inverse Burrows Wheeler (iBWT) matrix." << endl;
+        cout << "The iBWT matrix has as many rows as the word has characters." << endl;
+        cout << "An example file of row numbers may contain: 14, 10, 7, 5, 3, 1." << endl;
       }
     }
     

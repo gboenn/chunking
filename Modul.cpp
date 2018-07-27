@@ -1086,6 +1086,9 @@ void Modul::GetPartition (int n, int k, int cond) {
     break;
   default:
     cout << "condition not in range." << endl;
+          cout << "Usage: chunking -m getpart <n: integer> <k: integer> <1>" << endl;
+          cout << "returns the partition of n into k unique parts with the lowest standard deviation," << endl;
+          cout << "with n <= 120 and k <= 5. The output format is: n part_1 part_2 ... part_k mean k" << endl;
     return;
   }
   
@@ -1211,7 +1214,7 @@ void Modul::GetPartitionVector (int n, int& k, int cond, vector<float>* v) {
 int Modul::GetPartitionSmallestSigma (int n, int k) {
     //returns the index into vector of partition with smallest sigma
     // that is the partition with the distinct parts being closest together
-    // extreme case is arithmetic progression woth delta = 1
+    // extreme case is arithmetic progression with delta = 1
   int size = 0;
   int i = 0;
   int index = -1;
@@ -4429,6 +4432,9 @@ string Modul::Mutation (string rhythm, int n) {
     int dual_length = dual.length ();
     string ternary = "-iX><w";
     int ternary_length = ternary.length ();
+    string quaternary = "H!";
+    const int quat_repl_length = 8;
+    string quat_repl[quat_repl_length] = {"!", "H", "::", "II", "-.", ":I", "I:", ".I."};
     i = 0;
     for (string::iterator it=rhythm.begin(); it!=rhythm.end(); ++it, i++) {
         int k = 0;
@@ -4449,6 +4455,13 @@ string Modul::Mutation (string rhythm, int n) {
                             break;
                     }
                     rhythm[i] = c;
+                    break;
+                }
+            }
+            for (string::iterator it2=quaternary.begin(); it2!=quaternary.end(); ++it2) {
+                if (int(*it2) == int(*it)) {
+                    string temp = quat_repl[rand() % quat_repl_length];
+                    rhythm.replace (i,  1,  temp, 0, string::npos);
                     break;
                 }
             }
@@ -4564,33 +4577,12 @@ string Modul::Reverse (string rhythm) {
     return rhythm;
 }
 
-// pre-jump
-// like jump but with the first n characters repeated k times before full string
-// now (8 Jul 2018) part of Modul::Jumping
+// Growth (string rhythm)
+// 1. Random Fragment
+// 2. Mutate totally
+// 3. Append to input and return
 
-// 1. random silence
-// 2. silence between first and last symbol
-// 3. silence but first
-// 4. silence but last
+// Transmutate
+// replace binary with ternary, and ternary with binary symbols
 
-//Modul::ProcessToShapes()
-// hourglass (shortening + reverse shortening)
-// tail (shortening)
-// river (reverse shortening)
-// barrel (reverse shortening + shortening)
 
-// mutation with change from ternary to binary, or vice versa
-
-// Modul::Fragment (string rhythm)
-// random fragment from string, no rotation (length of result != length of string)
-
-// Modul::Rotation (string rhythm)
-// random rotation preserving length of string
-// perform bwt; select random entry from last block != original string
-// no sorting required
-
-// Modul::FragmentRotation (string rhythm)
-// random fragment with rotation
-// choose random number n = {1 ... length_of_string}
-// perform bwt; select random entry from block n with entry != original string
-// no sorting required
