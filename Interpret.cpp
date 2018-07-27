@@ -88,30 +88,21 @@ void Interpret::DoInterpret(TextIO& coms, Modul& mdl )
 		//  k: index des ersten zeichens der zeile
 		//
 		/////////////////////////////////////
-	
-		
-		k = 0; 
-		
-		/////////////////////////////////////
-		//
-		// wenn man nur zeilenweise woerter speichen moechte,
-		// w auf 0 und alte woerter durch null-string loeschen ( s.u.)
-		//
-		/////////////////////////////////////
-		
+			
+		k = 0;
 		w = 0;
 		//		int result = 0;
 		
-		if( args[i] != " " ) // wenn in der Zeile was steht,...
+		if( args[i] != " " ) // if there is information in the line,...
 		{
-			while( k < nchars ) // geh die ganze Zeile durch:
+			while( k < nchars ) // process the line:
 			{
 				while( args[i][k] == ' '  ) // FOUND WHITESPACE
 				{
 					k++;
-					if( k == ( nchars - 1 ) ) // zeilenende erreicht
+					if( k == ( nchars - 1 ) ) // reached end of line?
 						break;
-					if( args[i][k] != ' ' ) // character gefunden?
+					if( args[i][k] != ' ' ) // found character?
 						break;
 				}
 				
@@ -299,13 +290,21 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 		const char* c3 = args_obj[2].text;
 		float f2 = atof (c3);
 		proportion_series (f1, i1, f2);
-	    }
+        } else {
+            cout << "Usage: chunking -m propseries <chunk to divide iteratively: float> <number of iterations: int> <divisor: float>" << endl;
+        }
 	}
 	
 	if (ms == modulTable[kPartition])
 	{
 	  if (args_obj[0].text[0] == '\0') {
-	    cout << "partition n must-be-prime no-ones max prime max_int min_int int-to-add num-distinct-parts (0=all parts) [all-parts-equal]" << endl;
+          cout << "Usage: chunking -m partition <n> <flag parts-must-be-prime> <flag parts-not-’1’>" << endl;
+          cout << "<max prime in parts> <max int in parts>" << endl;
+          cout << "<min int in parts>" << endl;
+          cout << "<int to add to all parts>" << endl;
+          cout << "<number of distinct parts, 0 := print all partitions>" << endl;
+          cout << "<flag for p. with all parts being equal>" << endl;
+          
 	    return;
 	  }
 
@@ -366,8 +365,8 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
             mdl.AnalysePhrases (s1, i2, i3, 1);
             
         } else {
-            cerr << "usage: chunking -m anaphrases <shorthand.txt>" << endl;
-            cerr << "or: chunking -m anaphrases <shorthand.txt> <min beats> <max beats>" << endl;
+            cout << "usage: chunking -m anaphrases <shorthand.txt>" << endl;
+            cout << "or: chunking -m anaphrases <shorthand.txt> <min beats> <max beats>" << endl;
         }
 	}
 	
@@ -386,7 +385,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         } else if (args_obj[0].text[0] != '\0' &&
                    args_obj[1].text[0] == '\0')
         {
-            cout << "error: please provide a valid text filename as the second argument." << endl;
+            cout << "Usage: chunking -m printphrases <file1: shorthand notation> <file2: midi pitches>" << endl;
         }
     }
     
@@ -400,7 +399,11 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 			string s2 = args_obj[1].text;
 			
 			mdl.AnalyseIntegerRhythmStrings (s1, s2);
-	    }
+        } else {
+            cout << "Usage: chunking -m intstrings <file1> <file2>" << endl;
+            cout << "Input: Two ascii text files with lines of comma-separated rhythms in integer distance notation." << endl;
+            cout << "Output: various distance measurements between all pairs of rhythms be- tween file1 and file2" << endl;
+        }
 	}
 	
 	
@@ -419,15 +422,20 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 			int i3 = atoi (c3);
 			mdl.FareyToBinaryRhythm (i1, i2, i3);
 		}
+        else {
+            cout << "Usage: chunking -m farey2binary <Farey Sequence n> <Digestibility threshold f> <int flag activates smooth filter 2 3>" << endl;
+        }
 	}
 	
 	if (ms == modulTable[kdivisors])
 	{
+        // lists all divisors of n in {1,2,3,...,499}
 		mdl.Divisors ();
 	}
 	
 	if (ms == modulTable[kpermutations])
 	{
+        // Outputs the Christoffel words and BWTs of ratios built by the first twenty-one 7-smooth numbers.
 		mdl.Permutations ();
 	}
 	
@@ -450,7 +458,9 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 			char* c3 = args_obj[2].text;
 			int i3 = atoi (c3);
 			mdl.FareyPolyrhythm (i1, i2, i3);
-		}
+        } else {
+            cout << "Usage: chunking -m fpoly <Farey Seq. N> <first subdivision> <second subdivision>" << endl;
+        }
 	}
     
     if (ms == modulTable[kprintfarey])
@@ -462,6 +472,12 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
             int i1 = atoi (c1);
             
             mdl.PrintFareySeq (i1);
+        }
+        else {
+            cout << "Usage: chunking -m printfarey <Farey Sequence n>" << endl;
+            cout << "Prints all members of Farey Sequence n, " << endl;
+            cout << "with each ratio also interpreted as slope of Christoffel word," << endl;
+            cout << "including bit pattern operations, BWT, and shorthand notations." << endl;
         }
         
     }
@@ -479,6 +495,10 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 
             
             mdl.CRhythm (i1, i2);
+        }
+        else {
+            cout << "Usage: chunking -m crhythm <m: integer> <n: integer>" << endl;
+            cout << "Outputs a Christoffel word C(m,n), its ancestors in the Stern-Brocot tree, and various other transformations." << endl;
         }
         
     }
@@ -501,7 +521,10 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
                 int i4 = atoi (c4);
 
 		mdl.CompareCRhythms (i1, i2, i3, i4);
-	      }
+          } else {
+              cout << "Usage: chunking -m compc <m1: int> <n1: int> <m2: int> <n2: int>" << endl;
+              cout << "Compares two Crhistoffel rhythms with each other to find intersections of their inverse Burrows-Wheeler matrix, i.e. comparing all of their possible cyclic substrings." << endl;
+          }
 
 	  }
 
@@ -516,6 +539,9 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
             string s1 = args_obj[0].text;
             
             mdl.LookupRhythm (s1);
+        } else {
+            cout << "Usage: chunking -m lookup <shorthand pattern>" << endl;
+            cout << "Searches all Christoffel words, from C(1,1) to C(20,20), for a matching rhyth- mic pattern" << endl;
         }
         
     }
@@ -532,14 +558,22 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 	}
 
 	if (ms == modulTable[kgetpartition]) {
-	  char* c1 = args_obj[0].text;
-          int i1 = atoi (c1);
-	  char* c2 = args_obj[1].text;
-          int i2 = atoi (c2);
-	  char* c3 = args_obj[2].text;
-          int i3 = atoi (c3);
-          mdl.GetPartition (i1, i2, i3);
+        if (args_obj[0].text[0] != '\0' ||
+            args_obj[1].text[0] != '\0' ||
+            args_obj[2].text[0] == '\0') {
+            char* c1 = args_obj[0].text;
+            int i1 = atoi (c1);
+            char* c2 = args_obj[1].text;
+            int i2 = atoi (c2);
+            char* c3 = args_obj[2].text;
+            int i3 = atoi (c3);
+            mdl.GetPartition (i1, i2, i3);
+        } else {
+            cout << "Usage: chunking -m getpart <n: integer> <k: integer> <1>" << endl;
+            cout << "returns the partition of n into k unique parts with the lowest standard deviation," << endl;
+            cout << "with n <= 120 and k <= 5. The output format is: n part_1 part_2 ... part_k mean k" << endl;
         }
+    }
 
 	if (ms == modulTable[ksentence]) {
 	      char* c1 = args_obj[0].text;
@@ -799,6 +833,16 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         }
         else {
             cout << "Usage: chunking -m compose <shorthand string>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[kreverse]) {
+        if (args_obj[0].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            cout << mdl.Reverse (s1) << endl;
+        }
+        else {
+            cout << "Usage: chunking -m reverse <shorthand string>" << endl;
         }
     }
     

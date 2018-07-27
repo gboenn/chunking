@@ -351,6 +351,7 @@ class Modul
         string FragmentRotation (string rhythm);
         string Mutation (string rhythm, int n);
         string Swap (string rhythm, int n);
+        string Reverse (string rhythm);
         string Silence (string rhythm, int n, int k);
         string ProcessToShapes (string rhythm, int flag);
         void Compose (string rhythm);

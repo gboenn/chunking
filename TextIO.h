@@ -169,6 +169,7 @@ enum
     krotate,
     kfragrotate,
     kcompose,
+    kreverse,
 	kNumModules
 };	
 
@@ -322,7 +323,8 @@ static const char* modulTable[kNumModules] =
     "fragment",
     "rotate",
     "fragrotate",
-    "compose"
+    "compose",
+    "reverse"
     };
 
 #endif

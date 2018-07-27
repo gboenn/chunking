@@ -4055,6 +4055,7 @@ void Modul::DB_insert_from_file (string filename, string patname, string origin,
     
     if (db_err) {
         fprintf (stderr, "Error opening database: %s\n", sqlite3_errmsg(rhy));
+        fprintf (stderr, "Check whether /usr/local/share/chunking/rhy.db exists\n");
     }
     
     string sql;
@@ -4553,20 +4554,15 @@ void Modul::Compose (string rhythm) {
     int vsize = piece.size ();
     int i = 0;
     for (; i < vsize; ++i) {
-        cout << i << ": " << piece.at(i) << endl;
+        //cout << i << ": " << piece.at(i) << endl;
+        cout << piece.at(i) << endl;
     }
-    
-    
-#if 0
-    string inter = rhythm + '\n';
-    inter += Swap (rhythm, 1) + '\n';
-    inter += Mutation (rhythm, 1) + '\n';
-    inter += Jumping (rhythm, 3, 2, 0) + '\n';
-    cout << "$ ===================" << endl;
-    cout << inter << endl;
-#endif
 }
 
+string Modul::Reverse (string rhythm) {
+    reverse(rhythm.begin (), rhythm.end ());
+    return rhythm;
+}
 
 // pre-jump
 // like jump but with the first n characters repeated k times before full string
