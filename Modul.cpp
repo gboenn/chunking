@@ -4095,7 +4095,7 @@ void Modul::DB_insert_from_file (string filename, string patname, string origin,
         if (line != "") {
             if (line.find ("$") == string::npos) {
                 cout << line << endl;
-                string sql = "INSERT INTO rhythm VALUES (\"" + line + "\", \"" + patname + "\", \"" + origin + "\", \"" + composer + "\"); ";
+                string sql = "INSERT INTO rhythm VALUES (\"" + line + "\", \"" + patname + "\", \"" + origin + "\", \"" + composer + "\", NULL); ";
                 cout << sql << endl;
                 int rc = sqlite3_exec(rhy, sql.c_str(), 0, 0, &err_msg);
                 if (rc != SQLITE_OK) {
@@ -4134,7 +4134,7 @@ void Modul::DB_search (string searchstring) {
     return;
   }
 
-  sql = "SELECT pattern, name, origin, composer FROM rhythm WHERE pattern LIKE '" + searchstring + "'";
+  sql = "SELECT pattern, name, origin, composer, ID FROM rhythm WHERE pattern LIKE '" + searchstring + "'";
     int countrow = 0;
   if (sqlite3_prepare (rhy, sql.c_str(), -1, &statement, 0) == SQLITE_OK) {
     //int ctotal = sqlite3_column_count (statement);
@@ -4147,7 +4147,8 @@ void Modul::DB_search (string searchstring) {
               string name = (char*)sqlite3_column_text(statement, 1);
               string origin = (char*)sqlite3_column_text(statement, 2);
               string composer = (char*)sqlite3_column_text(statement, 3);
-              cout << "$ " << name << " " << origin << " " << composer << " " << countrow << endl;
+              int id = sqlite3_column_int(statement, 4);
+              cout << "$ " << name << " " << origin << " " << composer << " ID: "<< id << " " << countrow << endl;
               cout << rhythm << endl;
 #if 0
 	  for (int i = 0; i < ctotal; i++) {

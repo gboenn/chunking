@@ -20,7 +20,8 @@
 #if 1
 enum
 {
-	kSettings = 0,
+#if 0
+    kSettings = 0,
 	kCopySF,
 	kReadText,
 	kMIDItoFreq,
@@ -133,6 +134,10 @@ enum
 	kprogram,
 	ktobinary,
 	kreihe,
+#endif
+//////////////////////////////////////
+    kPropSeries=0,
+    kPartition,
 	kfarey2binary,
 	kdivisors,
 	kpermutations,
@@ -175,6 +180,7 @@ enum
 
 static const char* modulTable[kNumModules] = 
 {
+#if 0
 	"Settings",
 	"CopySF",
 	"ReadText",
@@ -288,7 +294,11 @@ static const char* modulTable[kNumModules] =
 	"program",
 	"tobinary",
 	"reihe",
-	"farey2binary",
+#endif
+/////////////////////////////////////////
+    "propseries",
+    "partition",
+    "farey2binary",
 	"divisors",
 	"permutations",
 	"fpoly",
