@@ -328,7 +328,7 @@ class Modul
 	void WriteToCsoundScore (ofstream& s, string pattern, float* onset, float period);
     void WriteToCsoundScore2 (ofstream& s, string pattern, float* onset, float period);
 	void PrintSentenceStatement (ofstream& s, vector<float>* v, float* onset, float period, int instr);
-    void PrintPhrases (string filename, string pitches, float bpm);
+    void PrintPhrases (string filename, string pitches, float bpm, int flag);
     void PrintPolyPhrases (string filename, string pitches, float bpm);
     vector<vector<string> > GetPitches () { return mel_matrix; }
     void SetPitchLine (int i) { pitch_line = i; }
@@ -356,6 +356,11 @@ class Modul
         string Silence (string rhythm, int n, int k);
         string ProcessToShapes (string rhythm, int flag);
         void Compose (string rhythm);
+        void midinotes2notenames (string filename);
+        void BendFarey (int n);
+        void AddAndRepeat (string rhythm, int n, int k);
+        void Repeat (string input, int n);
+	void Nest (string input);
 };
 
 class Decoder {
@@ -369,12 +374,14 @@ private:
     int mel_line; //test to pick a new melody line
     int mel_count;
     vector<string> pitch_classes;
-    int last_midi_note;
-    int midi_note;
+    //vector<int> last_midi_note; // int to vector<int>
+    vector<int> midi_note; // int to vector<int>
     map<string,int> notename_midi_map;
     
 public:
-    Decoder () { flag = 0; code=""; note="a"; mel_line=0; mel_count=0; last_midi_note=0;
+    Decoder () { flag = 0; code=""; note="a"; mel_line=0; mel_count=0;
+        
+        //last_midi_note.push_back(0);
         
         pitch_classes.push_back ("c");
         pitch_classes.push_back ("cis");
@@ -527,35 +534,93 @@ public:
 	string GetCode () { return code; };
 	void SetNote (string n) { note = n; };
     void SetPitchLine (int i) { mel_line = i; }
-    int GetLastMidiNote () { return last_midi_note; }
-    void SetLastMidiNote (int i) { last_midi_note = i; }
+    vector<int> GetLastMidiNote () { return midi_note; } // int to vector<int>
+    //void SetLastMidiNote (int i) { last_midi_note.push_back(i); } //obsolete or int to vector<int>
+    void SaveNote () { mel_count--; }
     void AdvanceNote () {
-        if (flag == -2) return; // -2 is opening bracket flag - if the symbol is inside ( ) - brackets do not write to note
+        if (flag == -2) return; // -2 is opening bracket flag - if there is one of the symbols ( ), brackets do not write to note
         if (flag == -3) {
             // -3 is end of brackets flag
             flag = 0; //reset flag
         }
+        if (flag == -1) {
+            flag = 0;
+            return;
+        }
+        //clear midi_note
+        midi_note.erase (midi_note.begin (), midi_note.end ());
+        
         int size = pitches[mel_line].size ();
         //cout << "s:" << size << " ";
-        midi_note = atoi( pitches.at(mel_line).at(mel_count++).c_str () );
-        //cout << "midi " << midi_note << " ";
-        string octave = "";
-        int oct = midi_note / 12;
-        //cout << oct << " ";
-        if (oct > 4) {
-            oct -= 4;
-            for (int i = 0; i < oct; i++)
-                octave += "'";
+        string pstring = pitches.at(mel_line).at(mel_count);
+        //cout << pstring << " ";
+        if (pstring.find(":") != string::npos) {
+            stringstream sstr1 (pstring);
+            string n;
+            
+            while (getline (sstr1, n, ':')) {
+                midi_note.push_back (atoi (n.c_str ()));
+                //cout << midi_note.back () << " ";
+            }
+        } else {
+            midi_note.push_back (atoi (pstring.c_str ()));
         }
-        else {
-            for (int i=4; i>oct ;  i--)
-                octave += ",";
+        //mel_count: how many notes or chords in one line (=> 1 bar)
+        //mel_line: how many lines of pitches in the input file
+        //midi_note is vector<int> start loop over string pitches.at(mel_line).at(mel_count)
+        //with ':' as delimiter for chord notes. for ex. 60:64:67 for c major chord starting on C4
+        //for lilypond build a string that contains the octaves (c' c,) for each chord note
+        //and has the format: <c' e' g'> (pointy brackets to enclose a chord)
+        //midi_note.push_back( atoi( pitches.at(mel_line).at(mel_count++).c_str () ));
+   
+        int midi_note_size = midi_note.size ();
+        //cout << "midi_note_size: " << midi_note_size << " ";
+        if (midi_note_size > 1) { // if there is a chord
+            int i = 0;
+            note = "<";
+            for (; i < midi_note_size; i++) {
+                string octave = "";
+                int oct = midi_note.at(i) / 12;
+                //cout << oct << " ";
+                if (oct > 4) {
+                    oct -= 4;
+                    for (int i = 0; i < oct; i++)
+                        octave += "'";
+                }
+                else {
+                    for (int i=4; i>oct ;  i--)
+                        octave += ",";
+                }
+                //last_midi_note.push_back(midi_note.at(i));
+                string pitch = pitch_classes[(midi_note.at(i) % 12)];
+                note += pitch + octave + " "; // for lilypond
+                //cout << "note: " << note << " ";
+            }
+            note += ">";
+        } else {
+            //cout << "midi " << midi_note.at(0) << " ";
+            string octave = "";
+            int oct = midi_note.at(0) / 12;
+            //cout << oct << " ";
+            if (oct > 4) {
+                oct -= 4;
+                for (int i = 0; i < oct; i++)
+                    octave += "'";
+            }
+            else {
+                for (int i=4; i>oct ;  i--)
+                    octave += ",";
+            }
+            //for chords: last_midi_note and midi_note have to be vector<int> lists
+            //last_midi_note.at(0) = midi_note.at(0); // for csound
+            //for chords in lilypond: pitches and octaves have to be assembled via loop, ex.: <c' e' g'>
+            string pitch = pitch_classes[(midi_note.at(0) % 12)];
+            note = pitch + octave; // for lilypond
+            //cout << note << " ";
         }
-        last_midi_note = midi_note;
-        string pitch = pitch_classes[(midi_note % 12)];
-        note = pitch + octave;
-        //cout << note << " ";
-        if (mel_count == size) mel_count = 0;
+        
+        
+        if (++mel_count == size) mel_count = 0;
     }
     
     void SetPitches (vector<vector<string> > matrix) { pitches = matrix; };
@@ -877,6 +942,7 @@ public:
 
     void decode_for_csound3 (int s, float period_in_secs, float* onset, vector<float>& notes)
     {
+        // this is the converter used for csound score generation
         //shorthand convert to csound score instrument parameters p2 (onset) and p3 (duration) on basis of period of pulsation in seconds
         //notes vector will contain onset1, duration1, amplitude1, midipitch1, onset2, duration2, amplitude2, midipitch2, ...
         //the previous note end is passed as current onset arg. When there is no rest at the beginning of the new pattern, then onset is the first onset of the new note
@@ -889,10 +955,12 @@ public:
             case 87:
                 //whole note
                 AdvanceNote ();
+                //for chords one needs to loop over the  vector of vector<int>midi_note
+                // same onset1, duration1, amplitude1, for all pitches of the chord
                 notes.push_back(*onset);
                 notes.push_back(8.f * period_in_secs);
                 notes.push_back(strong);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 8.f * period_in_secs;
                 break;
             case 72:
@@ -901,7 +969,7 @@ public:
                 notes.push_back(*onset);
                 notes.push_back(4.f * period_in_secs);
                 notes.push_back(strong);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 4.f * period_in_secs;
                 break;
             case 119:
@@ -910,7 +978,7 @@ public:
                 notes.push_back(*onset + 2.f * period_in_secs);
                 notes.push_back(period_in_secs);
                 notes.push_back(weak);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 3.f * period_in_secs;
                 break;
             case 118:
@@ -919,7 +987,7 @@ public:
                 notes.push_back(*onset + period_in_secs);
                 notes.push_back(period_in_secs);
                 notes.push_back(weak);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 2.f * period_in_secs;
                 break;
             case 46:
@@ -928,7 +996,7 @@ public:
                 notes.push_back(*onset);
                 notes.push_back(period_in_secs);
                 notes.push_back(strong);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + period_in_secs;
                 break;
             case 73:
@@ -937,7 +1005,7 @@ public:
                 notes.push_back(*onset);
                 notes.push_back(2.f * period_in_secs);
                 notes.push_back(strong);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 2.f * period_in_secs;
                 break;
             case 58:
@@ -946,12 +1014,12 @@ public:
                 notes.push_back(*onset);
                 notes.push_back(period_in_secs);
                 notes.push_back(strong);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 AdvanceNote ();
                 notes.push_back(*onset + period_in_secs);
                 notes.push_back(period_in_secs);
                 notes.push_back(weak);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 2.f * period_in_secs;
                 break;
             case 47:
@@ -960,7 +1028,7 @@ public:
                 notes.push_back(*onset + period_in_secs);
                 notes.push_back(period_in_secs);
                 notes.push_back(weak);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 2.f * period_in_secs;
                 break;
             case 88:
@@ -969,12 +1037,12 @@ public:
                 notes.push_back(*onset);
                 notes.push_back(period_in_secs);
                 notes.push_back(strong);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 AdvanceNote ();
                 notes.push_back(*onset + period_in_secs);
                 notes.push_back(period_in_secs);
                 notes.push_back(weak);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 3.f * period_in_secs;
                 break;
             case 33:
@@ -983,12 +1051,12 @@ public:
                 notes.push_back(*onset);
                 notes.push_back(period_in_secs);
                 notes.push_back(strong);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 AdvanceNote ();
                 notes.push_back(*onset + period_in_secs*3.f);
                 notes.push_back(period_in_secs*3.f);
                 notes.push_back(weak);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 4.f * period_in_secs;
                 break;
             case 62:
@@ -997,12 +1065,12 @@ public:
                 notes.push_back(*onset);
                 notes.push_back(2.f * period_in_secs);
                 notes.push_back(strong);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 AdvanceNote ();
                 notes.push_back(*onset + 2.f * period_in_secs);
                 notes.push_back(period_in_secs);
                 notes.push_back(weak);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 3.f * period_in_secs;
                 break;
             case 60:
@@ -1011,7 +1079,7 @@ public:
                 notes.push_back(*onset + period_in_secs);
                 notes.push_back(2.f * period_in_secs);
                 notes.push_back(weak);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 3.f * period_in_secs;
                 break;
             case 43:
@@ -1020,12 +1088,12 @@ public:
                 notes.push_back(*onset + period_in_secs);
                 notes.push_back(period_in_secs);
                 notes.push_back(weak);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 AdvanceNote ();
                 notes.push_back(*onset + 2.f * period_in_secs);
                 notes.push_back(period_in_secs);
                 notes.push_back(weaker);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 3.f * period_in_secs;
                 break;
             case 105:
@@ -1034,17 +1102,17 @@ public:
                 notes.push_back(*onset);
                 notes.push_back(period_in_secs);
                 notes.push_back(strong);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 AdvanceNote ();
                 notes.push_back(*onset + period_in_secs);
                 notes.push_back(period_in_secs);
                 notes.push_back(weak);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 AdvanceNote ();
                 notes.push_back(*onset + 2.f * period_in_secs);
                 notes.push_back(period_in_secs);
                 notes.push_back(weaker);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 3.f * period_in_secs;
                 break;
             case 45:
@@ -1053,7 +1121,7 @@ public:
                 notes.push_back(*onset);
                 notes.push_back(3.f * period_in_secs);
                 notes.push_back(strong);
-                notes.push_back(GetLastMidiNote ());
+                notes.push_back(GetLastMidiNote ().at(0));
                 *onset = *onset + 3.f * period_in_secs;
                 break;
             case 126:
@@ -1081,6 +1149,8 @@ public:
         //int code = s;
         //string code = "";
         
+        //AdvanceNote() advances the melody (pitches, chords) to the next item
+        // chords are done with string <c' e' g'>
         switch (s) {
             case 87:
                 AdvanceNote ();
@@ -1161,6 +1231,7 @@ public:
             case 126:
                 lc = " ~ ";
                 Set(-1);
+                //SaveNote ();
                 break;
             case 40:
                 lc = "";
@@ -1976,9 +2047,63 @@ public:
             if (it+1 != midinotes.end())
                 note_string += ", ";
         }
+        
+        return note_string;
+    }
+    
+    string midinotes2notenames (string midi) {
+        stringstream lineStream (midi);
+        string cell;
+        vector<string> notes;
+        vector<int> m;
+        while (getline(lineStream, cell, ',')) {
+            int midivalue = atoi (cell.c_str ());
+            m.push_back (midivalue);
+            notes.push_back (midi_to_notename (midivalue));
+        }
+        string note_string;
+        for (vector<string>::iterator it=notes.begin() ; it!=notes.end(); ++it) {
+            note_string += *it;
+            if (it+1 != notes.end())
+                note_string += ", ";
+        }
+        note_string += "\n$ ";
+        if (m.size () > 1) {
+            int first = m.front ();
+            for (vector<int>::iterator it=m.begin()+1 ; it!=m.end(); ++it) {
+                note_string += to_string(abs (first - *it)) + ", ";
+                first = *it;
+            }
+        }
         return note_string;
     }
 
+    string midichords2notenames (string midi) {
+        stringstream lineStream (midi);
+        string cell;
+        vector<string> notes;
+        vector<int> m;
+        while (getline(lineStream, cell, ':')) {
+            int midivalue = atoi (cell.c_str ());
+            m.push_back (midivalue);
+            notes.push_back (midi_to_notename (midivalue));
+        }
+        string note_string;
+        for (vector<string>::iterator it=notes.begin() ; it!=notes.end(); ++it) {
+            note_string += *it;
+            if (it+1 != notes.end())
+                note_string += ", ";
+        }
+        note_string += "\n$ ";
+        if (m.size () > 1) {
+            int first = m.front ();
+            for (vector<int>::iterator it=m.begin()+1 ; it!=m.end(); ++it) {
+                note_string += to_string(abs (first - *it)) + ", ";
+                first = *it;
+            }
+        }
+        return note_string;
+    }
 
 };
 #endif // __Modul_h__ 

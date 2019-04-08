@@ -24,6 +24,8 @@
 #include "Christoffel.h"
 #include <iostream>
 #include <sqlite3.h>
+#include <random>
+#include <functional>
 
 #include "gc_switch_ssh.h"
 #if BOEHM_GC_SWITCH
@@ -190,7 +192,7 @@ Modul::Modul( string filtyp, unsigned long chan, unsigned long samframs,
     default_pitch.push_back ("69");
     mel_matrix.push_back (default_pitch);
     
-    BPM = 90.;
+    BPM = 180.;
 	LoadForms();
 } 
  
@@ -1885,7 +1887,7 @@ void Modul::WriteToLilyfile (ofstream& s, string pattern, bool init, bool finish
     s << "}" << endl;
       if (grouping) {
           s << "\\layout {\\context {\\Staff \\consists \"Measure_grouping_engraver\" }}" << endl;
-          //s << "\\midi {\\tempo 4 = 120 }" << endl << "}" << endl;
+          s << "\\midi {\\tempo 8 = " << BPM << " }" << endl;
       } else {
           s << "\\layout {}" << endl;
           s << "\\midi {\\tempo 8 = " << BPM << " }" << endl;
@@ -2875,7 +2877,7 @@ void Modul::AnalysePhrases (string filename, int minbeat, int maxbeat, int bwt_o
 }
 
 
-void Modul::PrintPhrases (string filename, string pitches, float bpm) {
+void Modul::PrintPhrases (string filename, string pitches, float bpm, int flag) {
     // add flag for deciding to print drum staff in lilypond
     // write new method in Decoder class to translate MIDI pitches (GM drum map)
     // to lilypond codes for drum set. Needs to modify AdvanceNote() with a flag
@@ -3003,7 +3005,7 @@ void Modul::PrintPhrases (string filename, string pitches, float bpm) {
         SetPitchLine (linecount);
         
         //output of lilypond file
-        WriteToLilyfile (fptr, *shlink->data, false, false, true);
+        WriteToLilyfile (fptr, *shlink->data, false, false, flag);
         
         //output to csound orc
         WriteToCsoundScore2 (fptr2, *shlink->data, &onset, period);
@@ -3035,7 +3037,7 @@ void Modul::PrintPhrases (string filename, string pitches, float bpm) {
         durations->destroy ();
         
     }
-    WriteToLilyfile (fptr, " ", false, true, true);
+    WriteToLilyfile (fptr, " ", false, true, flag);
     
     smatrix->destroy ();
     delete smatrix;
@@ -3103,6 +3105,25 @@ void Modul::PrintFareySeq (int n) {
         c.word_to_rhythm_chunks3 (c1);
     }
     
+}
+
+void Modul::BendFarey (int n) {
+    
+    Farey a;
+    a.CreateFareySeq (n);
+    DLink<Ratio>* l;
+    l = a.GetFirst ();
+    for (; l != nullptr; l = l->next) {
+        double r1 = 0.; double r2 = 0.;
+        double fval = l->data->GetFloat();
+        int res = qroots (-1., 2., (fval*fval*-1.), &r1, &r2);
+        if (!res) {
+            cout << l->data->GetP() << "/" << l->data->GetQ() << " = " << fval << endl;
+            cout << "bent with (-x^2 + 2x)^1/2 : " << r1 << " " << r2 << endl;
+        } else {
+            cout << "qroots(): division by 0 detected." << endl;
+        }
+    }
 }
 
 void Modul::CompareCRhythms (int m, int n, int m2, int n2) {
@@ -3447,8 +3468,11 @@ int Modul::LoadMelodyFromFile (string filename, vector<vector<string> >& matrix)
         stringstream lineStream (line);
         row.clear();
     
-    while (getline(lineStream, cell, ',' ))
-        row.push_back (cell);
+        while (getline(lineStream, cell, ',' )) {
+            if (cell.find ("$") == string::npos)
+                row.push_back (cell);
+        }
+        //row.push_back (cell);
     
     if (!row.empty ())
         matrix.push_back (row);
@@ -3739,7 +3763,30 @@ void Modul::notenames2midinotes (string filename) {
         notes = dec.notenames2midinotes (line);
         cout << notes << endl;
     }
+}
+
+void Modul::midinotes2notenames (string filename) {
+    ifstream file (filename.c_str());
+    string line;
+    Decoder dec;
     
+    while (file) {
+        string notes;
+        getline (file,line);
+        if (line.find("$") != string::npos)
+            continue;
+        if (line.find(":") == string::npos)
+            notes = dec.midinotes2notenames (line);
+        else {
+            stringstream lineStream (line);
+            string cell;
+            while (getline(lineStream, cell, ',')) {
+                notes += dec.midichords2notenames (cell);
+                notes += ", ";
+            }
+        }
+        cout << notes << endl;
+    }
 }
 
 void Modul::iBWTspecific (string input, int k, int l) {
@@ -4130,6 +4177,7 @@ void Modul::DB_search (string searchstring) {
   string sql = "PRAGMA case_sensitive_like = true";
   if (sqlite3_prepare (rhy, sql.c_str(), -1, &statement, 0) != SQLITE_OK) {
     cerr << "error when setting case_sensitive_like = true." << endl;
+    sqlite3_finalize (statement);
     sqlite3_close (rhy);
     return;
   }
@@ -4150,20 +4198,13 @@ void Modul::DB_search (string searchstring) {
               int id = sqlite3_column_int(statement, 4);
               cout << "$ " << name << " " << origin << " " << composer << " ID: "<< id << " " << countrow << endl;
               cout << rhythm << endl;
-#if 0
-	  for (int i = 0; i < ctotal; i++) {
-	    string s = (char*)sqlite3_column_text(statement, i);
-	    cout << s << " " ;
-	  }
-	  cout << endl;
-#endif
           }
           if (res == SQLITE_DONE || res==SQLITE_ERROR) {
               break;
           }
       }
   }
-
+  sqlite3_finalize (statement);
   sqlite3_close (rhy);
 }
 
@@ -4408,21 +4449,20 @@ string Modul::Rotation (string rhythm) {
 
 string Modul::Mutation (string rhythm, int n) {
     // random mutations, n = number of mutations
+
     size_t rlen = rhythm.length ();
-    if (n > int(rlen)) {
-        n = rlen;
-    }
     vector <int> mutpos;
     srand (time(NULL));
     int m = n;
+    int lenm1 = rlen - 1;
+    random_device rd;
+    mt19937 md(rd());
+    uniform_real_distribution<double> dist(0, lenm1);
     while (--m >= 0) {
-        int r = 0;
-        int i = rand () % 97;
-        while (--i > 0)
-            r = rand() % rlen;
-        //cout << r;
-        mutpos.push_back(r);
+      int r = dist(md);
+      mutpos.push_back(r);
     }
+
     int i = 0;
     cout << "$ mutations at positions: ";
     for (; i < n; i++) {
@@ -4492,8 +4532,11 @@ string Modul::Swap (string rhythm, int n) {
     srand (time(NULL));
     int m = n;
     int lenm1 = rlen - 1;
+    random_device rd;
+    mt19937 md(rd());
+    uniform_real_distribution<double> dist(0, lenm1);
     while (--m >= 0) {
-        int r = rand() % lenm1;
+        int r = dist(md);
         mutpos.push_back(r);
     }
     int i = 0;
@@ -4578,6 +4621,33 @@ string Modul::Reverse (string rhythm) {
     return rhythm;
 }
 
+void Modul::AddAndRepeat (string rhythm, int n, int k) {
+    Christoffel c;
+    c.SetWord(rhythm);
+    string result;
+    string inter;
+    for (string::iterator it=rhythm.begin(); it!=rhythm.end(); ++it) {
+        string code = decode_shorthand_symbol(int(*it));
+        for (string::iterator it2=code.begin(); it2!=code.end(); ++it2) {
+            if (*it2 == '1')
+                inter += "a";
+            if (*it2 == '0')
+                inter += "b";
+            int i = 0;
+            for (; i < n; i++) {
+                inter += "b";
+            }
+        }
+    }
+
+//    cout << inter << endl;
+
+    result = c.word_to_rhythm_chunks3 (inter);
+    int i = 0;
+    for (; i < k; i++) {
+        cout << result << endl;
+    }
+}
 // Growth (string rhythm)
 // 1. Random Fragment
 // 2. Mutate totally
@@ -4586,4 +4656,19 @@ string Modul::Reverse (string rhythm) {
 // Transmutate
 // replace binary with ternary, and ternary with binary symbols
 
+void Modul::Repeat (string input, int n) {
+    //chunking -m repeat input n
+    //repeats a pattern in snmr n times and prints result to stdout
+    while (n-- > 0) {
+        cout << input << endl;
+    }
+        
+}
 
+void Modul::Nest (string input) {
+  
+  //  string rhy = "IIXIIIX::";
+  
+  string result = Mutation(Mutation(Mutation(input,1), 1), 1);
+  cout << result << endl;
+}
