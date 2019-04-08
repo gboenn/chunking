@@ -430,7 +430,7 @@ class StringToFile {
  private:
   ofstream output;
   string filename;
-
+  int error;
 
 };
 
