@@ -51,7 +51,8 @@ struct onset_histo {
 
 string decode_shorthand_symbol (int s);
 
-extern "C" { 
+extern "C" {
+    int    qroots (double a, double b, double c, double* r1, double* r2);
 void	double2frac (double in, Ratio* out);
 int decode_shorthand_length (int s);
 int levenshtein(char *s1, char *s2);

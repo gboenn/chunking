@@ -38,6 +38,21 @@ AlgoComp::~AlgoComp()
  
 #define MIN3(a, b, c) ((a) < (b) ? ((a) < (c) ? (a) : (c)) : ((b) < (c) ? (b) : (c)))
 
+int qroots (double a, double b, double c, double* r1, double* r2) {
+    double t1 = (b*b) - 4 * (a * c);
+    if (t1 < 0.)
+        return -1;
+    double num1 = -b + sqrt(t1);
+    double num2 = -b - sqrt(t1);
+    double denom = 2. * a;
+    if (denom == 0.)
+        return 1;
+    *r1 = num1 / denom;
+    *r2 = num2 / denom;
+    return 0;
+    
+}
+
 int levenshtein(char *s1, char *s2) {
     unsigned int s1len, s2len, x, y, lastdiag, olddiag;
     s1len = strlen(s1);
@@ -1905,8 +1920,17 @@ int partition_rhythm_print (int n, int npart, int a[], int mult[], int must_be_p
     cout << "mean: " << mean << " sigma: " << std::setprecision(6) << (sqrt(sum/double(partcount))) << " " << noprime;
     if (!not_coprime_flag)
         cout << " Coprime pairs.";
-    if (!none_coprime_flag)
+    if (!none_coprime_flag) {
         cout << " Coprime sequence!";
+        int product = 1; int i = 0;
+        for (; i < npart; i++) {
+            int k = 0;
+            for (; k < mult[i]; k++) {
+                product *= a[i];
+            }
+        }
+        cout << " Product: " << product;
+    }
     cout << "\n";
 	
 	return (!none_coprime_flag);
