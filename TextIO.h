@@ -175,6 +175,16 @@ enum
     kfragrotate,
     kcompose,
     kreverse,
+    kmidi2notes,
+    kstartsession,
+    kstopsession,
+    kprintsession,
+    klistsessions,
+    ksession,
+    kbendf,
+    kaddrep,
+    krepeat,
+    knest,
 	kNumModules
 };	
 
@@ -334,7 +344,17 @@ static const char* modulTable[kNumModules] =
     "rotate",
     "fragrotate",
     "compose",
-    "reverse"
+    "reverse",
+    "midi2notes",
+    "startsession",
+    "stopsession",
+    "printsession",
+    "listsessions",
+    "session",
+    "bendf",
+    "addrep",
+	"repeat",
+	"nest"
     };
 
 #endif
