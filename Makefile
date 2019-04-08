@@ -28,6 +28,7 @@ CFLAGS = -g -O0 -Wall
 #PROFILER = -pg
 PROFILER =
 TARGETS = chunking
+LIBRARY = libchunking
 #LIBPTHREADS = -lpthreads -framework Cocoa
 LIBGC =
 SQLITE = -lsqlite3
@@ -36,6 +37,9 @@ INCLUDES =
 .PHONY: install uninstall
 
 all: $(TARGETS)
+
+libchunking: $(OBJS) $(HDRS)
+	$(CC) -dynamiclib $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) -o libchunking.dylib
 
 chunking: $(OBJS) $(HDRS)
 	$(CC) $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) -o chunking
