@@ -10,6 +10,7 @@
 #endif
 
 #include <stdint.h>
+#include <sqlite3.h>
 
 #include "AlgoComp.h"
 
@@ -42,10 +43,42 @@ Interpret::Interpret()
 		loop++;
 		}
 	prompt = "SoundShell";
-}
+    add_flag = 0;
+    user_session = "";
+
+    db_err = sqlite3_open("/usr/local/share/chunking/rhy.db", &rhy);
+    
+    if (db_err) {
+        fprintf (stderr, "Error opening database in Interpret ctor: %s\n", sqlite3_errmsg(rhy));
+    }
+
+    sqlite3_stmt *statement;
+    string query = "SELECT name FROM session ORDER BY ID DESC LIMIT 1";
+    if (sqlite3_prepare (rhy, query.c_str(), -1, &statement, 0) == SQLITE_OK) {
+        if (sqlite3_step(statement) == SQLITE_ROW) {
+            user_session = (char*)sqlite3_column_text(statement, 0);
+            cout << "$ctor user_session: " << user_session << endl;
+            add_flag = 1;
+        } else {
+            add_flag = 0;
+            user_session = "";
+        }
+        
+    } else {
+        cout << "error in Interpret ctor database query of session." << endl;
+    }
+    sqlite3_finalize (statement);
+
+ }
 
 Interpret::~Interpret()
 {
+    if (rhy) {
+        db_err = sqlite3_close (rhy);
+        if (db_err) {
+            fprintf (stderr, "Error closing database in ~Interpret(): %s\n", sqlite3_errmsg(rhy));
+        }
+    }
 }
 
 void Interpret::DoInterpret(TextIO& coms, Modul& mdl )
@@ -261,7 +294,7 @@ void Interpret::DoInterpret(TextIO& coms, Modul& mdl )
 
 void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 {
-	if (!from_cmd_line)
+    if (!from_cmd_line)
 	{
 		for( wc = 1; wc < w; wc++ )
 		{
@@ -275,7 +308,8 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 		ms = coms.GetTextBufText (ck);
 	}
         
-
+    user_method = ms;
+    
 	if (ms == modulTable[kPropSeries])
 	{
 	    if (args_obj[0].text[0] != '\0' &&
@@ -370,18 +404,21 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     {
         if (args_obj[0].text[0] != '\0' &&
             args_obj[1].text[0] != '\0' &&
-            args_obj[3].text[0] == '\0')
+            args_obj[4].text[0] == '\0')
         {
             string s1 = args_obj[0].text;
             string s2 = args_obj[1].text;
             float f1 = 90.f;
             if (args_obj[2].text[0] != '\0')
                 f1 = atof(args_obj[2].text);
-            mdl.PrintPhrases (s1, s2, f1);
+            int i1 = 1;
+            if (args_obj[3].text[0] != '\0')
+                i1 = atoi(args_obj[3].text);
+            mdl.PrintPhrases (s1, s2, f1, i1);
         } else if (args_obj[0].text[0] != '\0' &&
                    args_obj[1].text[0] == '\0')
         {
-            cout << "Usage: chunking -m printphrases <file1: shorthand notation> <file2: midi pitches>" << endl;
+            cout << "Usage: chunking -m printphrases <file1: shorthand notation> <file2: midi pitches> <int: bpm (optional)> <int: flag (optional)>" << endl;
         }
     }
     
@@ -638,6 +675,22 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
       }
     }
     
+    if (ms == modulTable[kmidi2notes]) {
+        if (args_obj[0].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            mdl.midinotes2notenames (s1);
+        }
+        else {
+            cout << "Usage: chunking -m midi2notes <file name>" << endl;
+            cout << "Input: Name of a text file containing lines of comma-separated Midi note numbers, for example:" << endl;
+            cout << "60, 60, 67, 67, 69, 69, 67" << endl;
+            cout << "65, 65, 64, 64, 62, 62, 60" << endl;
+            cout << "Output: Lines of note names, for example:" << endl;
+            cout << "C4 C4 G4 G4 A4 A4 G4" << endl;
+            cout << "F4 F4 E4 E4 D4 D4 C4" << endl;
+            
+        }
+    }
     if (ms == modulTable[kbwtpath]) {
       if (args_obj[1].text[0] != '\0') {
         string s1 = args_obj[0].text;
@@ -715,7 +768,10 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         if (args_obj[1].text[0] != '\0') {
             string s1 = args_obj[0].text;
             int i1 = atoi (args_obj[1].text);
-            cout << mdl.Shortening (s1, i1) << endl;
+            string result = mdl.Shortening (s1, i1);
+            if (add_flag)
+                InsertIntoDB (result);
+            cout << result << endl;
         }
         else {
             cout << "Usage: chunking -m shortening <shorthand string> <from_top? 0 (no) or 1 (yes)>" << endl;
@@ -738,7 +794,10 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
             int i1 = atoi (args_obj[1].text);
             int i2 = atoi (args_obj[2].text);
             int i3 = atoi (args_obj[3].text);
-            cout << mdl.Jumping (s1, i1, i2, i3) << endl;
+            string result = mdl.Jumping (s1, i1, i2, i3);
+            if (add_flag)
+                InsertIntoDB (result);
+            cout << result << endl;
         }
         else {
             cout << "Usage: chunking -m jump <shorthand string> <n_symbols int> <k_times int> <from_start? 0 (no) or 1 (yes)>" << endl;
@@ -749,7 +808,10 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         if (args_obj[1].text[0] != '\0') {
             string s1 = args_obj[0].text;
             int i1 = atoi (args_obj[1].text);
-            cout << mdl.Mutation (s1, i1) << endl;
+            string result = mdl.Mutation (s1, i1);
+            if (add_flag)
+                InsertIntoDB (result);
+            cout << result << endl;
         }
         else {
             cout << "Usage: chunking -m mutate <shorthand string> <k_times int>" << endl;
@@ -760,7 +822,10 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         if (args_obj[1].text[0] != '\0') {
             string s1 = args_obj[0].text;
             int i1 = atoi (args_obj[1].text);
-            cout << mdl.Swap (s1, i1) << endl;
+            string result = mdl.Swap (s1, i1);
+            if (add_flag)
+                InsertIntoDB (result);
+            cout << result << endl;
         }
         else {
             cout << "Usage: chunking -m swap <shorthand string> <k_times int>" << endl;
@@ -772,7 +837,10 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
             string s1 = args_obj[0].text;
             int i1 = atoi (args_obj[1].text);
             int i2 = atoi (args_obj[2].text);
-            cout << mdl.Silence (s1, i1, i2) << endl;
+            string result = mdl.Silence (s1, i1, i2);
+            if (add_flag)
+                InsertIntoDB (result);
+            cout << result << endl;
         }
         else {
             cout << "Usage: chunking -m silence <shorthand string> <from_pos int> <to_pos int>" << endl;
@@ -783,7 +851,10 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         if (args_obj[1].text[0] != '\0') {
             string s1 = args_obj[0].text;
             int i1 = atoi (args_obj[1].text);
-            cout << mdl.ProcessToShapes (s1, i1);
+            string result = mdl.ProcessToShapes (s1, i1);
+            if (add_flag)
+                InsertIntoDB (result);
+            cout << result << endl;
         }
         else {
             cout << "Usage: chunking -m shape <shorthand string> <flag int>" << endl;
@@ -793,7 +864,10 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     if (ms == modulTable[kfragment]) {
         if (args_obj[0].text[0] != '\0') {
             string s1 = args_obj[0].text;
-            cout << mdl.Fragment (s1) << endl;
+            string result = mdl.Fragment (s1);
+            if (add_flag)
+                InsertIntoDB (result);
+            cout << result << endl;
         }
         else {
             cout << "Usage: chunking -m fragment <shorthand string>" << endl;
@@ -803,7 +877,10 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     if (ms == modulTable[krotate]) {
         if (args_obj[0].text[0] != '\0') {
             string s1 = args_obj[0].text;
-            cout << mdl.Rotation (s1) << endl;
+            string result = mdl.Rotation (s1);
+            if (add_flag)
+                InsertIntoDB (result);
+            cout << result << endl;
         }
         else {
             cout << "Usage: chunking -m rotate <shorthand string>" << endl;
@@ -813,7 +890,10 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     if (ms == modulTable[kfragrotate]) {
         if (args_obj[0].text[0] != '\0') {
             string s1 = args_obj[0].text;
-            cout << mdl.FragmentRotation (s1) << endl;
+            string result = mdl.FragmentRotation (s1);
+            if (add_flag)
+                InsertIntoDB (result);
+            cout << result << endl;
         }
         else {
             cout << "Usage: chunking -m fragrotate <shorthand string>" << endl;
@@ -833,10 +913,118 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     if (ms == modulTable[kreverse]) {
         if (args_obj[0].text[0] != '\0') {
             string s1 = args_obj[0].text;
-            cout << mdl.Reverse (s1) << endl;
+            string result = mdl.Reverse (s1);
+            if (add_flag)
+                InsertIntoDB (result);
+            cout << result << endl;
         }
         else {
             cout << "Usage: chunking -m reverse <shorthand string>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[kaddrep]) {
+        if (args_obj[2].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            int i1 = atoi (args_obj[1].text);
+            int i2 = atoi (args_obj[2].text);
+            mdl.AddAndRepeat (s1, i1, i2);
+            
+        }
+        else {
+            cout << "Usage: chunking -m addrep <shorthand string> <n int> <k int>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[krepeat]) {
+        if (args_obj[1].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            int i1 = atoi (args_obj[1].text);
+            mdl.Repeat (s1, i1);
+            
+        }
+        else {
+            cout << "Usage: chunking -m repeat <shorthand string> <n int>" << endl;
+        }
+    }
+
+
+    if (ms == modulTable[knest]) {
+      if (args_obj[0].text[0] != '\0') {
+	string s1 = args_obj[0].text;
+	mdl.Nest (s1);
+      }
+    }
+
+    if (ms == modulTable[kstartsession]) {
+        if (args_obj[0].text[0] != '\0') {
+            user_session = args_obj[0].text;
+            /*adds a new session to rhy.db->sessions with user providing the name
+             all string returning methods have their values
+             appended to the rhythm table of rhy.db with the session name as name.
+             */
+            add_flag = 1;
+            string sql = "INSERT INTO session VALUES (\"" + user_session + "\", NULL); ";
+            char *err_msg = 0;
+            cout << sql << endl;
+            int rc = sqlite3_exec(rhy, sql.c_str(), 0, 0, &err_msg);
+            if (rc != SQLITE_OK)
+                cerr << "error " << err_msg << " in startsession when inserting name in session." << endl;
+
+        }
+        else {
+            cout << "Usage: chunking -m startsession <session_name string>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[kstopsession]) {
+        add_flag = 0;
+        sqlite3_stmt *statement;
+        string user_session;
+        string query = "SELECT name FROM session ORDER BY ID DESC LIMIT 1";
+        if (sqlite3_prepare (rhy, query.c_str(), -1, &statement, 0) == SQLITE_OK) {
+            if (sqlite3_step(statement) == SQLITE_ROW) {
+                user_session = (char*)sqlite3_column_text(statement, 0);
+                cout << "$kstopsession: " << user_session << endl;
+            }
+        }
+        sqlite3_finalize (statement);
+        
+        string sql = "DELETE FROM session WHERE name = \"" + user_session + "\"";
+        char *err_msg = 0;
+        cout << sql << endl;
+        int rc = sqlite3_exec(rhy, sql.c_str(), 0, 0, &err_msg);
+        if (rc != SQLITE_OK)
+            cerr << "error " << err_msg << " in kstopsession when deleting name in session." << endl;
+        
+        
+    }
+    
+    if (ms == modulTable[ksession]) {
+        cout << "Current session: " << user_session << endl;
+    }
+    
+    if (ms == modulTable[klistsessions]) {
+        
+    }
+    
+    if (ms == modulTable[kprintsession]) {
+        if (args_obj[0].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            PrintSession (s1);
+        }
+        else {
+            cout << "Usage: chunking -m printsession <session_name string>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[kbendf]) {
+        if (args_obj[0].text[0] != '\0') {
+            int i1 = atoi(args_obj[0].text);
+            mdl.BendFarey (i1);
+        }
+        else {
+            cout << "Usage: chunking -m bendf <farey_number int>" << endl;
         }
     }
     
@@ -845,4 +1033,48 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 
 }
 
+void Interpret::InsertIntoDB (string rhythm) {
+    if (!add_flag)
+        return;
+    string sql = "INSERT INTO rhythm VALUES (\"" + rhythm + "\", \"" + user_session + "\", \"" + user_method + "\" , \"user\", NULL); ";
+    cout << sql << endl;
+    char *err_msg = 0;
+    int rc = sqlite3_exec(rhy, sql.c_str(), 0, 0, &err_msg);
+    if (rc != SQLITE_OK) {
+        cerr << "error " << err_msg << " when inserting into table rhythm. Called by InsertIntoDB (string rhythm)." << endl;
+    }
+}
 
+void Interpret::PrintSession (string session_name) {
+    
+    sqlite3_stmt *statement;
+    
+    string sql = "PRAGMA case_sensitive_like = true";
+    if (sqlite3_prepare (rhy, sql.c_str(), -1, &statement, 0) != SQLITE_OK) {
+        cerr << "error when setting case_sensitive_like = true." << endl;
+    }
+    sqlite3_finalize (statement);
+    
+    sql = "SELECT pattern, name, origin, composer, ID FROM rhythm WHERE name LIKE '" + session_name + "'";
+    int countrow = 0;
+    if (sqlite3_prepare (rhy, sql.c_str(), -1, &statement, 0) == SQLITE_OK) {
+        int res = 0;
+        while (1) {
+            res = sqlite3_step(statement);
+            if (res == SQLITE_ROW) {
+                countrow++;
+                string rhythm = (char*)sqlite3_column_text(statement, 0);
+                string name = (char*)sqlite3_column_text(statement, 1);
+                string origin = (char*)sqlite3_column_text(statement, 2);
+                string composer = (char*)sqlite3_column_text(statement, 3);
+                int id = sqlite3_column_int(statement, 4);
+                cout << "$ " << name << " " << origin << " " << composer << " ID: "<< id << " " << countrow << endl;
+                cout << rhythm << endl;
+            }
+            if (res == SQLITE_DONE || res==SQLITE_ERROR) {
+                break;
+            }
+        }
+    }
+    sqlite3_finalize (statement);
+}

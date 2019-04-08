@@ -22,6 +22,7 @@
 #endif
 
 #include <string.h>
+#include <sqlite3.h>
 
 struct ArgBuf 
 {
@@ -53,7 +54,12 @@ class Interpret {
 
 		struct ArgBuf args_obj[MAXLINES];
 		string ms;
-
+    
+    sqlite3 *rhy;
+    int db_err;
+    int add_flag;
+    string user_session;
+    string user_method;
 	public:
 
 		Interpret();
@@ -63,6 +69,8 @@ class Interpret {
 		void TypeError( TextIO& coms, string ms );
 		void SetArgs (string arg, int index) { strcpy (args_obj[index].text, arg.c_str()); }
 		void SetModulFunct (string function_name) { ms = function_name; }
+    void InsertIntoDB (string);
+    void PrintSession (string session_name);
 
 };
 
