@@ -404,5 +404,35 @@ class TextIO {
 
 };
 
+
+class StringToFile {
+
+ public:
+
+  StringToFile (string path) {
+    filename = path;
+    output.open (filename.c_str(), ios_base::app);
+    if (!output)
+      cerr << "cannot write file: " << filename << endl;
+  }
+  ~StringToFile () { 
+    if (output)
+      output.close ();
+  }
+  void Append (string text) {
+    if (output) {
+      output << text << endl;
+	} else {
+      cerr << "cannot append to file: " << filename << endl;
+    }
+  }
+
+ private:
+  ofstream output;
+  string filename;
+
+
+};
+
 #endif // __TextIO_h__
 
