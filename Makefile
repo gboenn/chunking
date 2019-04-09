@@ -11,7 +11,7 @@ HDRS = Alea.h AlgoComp.h Interpret.h Modul.h TextIO.h \
 Power.h Visitor.h Farey.h FareyVisitor.h Ratio.h \
 FareyFilter.h SmoothFilter.h ProbFilter.h PrimeFilter.h \
 FareyFilterFarey.h DList.h SternBrocot.h ReciprocalFilter.h SubdivisionFilter.h \
-Christoffel.h
+Christoffel.h gc_switch_ssh.h chunking_Standards.h
 
 
 OBJS = Alea.o AlgoComp.o Interpret.o Main.o Modul.o TextIO.o \
@@ -36,7 +36,7 @@ INCLUDES =
 
 .PHONY: install uninstall
 
-all: $(TARGETS)
+all: $(TARGETS) $(LIBRARY)
 
 libchunking: $(OBJS) $(HDRS)
 	$(CC) -dynamiclib $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) -o libchunking.dylib
@@ -45,7 +45,7 @@ chunking: $(OBJS) $(HDRS)
 	$(CC) $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) -o chunking
 
 clean:
-	rm -f $(TARGETS) $(OBJS)
+	rm -f $(TARGETS) $(LIBRARY).dylib $(OBJS)
 
 tidy:
 	rm -f $(OBJS)
@@ -67,10 +67,15 @@ install:
 	cp ./text/decrease.txt /usr/local/share/chunking/
 	cp ./text/bracelets.txt /usr/local/share/chunking/
 	cp rhy.db /usr/local/share/chunking/
+	cp libchunking.dylib /usr/local/lib
+	mkdir /usr/local/include/chunking
+	cp $(HDRS) /usr/local/include/chunking
 
 uninstall:
 	rm /usr/local/bin/chunking
 	rm -r /usr/local/share/chunking/
+	rm /usr/local/lib/libchunking.dylib
+	rm -r /usr/local/include/chunking
 
 Alea.o: Alea.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)

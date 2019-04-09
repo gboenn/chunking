@@ -9,8 +9,8 @@
 
 #define __TextIO_h__
 
-#ifndef __Standards_h__
-#include "Standards.h"
+#ifndef __chunking_Standards_h__
+#include "chunking_Standards.h"
 #endif
 
 #ifndef __DList_h__

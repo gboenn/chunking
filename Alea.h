@@ -8,8 +8,8 @@
 #ifndef	__Alea_h__
 #define	__Alea_h__
 
-#ifndef __Standards_h__
-#include "Standards.h"
+#ifndef __chunking_Standards_h__
+#include "chunking_Standards.h"
 #endif
 
 #ifndef	__AlgoComp_h__
