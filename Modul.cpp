@@ -83,15 +83,9 @@ enum {RESISTOR, RELEASE, ARCH, CATENARY, ALTERNATING, GROWTH, DECREASE, NUMFORMS
 //vector<string> g_forms
 //enum {ALTERNATING, GROWTH, DECREASE, RESISTOR, RELEASE, ARCH, CATENARY, NUMFORMS };
 
-Modul::Modul( string filtyp, unsigned long chan, unsigned long samframs, 
-			unsigned long samsiz, unsigned long samrat) { 
-    //prg = NULL;
-	file_type = filtyp; 
-	channels = chan; 
-	sample_frames = samframs; 
-	sample_size = samsiz; 
-	sample_rate = samrat; 
-	digest_list = new DList<float_digest>; 
+Modul::Modul () {
+
+  /*
 	QGI = new quant_global_info;
 	qsi = new DList<quant_solution_info>;
 	result_weights = new DList<final_weights_info>;
@@ -107,7 +101,7 @@ Modul::Modul( string filtyp, unsigned long chan, unsigned long samframs,
 	real_pulseq = new DList<float>;
 
 	pack_count = 0;
-	
+  */
     //vectors of partitions
 	matrix = new vector <vector <float> >;
     // all_COPRIME_partitions_until_120_with_2_distinct_parts.txt:

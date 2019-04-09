@@ -166,6 +166,7 @@ struct analysisentry {
 	DList<float>* musicentry;
 };
 
+/*
 int digest_list_compare (const void* arg1, const void* arg2); 
 int digest_list_compare2 (const void* arg1, const void* arg2); 
 int digest_list_compare_weight (const void* arg1, const void* arg2); 
@@ -180,7 +181,7 @@ int sort_projlist (const void* arg1, const void* arg2);
 int sort_quant_euclidean (const void* arg1, const void* arg2);
 int sort_freqdat (const void* arg1, const void* arg2);
 int sort_mlist (const void* arg1, const void* arg2);
-
+*/
 
 class Modul 
 	{ 
@@ -190,12 +191,6 @@ class Modul
 	 
 	private: 
 	 
-		string 		file_type; 
-		unsigned long 	channels; 
-		unsigned long 	sample_frames; 
-		unsigned long 	sample_size; // in bits 
-		unsigned long	sample_rate; 
- 
 		ifstream* sound_stream; 
 		ofstream* record_stream; 
 		bool doRecord; 
@@ -207,7 +202,6 @@ class Modul
 		 
 		string planetSoundFileName; 
 		double progressVal; 
-		DList<float_digest>* digest_list; 
 		 
 		TextIO* logfile;
 		quant_global_info* QGI;
@@ -275,8 +269,9 @@ class Modul
         float BPM;
         
 	public: 
-		 
-		Modul( string filtyp, unsigned long chan, unsigned long samframs, unsigned long samsiz, unsigned long samrat ); 
+
+	Modul ();
+	//		Modul( string filtyp, unsigned long chan, unsigned long samframs, unsigned long samsiz, unsigned long samrat ); 
 		~Modul(); 
  	
 		void CircleMap ();

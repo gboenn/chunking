@@ -1,6 +1,9 @@
+#include "Modul.h"
+#include "TextIO.h"
+
 void script1 () {
 
-Modul m("a",1,1,1,1);
+Modul m;
 stringstream s2;
 string r = "IXI>I:";
 int counter = 10;
@@ -24,4 +27,7 @@ p.Append(mel.str());
 
 m.PrintPhrases("mutations2.txt","motive2.txt",130,1);
 
+ system("/Applications/LilyPond.app/Contents/Resources/bin/lilypond print_phrase.ly");
+ system("open -a /Applications/Preview.app/ print_phrase.pdf");
+ system("timidity -T 300 print_phrase.midi");
 }

@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
 				interpreter.SetArgs (string(argv[i]), k);
 			
 			TextIO text ("init program...");
-			Modul module ("AIFF", 1, 0, 16, 44100 );
+			Modul module;
 						
 			interpreter.Dispatch (text, module, 1);
 			return 0;
