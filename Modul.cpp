@@ -4153,7 +4153,7 @@ void Modul::DB_insert_from_file (string filename, string patname, string origin,
 
 }
 
-void Modul::DB_search (string searchstring) {
+string Modul::DB_search (string searchstring) {
 
   sqlite3 *rhy;
   int db_err;
@@ -4173,9 +4173,10 @@ void Modul::DB_search (string searchstring) {
     cerr << "error when setting case_sensitive_like = true." << endl;
     sqlite3_finalize (statement);
     sqlite3_close (rhy);
-    return;
+    return "";
   }
 
+    stringstream s;
   sql = "SELECT pattern, name, origin, composer, ID FROM rhythm WHERE pattern LIKE '" + searchstring + "'";
     int countrow = 0;
   if (sqlite3_prepare (rhy, sql.c_str(), -1, &statement, 0) == SQLITE_OK) {
@@ -4190,8 +4191,8 @@ void Modul::DB_search (string searchstring) {
               string origin = (char*)sqlite3_column_text(statement, 2);
               string composer = (char*)sqlite3_column_text(statement, 3);
               int id = sqlite3_column_int(statement, 4);
-              cout << "$ " << name << " " << origin << " " << composer << " ID: "<< id << " " << countrow << endl;
-              cout << rhythm << endl;
+              s << "$ " << name << " " << origin << " " << composer << " ID: "<< id << " " << countrow << endl;
+              s << rhythm << endl;
           }
           if (res == SQLITE_DONE || res==SQLITE_ERROR) {
               break;
@@ -4200,6 +4201,7 @@ void Modul::DB_search (string searchstring) {
   }
   sqlite3_finalize (statement);
   sqlite3_close (rhy);
+    return s.str();
 }
 
 void Modul::extract_from_analysephrases_output (string filename) {
@@ -4387,13 +4389,15 @@ string Modul::Fragment (string rhythm) {
     vector <int> mutpos;
     srand (time(NULL));
     
-    int r = 0;
-    int i = rand() % 71;
-    while (--i > 0)
-        r = rand() % rlen;
+    int lenm1 = rlen - 1;
+    random_device rd;
+    mt19937 md(rd());
+    uniform_real_distribution<double> dist(0, lenm1);
+    int r = dist(md);
     mutpos.push_back(r);
+    
     while (1) {
-        int r2 = rand() % rlen;
+        int r2 = dist(md);
         if (r != r2) {
             mutpos.push_back(r2);
             break;
@@ -4418,11 +4422,11 @@ string Modul::Rotation (string rhythm) {
     size_t rlen = rhythm.length ();
     if (rlen == 1)
         return rhythm;
-    srand (time(NULL));
-    int r = 0;
-    int i = rand() % 89;
-    while (--i > 0)
-        r = rand() % rlen;
+    int lenm1 = rlen - 1;
+    random_device rd;
+    mt19937 md(rd());
+    uniform_real_distribution<double> dist(0, lenm1);
+    int r = dist(md);
     
     string temp = rhythm;
     while (--r >= 0) {
@@ -4446,7 +4450,7 @@ string Modul::Mutation (string rhythm, int n) {
 
     size_t rlen = rhythm.length ();
     vector <int> mutpos;
-    srand (time(NULL));
+    //srand (time(NULL));
     int m = n;
     int lenm1 = rlen - 1;
     random_device rd;

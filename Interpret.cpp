@@ -730,7 +730,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     if (ms == modulTable[kdb]) {
       if (args_obj[0].text[0] != '\0') {
           string s1 = args_obj[0].text;
-          mdl.DB_search (s1);
+          cout << mdl.DB_search (s1) << endl;
       }
       else {
           cout << "Usage: chunking -m db <search string in shorthand notation>" << endl;

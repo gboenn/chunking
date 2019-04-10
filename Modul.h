@@ -335,7 +335,7 @@ class Modul
         void iBWTspecific (string input, int k, int l);
         void iBWTpathway (string shorthand, string filename);
         void iBWTonBWTword (string bwtword);
-	void DB_search (string searchstring);
+	string DB_search (string searchstring);
         void DB_insert_from_file (string filename, string patname, string origin, string composer);
         void extract_from_analysephrases_output (string filename);
         string Shortening (string rhythm, int flag);
