@@ -179,7 +179,7 @@ class StringToFile {
 
   StringToFile (string path) {
     filename = path;
-    output.open (filename.c_str(), ios_base::app);
+    output.open (filename.c_str(), ios_base::out);
     if (!output)
       cerr << "cannot write file: " << filename << endl;
   }

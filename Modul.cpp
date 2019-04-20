@@ -4407,7 +4407,7 @@ string Modul::Fragment (string rhythm) {
     sort (mutpos.begin (), mutpos.end ());
     //cout << "Fragment: " << mutpos.at(0) << " " << mutpos.at(1) << endl;
     string result = rhythm.substr (mutpos.at(0), mutpos.at(1));
-    //cout << result << endl;
+    //cout << "Fragment result: " << result << endl;
     return result;
 }
 
@@ -4519,7 +4519,7 @@ string Modul::Mutation (string rhythm, int n) {
         }
     }
 
-    //cout << rhythm << endl;
+    cout << "Mutaion result: " << rhythm << endl;
     return rhythm;
 }
 
@@ -4545,8 +4545,10 @@ string Modul::Swap (string rhythm, int n) {
     cout << endl;
     for (i=0; i < n; i++) {
         char c = rhythm[mutpos.at(i)];
-        rhythm[mutpos.at(i)] = rhythm[mutpos.at(i)+1];
-        rhythm[mutpos.at(i)+1] = c;
+        int swapindex = mutpos.at(i)+1;
+	if (swapindex > lenm1) swapindex = 0;
+	rhythm[mutpos.at(i)] = rhythm[swapindex];
+        rhythm[swapindex] = c;
         //cout << "swap at pos: " << i << endl;
     }
     
