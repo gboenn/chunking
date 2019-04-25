@@ -4617,8 +4617,23 @@ void Modul::Compose (string rhythm) {
 }
 
 string Modul::Reverse (string rhythm) {
-    reverse(rhythm.begin (), rhythm.end ());
-    return rhythm;
+  vector<float> p;
+  size_t found = rhythm.find (",");
+  if (found != string::npos) {
+    stringstream aline (rhythm);
+    string cell;
+    while (getline (aline, cell, ',')) {
+      p.push_back (atof (cell.c_str()));
+    }
+    stringstream prev;
+      int len = p.size ();
+      while (--len > -1) 
+	prev << p[len] << ",";
+      return prev.str ();
+  } else {
+      reverse(rhythm.begin (), rhythm.end ());
+      return rhythm;
+  }
 }
 
 void Modul::AddAndRepeat (string rhythm, int n, int k) {
@@ -4671,4 +4686,55 @@ void Modul::Nest (string input) {
   
   string result = Mutation(Mutation(Mutation(input,1), 1), 1);
   cout << result << endl;
+}
+
+string Modul::Inverse (string pitches) {
+  vector<float> p;
+  size_t found = pitches.find (",");
+  if (found != string::npos) {
+    stringstream aline (pitches);
+    string cell;
+    while (getline (aline, cell, ',')) {
+      p.push_back (atof (cell.c_str()));
+    }
+    vector<float> dx (p.size ());
+    adjacent_difference (p.begin(), p.end(), dx.begin());
+
+    stringstream pres;
+    int count = p.size ();
+    float cur = p[0]; int i=1;
+    while (count--) {
+      pres << cur << ",";
+      cur -= dx[i++];
+
+    }
+    return pres.str ();
+  } else {
+    cout << "Error: input pitches are strings of MIDI note numbers (float or int) seperated by commas." << endl;
+    return "";
+  }
+}
+
+
+string Modul::Transpose (string pitches, float interval) {
+  vector<float> p;
+  size_t found = pitches.find (",");
+  if (found != string::npos) {
+    stringstream aline (pitches);
+    string cell;
+    while (getline (aline, cell, ',')) {
+      p.push_back (atof (cell.c_str()));
+    }
+
+    stringstream pres;
+    int count = p.size ();
+    int i=0;
+    while (count--) {
+      pres << (p[i++] + interval) << ",";
+    }
+    return pres.str ();
+  } else {
+    cout << "Error: input pitches are strings of MIDI note numbers (float or int) seperated by commas." << endl;
+    return "";
+  }
 }

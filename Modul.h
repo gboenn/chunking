@@ -356,6 +356,8 @@ class Modul
         void AddAndRepeat (string rhythm, int n, int k);
         void Repeat (string input, int n);
 	void Nest (string input);
+	string Inverse (string pitches);
+	string Transpose (string pitches, float interval);
 };
 
 class Decoder {
