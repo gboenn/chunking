@@ -22,6 +22,8 @@
 #include "ReciprocalFilter.h"
 #include "SubdivisionFilter.h"
 #include "Christoffel.h"
+#include "PitchParser.h"
+
 #include <iostream>
 #include <sqlite3.h>
 #include <random>
@@ -4636,6 +4638,27 @@ string Modul::Reverse (string rhythm) {
   }
 }
 
+string Modul::Reverse2 (string rhythm) {
+    vector<float> p;
+    size_t found = rhythm.find (",");
+    if (found != string::npos) {
+        stringstream aline (rhythm);
+        string cell;
+        while (getline (aline, cell, ',')) {
+            p.push_back (atof (cell.c_str()));
+        }
+        stringstream prev;
+        int len = p.size ();
+        while (--len > -1)
+            prev << p[len] << ",";
+        return prev.str ();
+    } else {
+        reverse(rhythm.begin (), rhythm.end ());
+        return rhythm;
+    }
+}
+
+
 void Modul::AddAndRepeat (string rhythm, int n, int k) {
     Christoffel c;
     c.SetWord(rhythm);
@@ -4715,6 +4738,32 @@ string Modul::Inverse (string pitches) {
   }
 }
 
+string Modul::Inverse2 (string pitches) {
+    vector<float> p;
+    size_t found = pitches.find (",");
+    if (found != string::npos) {
+        stringstream aline (pitches);
+        string cell;
+        while (getline (aline, cell, ',')) {
+            p.push_back (atof (cell.c_str()));
+        }
+        vector<float> dx (p.size ());
+        adjacent_difference (p.begin(), p.end(), dx.begin());
+        
+        stringstream pres;
+        int count = p.size ();
+        float cur = p[0]; int i=1;
+        while (count--) {
+            pres << cur << ",";
+            cur -= dx[i++];
+            
+        }
+        return pres.str ();
+    } else {
+        cout << "Error: input pitches are strings of MIDI note numbers (float or int) seperated by commas." << endl;
+        return "";
+    }
+}
 
 string Modul::Transpose (string pitches, float interval) {
   vector<float> p;
@@ -4737,4 +4786,39 @@ string Modul::Transpose (string pitches, float interval) {
     cout << "Error: input pitches are strings of MIDI note numbers (float or int) seperated by commas." << endl;
     return "";
   }
+}
+
+string Modul::Transpose2 (string pitches, float interval) {
+    vector<vector<float> > p;
+    PitchParser pp;
+    int valid = pp.check (pitches);
+    if (valid) {
+
+        pp.process (p, pitches);
+        
+        // algorithm for transposition starts here: arguments: vector<vector<float> > p; and interval
+        stringstream pres;
+        int count = p.size ();
+        int i=0;
+        while (count--) {
+            vector<float> r = p[i++];
+            int count2 = r.size ();
+            int i2 = 0;
+            if (count2 == 1) {
+                pres << (r[0] + interval) << ",";
+                cout << pres.str() << endl;
+            } else {
+                count2--;
+                while (count2--) {
+                    pres << (r[i2++] + interval) << ":";
+                }
+                pres << (r[i2] + interval) << ",";
+                cout << pres.str() << endl;
+            }
+        }
+        // end algorithm
+        return pres.str ();
+    } else {
+        return "";
+    }
 }

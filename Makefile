@@ -5,20 +5,20 @@ SRCS = Alea.cpp AlgoComp.cpp Interpret.cpp Main.cpp Modul.cpp TextIO.cpp \
 Power.cpp Visitor.cpp Farey.cpp FareyVisitor.cpp Ratio.cpp \
 FareyFilter.cpp SmoothFilter.cpp ProbFilter.cpp PrimeFilter.cpp \
 FareyFilterFarey.cpp DList.cpp SternBrocot.cpp ReciprocalFilter.cpp SubdivisionFilter.cpp \
-Christoffel.cpp
+Christoffel.cpp PitchParser.cpp
 
 HDRS = Alea.h AlgoComp.h Interpret.h Modul.h TextIO.h \
 Power.h Visitor.h Farey.h FareyVisitor.h Ratio.h \
 FareyFilter.h SmoothFilter.h ProbFilter.h PrimeFilter.h \
 FareyFilterFarey.h DList.h SternBrocot.h ReciprocalFilter.h SubdivisionFilter.h \
-Christoffel.h gc_switch_ssh.h chunking_Standards.h
+Christoffel.h gc_switch_ssh.h chunking_Standards.h PitchParser.h
 
 
 OBJS = Alea.o AlgoComp.o Interpret.o Main.o Modul.o TextIO.o \
 Power.o Visitor.o Farey.o FareyVisitor.o Ratio.o \
 FareyFilter.o SmoothFilter.o ProbFilter.o PrimeFilter.o \
 FareyFilterFarey.o DList.o SternBrocot.o ReciprocalFilter.o SubdivisionFilter.o \
-Christoffel.o
+Christoffel.o PitchParser.o
 
 CC = g++
 #CC = g++-7
@@ -143,7 +143,8 @@ SubdivisionFilter.o: SubdivisionFilter.cpp
 Christoffel.o: Christoffel.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
 
-
+PitchParser.o: PitchParser.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
 
 
 

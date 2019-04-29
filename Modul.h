@@ -358,6 +358,9 @@ class Modul
 	void Nest (string input);
 	string Inverse (string pitches);
 	string Transpose (string pitches, float interval);
+        string Inverse2 (string pitches);
+        string Transpose2 (string pitches, float interval);
+        string Reverse2 (string rhythm);
 };
 
 class Decoder {
