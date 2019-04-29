@@ -4618,45 +4618,7 @@ void Modul::Compose (string rhythm) {
     }
 }
 
-string Modul::Reverse (string rhythm) {
-  vector<float> p;
-  size_t found = rhythm.find (",");
-  if (found != string::npos) {
-    stringstream aline (rhythm);
-    string cell;
-    while (getline (aline, cell, ',')) {
-      p.push_back (atof (cell.c_str()));
-    }
-    stringstream prev;
-      int len = p.size ();
-      while (--len > -1) 
-	prev << p[len] << ",";
-      return prev.str ();
-  } else {
-      reverse(rhythm.begin (), rhythm.end ());
-      return rhythm;
-  }
-}
 
-string Modul::Reverse2 (string rhythm) {
-    vector<float> p;
-    size_t found = rhythm.find (",");
-    if (found != string::npos) {
-        stringstream aline (rhythm);
-        string cell;
-        while (getline (aline, cell, ',')) {
-            p.push_back (atof (cell.c_str()));
-        }
-        stringstream prev;
-        int len = p.size ();
-        while (--len > -1)
-            prev << p[len] << ",";
-        return prev.str ();
-    } else {
-        reverse(rhythm.begin (), rhythm.end ());
-        return rhythm;
-    }
-}
 
 
 void Modul::AddAndRepeat (string rhythm, int n, int k) {
@@ -4739,28 +4701,49 @@ string Modul::Inverse (string pitches) {
 }
 
 string Modul::Inverse2 (string pitches) {
-    vector<float> p;
-    size_t found = pitches.find (",");
-    if (found != string::npos) {
-        stringstream aline (pitches);
-        string cell;
-        while (getline (aline, cell, ',')) {
-            p.push_back (atof (cell.c_str()));
-        }
+    vector<vector<float> > p;
+    PitchParser pp;
+    int valid = pp.check (pitches);
+    if (valid) {
+        pp.process (p, pitches);
         vector<float> dx (p.size ());
-        adjacent_difference (p.begin(), p.end(), dx.begin());
+        // extract contour of pitches to calculate intervals
+        vector<float> contour;
+        int count = p.size ();
+        int i = 0;
+        for (; i < count; i++) {
+            contour.push_back (p[i][0]);
+        }
+        
+        adjacent_difference (contour.begin(), contour.end(), dx.begin());
         
         stringstream pres;
-        int count = p.size ();
-        float cur = p[0]; int i=1;
+        count = p.size ();
+        float cur = p[0][0];
+        i=1; int k = 0;
         while (count--) {
-            pres << cur << ",";
-            cur -= dx[i++];
-            
+            // check length of each element of p
+            // if > 1 then analyze intervals and invert and reassemble to output stringstream
+            if (p[k].size() > 1) {
+                vector<float> subdx (p[k].size ());
+                adjacent_difference (p[k].begin(), p[k].end(), subdx.begin());
+                int t = 1;
+                float oldcur = cur;
+                int ct = p[k].size ();
+                while (ct--) {
+                    pres << cur << ":";
+                    cur -= subdx[t++];
+                }
+                pres << ",";
+                cur = oldcur - dx[i++];
+            } else {
+                pres << cur << ",";
+                cur -= dx[i++];
+            }
+            k++;
         }
         return pres.str ();
     } else {
-        cout << "Error: input pitches are strings of MIDI note numbers (float or int) seperated by commas." << endl;
         return "";
     }
 }
@@ -4820,5 +4803,52 @@ string Modul::Transpose2 (string pitches, float interval) {
         return pres.str ();
     } else {
         return "";
+    }
+}
+
+string Modul::Reverse (string rhythm) {
+    vector<float> p;
+    size_t found = rhythm.find (",");
+    if (found != string::npos) {
+        stringstream aline (rhythm);
+        string cell;
+        while (getline (aline, cell, ',')) {
+            p.push_back (atof (cell.c_str()));
+        }
+        stringstream prev;
+        int len = p.size ();
+        while (--len > -1)
+            prev << p[len] << ",";
+        return prev.str ();
+    } else {
+        reverse(rhythm.begin (), rhythm.end ());
+        return rhythm;
+    }
+}
+
+string Modul::Reverse2 (string rhythm) {
+    vector<vector<float> > p;
+    PitchParser pp;
+    int valid = pp.check (rhythm);
+    if (valid) {
+        pp.process (p, rhythm);
+        stringstream prev;
+        int len = p.size ();
+        while (--len > -1) {
+            vector<float> r = p[len];
+            int count2 = r.size ();
+            if (count2 == 1) {
+                prev << r[0] << ",";
+            } else {
+                while (count2-- > 1) {
+                    prev << r[count2] << ":";
+                }
+                prev << r[0] << ",";
+            }
+        }
+        return prev.str ();
+    } else {
+        reverse(rhythm.begin (), rhythm.end ());
+        return rhythm;
     }
 }
