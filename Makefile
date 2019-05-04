@@ -5,20 +5,20 @@ SRCS = Alea.cpp AlgoComp.cpp Interpret.cpp Main.cpp Modul.cpp TextIO.cpp \
 Power.cpp Visitor.cpp Farey.cpp FareyVisitor.cpp Ratio.cpp \
 FareyFilter.cpp SmoothFilter.cpp ProbFilter.cpp PrimeFilter.cpp \
 FareyFilterFarey.cpp DList.cpp SternBrocot.cpp ReciprocalFilter.cpp SubdivisionFilter.cpp \
-Christoffel.cpp PitchParser.cpp
+Christoffel.cpp PitchParser.cpp RhythmParser.cpp
 
 HDRS = Alea.h AlgoComp.h Interpret.h Modul.h TextIO.h \
 Power.h Visitor.h Farey.h FareyVisitor.h Ratio.h \
 FareyFilter.h SmoothFilter.h ProbFilter.h PrimeFilter.h \
 FareyFilterFarey.h DList.h SternBrocot.h ReciprocalFilter.h SubdivisionFilter.h \
-Christoffel.h gc_switch_ssh.h chunking_Standards.h PitchParser.h
+Christoffel.h gc_switch_ssh.h chunking_Standards.h PitchParser.h RhythmParser.h
 
 
 OBJS = Alea.o AlgoComp.o Interpret.o Main.o Modul.o TextIO.o \
 Power.o Visitor.o Farey.o FareyVisitor.o Ratio.o \
 FareyFilter.o SmoothFilter.o ProbFilter.o PrimeFilter.o \
 FareyFilterFarey.o DList.o SternBrocot.o ReciprocalFilter.o SubdivisionFilter.o \
-Christoffel.o PitchParser.o
+Christoffel.o PitchParser.o RhythmParser.o
 
 CC = g++
 #CC = g++-7
@@ -33,16 +33,17 @@ LIBRARY = libchunking
 LIBGC =
 SQLITE = -lsqlite3
 INCLUDES = 
+LIBRHYLANG = librhylang.dylib
 
 .PHONY: install uninstall
 
 all: $(TARGETS) $(LIBRARY)
 
 libchunking: $(OBJS) $(HDRS)
-	$(CC) -dynamiclib $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) -o libchunking.dylib
+	$(CC) -dynamiclib $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) $(LIBRHYLANG) -o libchunking.dylib
 
 chunking: $(OBJS) $(HDRS)
-	$(CC) $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) -o chunking
+	$(CC) $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) $(LIBRHYLANG) -o chunking
 
 clean:
 	rm -f $(TARGETS) $(LIBRARY).dylib $(OBJS)
@@ -70,12 +71,14 @@ install:
 	cp libchunking.dylib /usr/local/lib
 	mkdir /usr/local/include/chunking
 	cp $(HDRS) /usr/local/include/chunking
+	cp librhylang.dylib /usr/local/lib
 
 uninstall:
 	rm /usr/local/bin/chunking
 	rm -r /usr/local/share/chunking/
 	rm /usr/local/lib/libchunking.dylib
 	rm -r /usr/local/include/chunking
+	rm /usr/local/lib/librhylang.dylib
 
 Alea.o: Alea.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
@@ -146,5 +149,6 @@ Christoffel.o: Christoffel.cpp
 PitchParser.o: PitchParser.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
 
-
+RhythmParser.o: RhythmParser.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
 
