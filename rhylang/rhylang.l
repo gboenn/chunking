@@ -10,6 +10,7 @@
   vector<string> vrh;
 %}
 %option noyywrap
+%option yylineno
 %%
 
 [.:Iv><Xi+wHW-]+ { vrh.push_back(string(yytext));  return RSTR; }
@@ -26,3 +27,8 @@
 [ \t]   { /* ignore white space */ }
 .	
 %%
+
+void yyerror (const char *s) {
+  cout << "Parse error!  Message: " << s << " in line: " << (yylineno -1) << endl;
+  //  exit (-1);                                                                                                               
+}

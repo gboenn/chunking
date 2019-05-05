@@ -12,4 +12,5 @@ void RhythmParser::process (string filename) {
         cout << "RhythmParser says: error opening " << filename << endl;
     }
     yyparse();
+    vrh.clear ();
 }

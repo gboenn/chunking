@@ -26,7 +26,7 @@
 %%
 
 rhylist: 
- | rhylist exp EOL { print_list (); vrh.clear(); cout << "> "; }
+| rhylist exp EOL { print_list (); /*vrh.clear();*/ cout << endl; }
  | rhylist EOL { cout << "> "; }
  ;
 
@@ -40,9 +40,11 @@ exp: term { cout << "term." << endl; }
  | OB NUMBER exp CB { cout << "ob number exp cb." << endl; }
  | OB NUMBER exp CB exp { cout << "ob number exp cb." << endl; }
  | exp OB NUMBER exp CB { cout << "ob number exp cb." << endl; }
- | exp OB NUMBER exp CB exp { cout << "ob number exp cb." << endl; }| OP exp CP
+ | exp OB NUMBER exp CB exp { cout << "ob number exp cb." << endl; }
+ | OP exp CP
  | exp OP exp CP
  | OP exp CP exp
+ | exp OP exp CP exp
 ;
 
 term: RSTR { cout << "rstr." << endl; }
@@ -73,10 +75,10 @@ void print_list () {
   cout << endl;
 }
 
-void yyerror (const char *s) {
-  cout << "Parse error!  Message: " << s << endl;
-  exit (-1);
-}
+//void yyerror (const char *s) {
+//  cout << "Parse error!  Message: " << s << " Line: " << yylineno << endl;
+  //  exit (-1);
+//}
 
 /*
 [[XI]XXI]

@@ -15,7 +15,7 @@
 extern int yylex();
 extern int yyparse();
 extern FILE *yyin;
-
+extern vector<string> vrh;
 
 class RhythmParser {
  public:
@@ -23,7 +23,7 @@ class RhythmParser {
   ~RhythmParser () {}
 
   void process (string filename);
-
+    
 };
 
 
