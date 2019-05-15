@@ -22,6 +22,7 @@
 %token TIE
 %token OB CB OP CP 
 %token EOL
+%token NEWVOICE
 
 %%
 
@@ -32,19 +33,20 @@ rhylist:
 
 
 exp: term { cout << "term." << endl; }
- | exp TIE exp { cout << "exp tie term." << endl; }
- | exp OB exp CB { cout << "ob exp cb." << endl; }
+ | exp TIE exp { cout << "exp tie exp." << endl; }
+ | exp OB exp CB { cout << "exp ob exp cb." << endl; }
  | OB exp CB { cout << "ob exp cb." << endl; }
- | OB exp CB exp { cout << "ob exp cb." << endl; }
- | exp OB exp CB exp { cout << "ob exp cb." << endl; }
+ | OB exp CB exp { cout << "ob exp cb exp." << endl; }
+ | exp OB exp CB exp { cout << "exp ob exp cb exp." << endl; }
  | OB NUMBER exp CB { cout << "ob number exp cb." << endl; }
- | OB NUMBER exp CB exp { cout << "ob number exp cb." << endl; }
- | exp OB NUMBER exp CB { cout << "ob number exp cb." << endl; }
- | exp OB NUMBER exp CB exp { cout << "ob number exp cb." << endl; }
- | OP exp CP
- | exp OP exp CP
- | OP exp CP exp
- | exp OP exp CP exp
+ | OB NUMBER exp CB exp { cout << "ob number exp cb exp." << endl; }
+ | exp OB NUMBER exp CB { cout << "exp ob number exp cb." << endl; }
+ | exp OB NUMBER exp CB exp { cout << "exp ob number exp cb exp." << endl; }
+ | OP exp CP { cout << "op exp cp." << endl; }
+ | exp OP exp CP { cout << "exp op exp cp." << endl; }
+ | OP exp CP exp { cout << "op exp cp exp." << endl; }
+ | exp OP exp CP exp { cout << "exp op exp cp exp." << endl; }
+ | NEWVOICE exp { cout << "newvoice exp." << endl; }
 ;
 
 term: RSTR { cout << "rstr." << endl; }

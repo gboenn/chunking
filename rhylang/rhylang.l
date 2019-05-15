@@ -19,6 +19,7 @@
 "]"     { vrh.push_back(string(yytext)); return CB; }
 "("     { vrh.push_back(string(yytext)); return OP; }
 ")"     { vrh.push_back(string(yytext)); return CP; }  
+"%"     { vrh.push_back(string(yytext)); return NEWVOICE; }
 
 [0-9]+	{ vrh.push_back(string(yytext)); yylval = atoi(yytext); return NUMBER; }
 
@@ -29,6 +30,6 @@
 %%
 
 void yyerror (const char *s) {
-  cout << "Parse error!  Message: " << s << " in line: " << (yylineno -1) << endl;
+  cout << "Parse error!  Message: " << s << " in or before line: " << (yylineno) << endl;
   //  exit (-1);                                                                                                               
 }
