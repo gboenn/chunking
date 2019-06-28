@@ -189,6 +189,7 @@ Modul::Modul () {
     vector<string> default_pitch;
     default_pitch.push_back ("69");
     mel_matrix.push_back (default_pitch);
+    pitch_line = 0;
     
     BPM = 180.;
 	LoadForms();
@@ -1899,22 +1900,23 @@ void Modul::WriteToLilyfile (ofstream& s, string pattern, bool init, bool finish
       s << "\\score {" << endl << "\t" << "\\new Staff  {";
   }
 
-  Decoder* dec = new Decoder;
-  dec->SetPitches (GetPitches ());
-  dec->SetPitchLine (GetPitchLine ());
+//  Decoder* dec = new Decoder;
+    Decoder dec;
+  dec.SetPitches (GetPitches ());
+  dec.SetPitchLine (GetPitchLine ());
   int meter = 0;
   string lilypond_code = "";
   string measure_grouping = "#\'(";
   for (string::iterator it=pattern.begin(); it!=pattern.end(); ++it) {
     if (char(*it) != ' ') { //ignore empty spaces                                                                                                    
       //s << *it;
-      int code = dec->decode_shorthand_length (int(*it));
+      int code = dec.decode_shorthand_length (int(*it));
         if (code > 0) {
             meter += code;
             if (grouping)
                 measure_grouping = measure_grouping + to_string(code) + " ";
         }
-        lilypond_code += dec->decode_for_lilypond (int(*it));
+        lilypond_code += dec.decode_for_lilypond (int(*it));
         lilypond_code += " ";
         //cout << (int(*it)) << "=" << *it << endl; //lilypond_code << endl;
             //s << " " << code << " ";
@@ -1937,7 +1939,7 @@ void Modul::WriteToLilyfile (ofstream& s, string pattern, bool init, bool finish
   s << endl;
   
   //  s << pattern << endl;
-  delete dec;
+  //delete dec;
 
 }
 

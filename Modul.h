@@ -377,6 +377,7 @@ private:
     //vector<int> last_midi_note; // int to vector<int>
     vector<int> midi_note; // int to vector<int>
     map<string,int> notename_midi_map;
+    vector<string> default_pitch;
     
 public:
     Decoder () { flag = 0; code=""; note="a"; mel_line=0; mel_count=0;
@@ -395,7 +396,7 @@ public:
         pitch_classes.push_back ("a");
         pitch_classes.push_back ("bes");
         pitch_classes.push_back ("b");
-        vector<string> default_pitch;
+        //vector<string> default_pitch;
         default_pitch.push_back ("a");
         pitches.push_back (default_pitch);
         
@@ -547,7 +548,11 @@ public:
             flag = 0;
             return;
         }
-        //clear midi_note
+        
+        //cout << "check pitches vec size at mel_line#: " << mel_line << " = " << pitches[mel_line].size () << endl;
+        
+        //cout << "clear midi_note vec: " << midi_note.size () << endl;
+        //if (midi_note.size () > 0)
         midi_note.erase (midi_note.begin (), midi_note.end ());
         
         int size = pitches[mel_line].size ();
