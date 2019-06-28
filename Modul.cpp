@@ -191,7 +191,7 @@ Modul::Modul( string filtyp, unsigned long chan, unsigned long samframs,
     vector<string> default_pitch;
     default_pitch.push_back ("69");
     mel_matrix.push_back (default_pitch);
-    
+    pitch_line = 0;
     BPM = 180.;
 	LoadForms();
 } 
