@@ -81,7 +81,7 @@ Interpret::Interpret()
 
 string Interpret::install_dir = "unknown path or incomplete installation (share files missing).";
 
-string Interpret::version_number = "1.2";
+string Interpret::version_number = "1.2.2";
 
 Interpret::~Interpret()
 {

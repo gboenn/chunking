@@ -34,7 +34,7 @@ LIBRARY = libchunking
 LIBGC =
 SQLITE = -lsqlite3
 INCLUDES = 
-CELLARPATH = /usr/local/Cellar/chunking/1.2
+CELLARPATH = /usr/local/Cellar/chunking/1.2.2
 SHAREPATH = $(CELLARPATH)/share
 
 .PHONY: install uninstall
