@@ -12,6 +12,9 @@
 #include <stdint.h>
 #include <sqlite3.h>
 
+#include <dirent.h>
+#include <errno.h>
+
 #include "AlgoComp.h"
 
 #include "gc_switch_ssh.h"
@@ -42,11 +45,16 @@ Interpret::Interpret()
 			}
 		loop++;
 		}
-	prompt = "SoundShell";
+	prompt = "chunking";
     add_flag = 0;
     user_session = "";
-
-    db_err = sqlite3_open("/usr/local/share/chunking/rhy.db", &rhy);
+    
+    
+    DetermineInstallDirectory ();
+    cout << prompt << " v" << version_number << " shared material installed in: " << GetInstallDirectory () << endl;
+    
+    string rhydb_path = install_dir + "/rhy.db";
+    db_err = sqlite3_open(rhydb_path.c_str(), &rhy);
     
     if (db_err) {
         fprintf (stderr, "Error opening database in Interpret ctor: %s\n", sqlite3_errmsg(rhy));
@@ -71,6 +79,10 @@ Interpret::Interpret()
 
  }
 
+string Interpret::install_dir = "unknown path or incomplete installation (share files missing).";
+
+string Interpret::version_number = "1.2";
+
 Interpret::~Interpret()
 {
     if (rhy) {
@@ -81,233 +93,37 @@ Interpret::~Interpret()
     }
 }
 
-void Interpret::DoInterpret(TextIO& coms, Modul& mdl )
+int Interpret::DetermineInstallDirectory ()
 {
-	ofstream textout;
-	time_t now;
-	struct tm *date;
-	char *stamp;
-	time( &now );
-	
-	char appendstring[11];
-	sprintf(appendstring, "%ju", (uintmax_t)now);
-	
-	string bodyname = "logSSH";
-	string logfilename =  bodyname + appendstring;
-	coms.TextWrite( textout, logfilename);
-	
-	date = localtime( &now );
-	stamp = asctime( date );
-	textout << stamp << endl << endl;
-	
-	while( i < MAXLINES )
-	{
-		cout << prompt << ">";
-		//isfptr.getline( (char *) &text_obj[count], sizeof(struct TextBuf), '\n' );
-		
-		cin.getline(zeile,sizeof(zeile),'\n');
-		args[i] = (string)zeile;
-		nchars = strlen(zeile); 
-		
-		if( args[i] == "exit" )
-		{
-			cout << "bye!" << endl;
-			break;
-		}
-		
-		/////////////////////////////////////
-		//
-		//	Zeilennummer, Zeileneingabe und Zeilenlaege:
-		//  k: index des ersten zeichens der zeile
-		//
-		/////////////////////////////////////
-			
-		k = 0;
-		w = 0;
-		//		int result = 0;
-		
-		if( args[i] != " " ) // if there is information in the line,...
-		{
-			while( k < nchars ) // process the line:
-			{
-				while( args[i][k] == ' '  ) // FOUND WHITESPACE
-				{
-					k++;
-					if( k == ( nchars - 1 ) ) // reached end of line?
-						break;
-					if( args[i][k] != ' ' ) // found character?
-						break;
-				}
-				
-				while( args[i][k] != ' ' ) // found non-whitespace
-				{
-					wort[w][wk++] = args[i][k++]; // copy non-whitespaces to wort
-					
-					if( k == ( nchars ) ) // if there aren't any chars left 
-					{
-						++w;	// next word
-						wk = 0; // reset char index for new word 
-						break;
-					}
-					
-					if( args[i][k] == ' ' ) // or if whitespace separates
-					{
-						++w;	// next word
-						wk = 0; // reset char index for new word 
-						break;
-					}
-				}
-				
-				if( k == ( nchars - 1 ) ) // if there aren't any chars left 
-					break;
-			}
-			
-			int result = 0;
-			nullcount = 0;
-			
-			for( ck = 0; ck <= coms.GetCount (); ck++ )
-			{	
-				if( ck == coms.GetCount () )
-				{
-					we = 0;
-					while( we < MAXWORTE )
-					{
-						wort[0][we++] = "\0";
-					}
-					we = 0;
-					break;
-				}
-				
-				while( we < MAXWORTE )
-				{
-					if( wort[0][we] == "\0" )
-					{
-						we = 0;
-						break;
-					}
-					else
-					{
-						if( coms.GetTextBufChar (ck, we) != '\0' )
-						{
-							#if  1
-							
-							 	char ctemp1 = coms.GetTextBufChar (ck, we); //coms.text_obj[ck].text[we];
-							 	char ctemp3 = *wort[0][we].c_str();
-								
-								if( ctemp1 == ctemp3 )
-								{	
-									result = 1;
-									wl++;	
-								}
-								else
-									result = 0;	
-							
-							#endif
-							#if  _VISUAL
-							{
-								unsigned char ctemp1 = coms.GetTextBufChar (ck, we);
-								unsigned char ctemp3 = unsigned char(*wort[0][we].c_str());
-								
-								if( ctemp1 == ctemp3 )
-								{	
-									result = 1;
-									wl++;
-								}
-								else
-									result = 0;
-									
-							}
-							#endif
-							#if  _GNU
-							{
-							 	char ctemp1 = coms.text_obj[ck].text[we];
-							 	char ctemp3 = *wort[0][we].c_str();
-								
-								if( ctemp1 == ctemp3 )
-								{	
-									result = 1;
-									wl++;
-								}
-								else
-									result = 0;
-									
-							}
-							#endif
-							
-							we++;
-							
-						}
-						else
-						{
-							we = 0;
-							result = 0;
-							break;
-						}
-					}
-
-				} // end while( we < MAXWORTE)...
-				
-				if( result )
-				{
-					if( wl == coms.GetTextBufLength (ck) )
-					{	
-						Dispatch(coms, mdl);
-						textout << zeile << endl;
-					}
-					else
-						nullcount++;
-				}
-				else
-				{
-					//cout << "command not found" << endl;
-					nullcount++;
-				}
-				
-				if( nullcount == coms.GetCount () )
-					{
-					const char* test = "\0";
-					if( test[0] != zeile[0] )
-						cout << "command not found" << endl;
-				
-					for( wc = 1; wc < w; wc++ )
-						{
-							we = 0;
-							while( we < MAXWORTE )
-							{	
-								wort[wc][we] = "\0";
-								we++;
-							}
-						}
-					}
-
-				wl = we = 0;
-
-			} // end for( ck = 0; ck <= coms.count; ck++ )...
-			
-		} // end if( args[i] != " " )...
-			
-		++i;
-		if( i >= MAXLINES )
-			i = 0;
-	}
+    string default_dir = "/usr/local/share/chunking";
+    string homebrew_dir = "/usr/local/Cellar/chunking";
+    //install_dir = "unknown path or incomplete installation (share files missing).";
+    int retcode = -1;
+    
+    DIR* dir = opendir(default_dir.c_str());
+    if (dir) {
+        install_dir = "/usr/local/share/chunking";
+        return 0;
+    } else if (ENOENT == errno) {
+        dir = opendir(homebrew_dir.c_str());
+        if (dir) {
+            install_dir = "/usr/local/Cellar/chunking/" + version_number + "/share";
+            return 1;
+        }
+        else if (ENOENT == errno) {
+            cerr << "Warning! Installation directory not found." << endl;
+        } else {
+            cerr << "Warning! Problem locating installation directory." << endl;
+        }
+    } else {
+        cerr << "Warning! Problem locating installation directory." << endl;
+    }
+    return retcode;
 }
 
-void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
+
+void Interpret::Dispatch(Modul& mdl)
 {
-    if (!from_cmd_line)
-	{
-		for( wc = 1; wc < w; wc++ )
-		{
-			we = 0;
-			while( we < MAXWORTE )
-			{	
-				args_obj[wc-1].text[we] = char(*wort[wc][we].c_str());
-				wort[wc][we++] = "\0";
-			}
-		}
-		ms = coms.GetTextBufText (ck);
-	}
-        
     user_method = ms;
     
 	if (ms == modulTable[kPropSeries])

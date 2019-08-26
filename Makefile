@@ -36,7 +36,7 @@ INCLUDES =
 
 .PHONY: install uninstall
 
-all: $(TARGETS)
+all: $(TARGETS) $(LIBRARY)
 
 libchunking: $(OBJS) $(HDRS)
 	$(CC) -dynamiclib $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) -o libchunking.dylib
@@ -67,11 +67,18 @@ install:
 	cp ./text/decrease.txt /usr/local/share/chunking/
 	cp ./text/bracelets.txt /usr/local/share/chunking/
 	cp rhy.db /usr/local/share/chunking/
+	cp libchunking.dylib /usr/local/lib
+	mkdir /usr/local/include/chunking
+	cp $(HDRS) /usr/local/include/chunking
+
 
 uninstall:
 	rm /usr/local/bin/chunking
 	rm -r /usr/local/share/chunking/
+	rm /usr/local/lib/libchunking.dylib
+	rm -r /usr/local/include/chunking
 
+	
 Alea.o: Alea.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
 

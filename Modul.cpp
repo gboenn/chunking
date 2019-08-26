@@ -83,31 +83,11 @@ enum {RESISTOR, RELEASE, ARCH, CATENARY, ALTERNATING, GROWTH, DECREASE, NUMFORMS
 //vector<string> g_forms
 //enum {ALTERNATING, GROWTH, DECREASE, RESISTOR, RELEASE, ARCH, CATENARY, NUMFORMS };
 
-Modul::Modul( string filtyp, unsigned long chan, unsigned long samframs, 
-			unsigned long samsiz, unsigned long samrat) { 
-    //prg = NULL;
-	file_type = filtyp; 
-	channels = chan; 
-	sample_frames = samframs; 
-	sample_size = samsiz; 
-	sample_rate = samrat; 
-	digest_list = new DList<float_digest>; 
-	QGI = new quant_global_info;
-	qsi = new DList<quant_solution_info>;
-	result_weights = new DList<final_weights_info>;
-	result_weights2 = new DList<final_weights_info>;
-	df = new DList<difference_function>;
-	lastrat = 0.f;
-	qdurcount = 0;
-	lastinteg = 0.f;
-	quli = new DList<finali>;
-	rhythm_database = new DList<DList<float> >;
-	analysis_database = new DList<analysisentry >;
-	pulse_seq = new DList<int>; 
-	real_pulseq = new DList<float>;
+Modul::Modul () {
 
-	pack_count = 0;
-	
+    Interpret::DetermineInstallDirectory ();
+    file_prefix = Interpret::install_dir;
+    //cout << file_prefix << endl;
     //vectors of partitions
 	matrix = new vector <vector <float> >;
     // all_COPRIME_partitions_until_120_with_2_distinct_parts.txt:
@@ -1026,11 +1006,11 @@ void Modul::LoadAllPartitions () {
   LoadPartitions ("./text/all_COPRIME_partitions_until_120_with_4_distinct_parts.txt", 4);
   LoadPartitions ("./text/all_COPRIME_partitions_until_120_with_5_distinct_parts.txt", 5);
 */
-    LoadPartitions ("/usr/local/share/chunking/all_partitions_until_41_parts_only_2s_and_3s.txt", 1);
-    LoadPartitions ("/usr/local/share/chunking/all_COPRIME_partitions_until_120_with_2_distinct_parts.txt", 2);
-    LoadPartitions ("/usr/local/share/chunking/all_COPRIME_partitions_until_120_with_3_distinct_parts.txt", 3);
-    LoadPartitions ("/usr/local/share/chunking/all_COPRIME_partitions_until_120_with_4_distinct_parts.txt", 4);
-    LoadPartitions ("/usr/local/share/chunking/all_COPRIME_partitions_until_120_with_5_distinct_parts.txt", 5);
+    LoadPartitions (file_prefix + "/all_partitions_until_41_parts_only_2s_and_3s.txt", 1);
+    LoadPartitions (file_prefix + "/all_COPRIME_partitions_until_120_with_2_distinct_parts.txt", 2);
+    LoadPartitions (file_prefix + "/all_COPRIME_partitions_until_120_with_3_distinct_parts.txt", 3);
+    LoadPartitions (file_prefix + "/all_COPRIME_partitions_until_120_with_4_distinct_parts.txt", 4);
+    LoadPartitions (file_prefix + "/all_COPRIME_partitions_until_120_with_5_distinct_parts.txt", 5);
 
 }
 
@@ -1321,13 +1301,13 @@ void Modul::LoadForms () {
   s.push_back("./text/growth.txt");
   s.push_back("./text/decrease.txt");
     */
-    s.push_back("/usr/local/share/chunking/resistor.txt");
-    s.push_back("/usr/local/share/chunking/release.txt");
-    s.push_back("/usr/local/share/chunking/arch.txt");
-    s.push_back("/usr/local/share/chunking/catenary.txt");
-    s.push_back("/usr/local/share/chunking/alternating.txt");
-    s.push_back("/usr/local/share/chunking/growth.txt");
-    s.push_back("/usr/local/share/chunking/decrease.txt");
+    s.push_back(file_prefix + "/resistor.txt");
+    s.push_back(file_prefix + "/release.txt");
+    s.push_back(file_prefix + "/arch.txt");
+    s.push_back(file_prefix + "/catenary.txt");
+    s.push_back(file_prefix + "/alternating.txt");
+    s.push_back(file_prefix + "/growth.txt");
+    s.push_back(file_prefix + "/decrease.txt");
     
   int k = 0;
   int size = s.size();
@@ -1417,7 +1397,7 @@ void Modul::LoadForms () {
 
 void Modul::LoadBracelets () {
 
-  ifstream file ("/usr/local/share/chunking/bracelets.txt");
+  ifstream file (file_prefix + "/bracelets.txt");
   string line;
   string cell;
 
@@ -4102,11 +4082,12 @@ void Modul::DB_insert_from_file (string filename, string patname, string origin,
     sqlite3 *rhy;
     int db_err;
     
-    db_err = sqlite3_open("/usr/local/share/chunking/rhy.db", &rhy);
+    string rhydb_path = file_prefix + "/rhy.db";
+    db_err = sqlite3_open(rhydb_path.c_str() , &rhy);
     
     if (db_err) {
         fprintf (stderr, "Error opening database: %s\n", sqlite3_errmsg(rhy));
-        fprintf (stderr, "Check whether /usr/local/share/chunking/rhy.db exists\n");
+        fprintf (stderr, "Check whether rhy.db exists in share folder\n");
     }
     
     string sql;
@@ -4165,7 +4146,8 @@ void Modul::DB_search (string searchstring) {
   sqlite3 *rhy;
   int db_err;
 
-  db_err = sqlite3_open("/usr/local/share/chunking/rhy.db", &rhy);
+    string rhydb_path = file_prefix + "/rhy.db";
+  db_err = sqlite3_open(rhydb_path.c_str(), &rhy);
 
   if (db_err) {
     fprintf (stderr, "Error opening database: %s\n", sqlite3_errmsg(rhy));
