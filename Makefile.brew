@@ -54,6 +54,7 @@ tidy:
 	rm -f $(OBJS)
 
 install:
+	mkdir $(CELLARPATH)
 	cp chunking $(CELLARPATH)/.
 	mkdir $(SHAREPATH)
 	cp ./text/all_partitions_until_41_parts_only_2s_and_3s.txt $(SHAREPATH)
@@ -70,6 +71,7 @@ install:
 	cp ./text/decrease.txt $(SHAREPATH)
 	cp ./text/bracelets.txt $(SHAREPATH)
 	cp rhy.db $(SHAREPATH)
+	mkdir $(CELLARPATH)/lib 
 	cp libchunking.dylib $(CELLARPATH)/lib
 	mkdir $(CELLARPATH)/include
 	cp $(HDRS) $(CELLARPATH)/include
