@@ -35,7 +35,7 @@ LIBGC =
 SQLITE = -lsqlite3
 INCLUDES = 
 BREWPATH = /usr/local/Cellar/chunking
-CELLARPATH = $(BREWPATH)/1.2.4
+CELLARPATH = $(BREWPATH)/1.2.5
 SHAREPATH = $(CELLARPATH)/share
 
 .PHONY: install uninstall
@@ -55,6 +55,7 @@ tidy:
 	rm -f $(OBJS)
 
 install:
+	mkdir $(BREWPATH)
 	mkdir $(CELLARPATH)
 	cp chunking $(CELLARPATH)/.
 	mkdir $(SHAREPATH)
