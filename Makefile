@@ -11,7 +11,7 @@ HDRS = Alea.h AlgoComp.h Interpret.h Modul.h TextIO.h \
 Power.h Visitor.h Farey.h FareyVisitor.h Ratio.h \
 FareyFilter.h SmoothFilter.h ProbFilter.h PrimeFilter.h \
 FareyFilterFarey.h DList.h SternBrocot.h ReciprocalFilter.h SubdivisionFilter.h \
-Christoffel.h
+Christoffel.h gc_switch_ssh.h
 
 
 OBJS = Alea.o AlgoComp.o Interpret.o Main.o Modul.o TextIO.o \
