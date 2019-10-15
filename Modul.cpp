@@ -89,23 +89,6 @@ enum {RESISTOR, RELEASE, ARCH, CATENARY, ALTERNATING, GROWTH, DECREASE, NUMFORMS
 
 Modul::Modul () {
 
-  /*
-	QGI = new quant_global_info;
-	qsi = new DList<quant_solution_info>;
-	result_weights = new DList<final_weights_info>;
-	result_weights2 = new DList<final_weights_info>;
-	df = new DList<difference_function>;
-	lastrat = 0.f;
-	qdurcount = 0;
-	lastinteg = 0.f;
-	quli = new DList<finali>;
-	rhythm_database = new DList<DList<float> >;
-	analysis_database = new DList<analysisentry >;
-	pulse_seq = new DList<int>; 
-	real_pulseq = new DList<float>;
-
-	pack_count = 0;
-  */
     //vectors of partitions
 	matrix = new vector <vector <float> >;
     // all_COPRIME_partitions_until_120_with_2_distinct_parts.txt:

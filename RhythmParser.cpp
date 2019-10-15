@@ -8,9 +8,9 @@
 #include "RhythmParser.h"
 
 void RhythmParser::process (string filename) {
+    vrh.clear ();
     if (!(yyin = fopen(filename.c_str(), "r"))) {
         cout << "RhythmParser says: error opening " << filename << endl;
     }
     yyparse();
-    vrh.clear ();
 }
