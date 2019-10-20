@@ -198,6 +198,7 @@ void ShDecode::translate_dur (double dur, double prev, string& lp_note) {
     }
 }
 
+#if 0
 string ShDecode::print_lp_values (const vector<float>& v, int scale, bool restflag) {
     // translating shorthand pulse values to lilypond score notes
     // scale = 2 halves all note values : quarter => eighth (4 => 8)
@@ -234,6 +235,49 @@ string ShDecode::print_lp_values (const vector<float>& v, int scale, bool restfl
     //cout << endl;
     return res;
 }
+#endif
+
+string ShDecode::print_lp_values (const vector<float>& v, int scale, bool restflag) {
+    // translating shorthand pulse values to lilypond score notes
+    // scale = 2 halves all note values : quarter => eighth (4 => 8)
+    
+    if (scale > 1 && !isPower2(scale)) {
+        cout << "Warning. " << scale << " is not a power of two." << endl;
+    }
+    float scale_factor = scale;
+    if (scale_factor < 0) {
+        scale_factor = pow(2.,scale_factor);
+    }
+    float wp = 8.f * scale_factor; // whole note in shorthand '.' pulses
+    char note = 'c';
+    char rest = 'r';
+    string res = "";
+    bool shrest = false; //shorthand notation rests
+    for (int i = 0; i < v.size(); i++) {
+        float dur = wp/fabs(v[i]);
+        if (v[i] < 0)
+            shrest = true;
+        else
+            shrest = false;
+        string lp_note = "";
+        if (restflag || shrest) {
+            lp_note += rest;
+            //dur *= -1.f;
+        } else {
+            lp_note += note;
+        }
+        if (dur <= 0.125) {
+            cout << "Warning. Note lengths exceeding the 'longa' (4 x whole note) are not supported in tuplets or subdivisions. Use ties between smaller durations in shorthand." << endl;
+        }
+        translate_dur(dur, 0., lp_note);
+        //cout << lp_note << " ";
+        res += lp_note;
+        res += " ";
+    }
+    //cout << endl;
+    return res;
+}
+
 
 string ShDecode::transcribe_tuplet (string input, int prop, map<char,vector<float> >& sh_durs) {
     // determine
