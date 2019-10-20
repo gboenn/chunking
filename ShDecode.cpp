@@ -119,7 +119,7 @@ float ShDecode::list_feed (vector<string>& sh_parsed, vector<string>& outs) {
             if (sh_parsed[i+1] == "(") {
                 continue;
             }
-            if (sh_parsed[i-1] == ")") {
+            if (sh_parsed[i-1] == ")" || sh_parsed[i-1] == "]") {
                 continue;
             }
             outs.push_back(process_tie ());
