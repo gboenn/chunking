@@ -23,6 +23,7 @@
 #include "SubdivisionFilter.h"
 #include "Christoffel.h"
 #include "PitchParser.h"
+#include "LilypondTranscription.h"
 
 #include <iostream>
 #include <sqlite3.h>
@@ -2928,7 +2929,7 @@ void Modul::PrintPhrases (string filename, string pitches, float bpm, int flag) 
             string shstring;
             string temp = "";
             if (atoi(rowlink->data->c_str()) == 0) {
-                if (rowlink->data->find ("$") == string::npos) { // if the line does not start with a comment
+                if (rowlink->data->find ("$") == string::npos) { // if the line does not have a comment
                     irow = new DList<int>;
                     for (; rowlink != NULL; rowlink	= rowlink->next) {
                         string cur = *rowlink->data;
@@ -4840,3 +4841,9 @@ string Modul::Reverse2 (string rhythm) {
     }
 }
 
+void Modul::Translate_Shorthand (string filename) {
+    cout << "translation of " << filename << endl;
+    LilypondTranscription lt;
+    lt.parse_sh (filename);
+    lt.pass_lines ();
+}

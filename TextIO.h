@@ -69,6 +69,7 @@ enum
     kaddrep,
     krepeat,
     knest,
+    ktsnmr,
 	kNumModules
 };	
 
@@ -122,7 +123,8 @@ static const char* modulTable[kNumModules] =
     "bendf",
     "addrep",
 	"repeat",
-	"nest"
+	"nest",
+    "tsnmr"
     };
 
 

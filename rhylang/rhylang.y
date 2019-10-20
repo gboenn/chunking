@@ -27,7 +27,9 @@
 %%
 
 rhylist: 
-| rhylist exp EOL { print_list (); /*vrh.clear();*/ cout << endl; }
+| rhylist exp EOL {
+    vrh.push_back ("newline");
+    print_list (); /*vrh.clear();*/ cout << endl; }
  | rhylist EOL { cout << "> "; }
  ;
 

@@ -1028,6 +1028,13 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
         }
     }
     
+    if (ms == modulTable[ktsnmr]) {
+        if (args_obj[0].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            mdl.Translate_Shorthand (s1);
+        }
+    }
+    
 	for (int i = 0; i < MAXLINES; i++)
 		args_obj[i].text[0] = '\0';
 

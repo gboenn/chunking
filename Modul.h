@@ -361,6 +361,9 @@ class Modul
         string Inverse2 (string pitches);
         string Transpose2 (string pitches, float interval);
         string Reverse2 (string rhythm);
+        
+        void Translate_Shorthand (string filename);
+        
 };
 
 class Decoder {

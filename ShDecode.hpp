@@ -1,10 +1,13 @@
-//
+///////////////////////////////////////////
 //  ShDecode.hpp
 //  lilypond_encoder
 //
 //  Created by Georg Boenn on 2019-10-14.
 //  Copyright © 2019 Georg Boenn. All rights reserved.
-//
+//  GNU General Public License version 3.0
+//  Free Software Foundation
+///////////////////////////////////////////
+
 
 #ifndef ShDecode_hpp
 #define ShDecode_hpp

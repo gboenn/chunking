@@ -28,7 +28,7 @@ mel << "60,62,67,64,65,67,69,71" << endl;
 StringToFile p ("motive2.txt");
 p.Append(mel.str());
 
-m.PrintPhrases("mutations2.txt","motive2.txt",300,1);
+m.PrintPhrases("mutations2.txt","motive2.txt",200,1);
 
  system("/Applications/LilyPond.app/Contents/Resources/bin/lilypond print_phrase.ly");
  system("open -a /Applications/Preview.app/ print_phrase.pdf");
