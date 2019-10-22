@@ -362,7 +362,7 @@ class Modul
         string Transpose2 (string pitches, float interval);
         string Reverse2 (string rhythm);
         
-        void Translate_Shorthand (string filename);
+        void Translate_Shorthand (string filename, string pitchfile);
         
 };
 
@@ -541,6 +541,7 @@ public:
     vector<int> GetLastMidiNote () { return midi_note; } // int to vector<int>
     //void SetLastMidiNote (int i) { last_midi_note.push_back(i); } //obsolete or int to vector<int>
     void SaveNote () { mel_count--; }
+    string GetNote () { return note; }
     void AdvanceNote () {
         if (flag == -2) return; // -2 is opening bracket flag - if there is one of the symbols ( ), brackets do not write to note
         if (flag == -3) {
@@ -626,7 +627,6 @@ public:
             note = pitch + octave; // for lilypond
             //cout << note << " ";
         }
-        
         
         if (++mel_count == size) mel_count = 0;
     }

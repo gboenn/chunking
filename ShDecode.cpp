@@ -249,7 +249,7 @@ string ShDecode::print_lp_values (const vector<float>& v, int scale, bool restfl
         scale_factor = pow(2.,scale_factor);
     }
     float wp = 8.f * scale_factor; // whole note in shorthand '.' pulses
-    char note = 'c';
+    string note = "c'";
     char rest = 'r';
     string res = "";
     bool shrest = false; //shorthand notation rests
@@ -264,7 +264,9 @@ string ShDecode::print_lp_values (const vector<float>& v, int scale, bool restfl
             lp_note += rest;
             //dur *= -1.f;
         } else {
-            lp_note += note;
+            dec->AdvanceNote ();
+            note = dec->GetNote ();
+            lp_note += note; // use AdvanceNote() and the getNote() to receive lilypond code
         }
         if (dur <= 0.125) {
             cout << "Warning. Note lengths exceeding the 'longa' (4 x whole note) are not supported in tuplets or subdivisions. Use ties between smaller durations in shorthand." << endl;

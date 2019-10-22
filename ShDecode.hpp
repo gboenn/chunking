@@ -18,7 +18,9 @@
 #include <vector>
 #include <cmath>
 #include <stdlib.h>     
-
+#ifndef __Modul_h__
+#include "Modul.h"
+#endif
 
 using namespace std;
 
@@ -42,13 +44,14 @@ public:
     string transcribe_sh (string& in);
     string transcribe_tuplet (string input, int prop, map<char,vector<float> >& sh_durs);
     void translate_dur (double dur, double prev, string& lp_note);
+    void SetDecoder (Decoder* decod) { dec = decod; }
     
 private:
     
     map<char,vector<float> > sh_durs;
     vector<double> inv_bin_durs;
     vector<float> divlist;
-    
+    Decoder* dec;
 };
 
 #endif /* ShDecode_hpp */

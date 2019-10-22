@@ -1029,9 +1029,12 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     }
     
     if (ms == modulTable[ktsnmr]) {
-        if (args_obj[0].text[0] != '\0') {
+        if (args_obj[1].text[0] != '\0') {
             string s1 = args_obj[0].text;
-            mdl.Translate_Shorthand (s1);
+            string s2 = args_obj[1].text;
+            mdl.Translate_Shorthand (s1, s2);
+        } else {
+            cout << "Usage: chunking -m tsnmr <string snmr_file> <string pitch_file>" << endl;
         }
     }
     
