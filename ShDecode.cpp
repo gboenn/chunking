@@ -51,7 +51,11 @@ void ShDecode::fill_sh_values () {
 }
 
 string ShDecode::process_tie () {
+    cout << "process_tie " << endl;
+    dec->SaveNote ();
     return " ~ ";
+    
+//    dec->Set(-1);
 }
 
 string ShDecode::start_tuplet () {

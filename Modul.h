@@ -376,6 +376,7 @@ private:
     vector<vector<string> > pitches;
     int mel_line; //test to pick a new melody line
     int mel_count;
+    int pitches_line_size;
     vector<string> pitch_classes;
     //vector<int> last_midi_note; // int to vector<int>
     vector<int> midi_note; // int to vector<int>
@@ -402,6 +403,7 @@ public:
         //vector<string> default_pitch;
         default_pitch.push_back ("a");
         pitches.push_back (default_pitch);
+        pitches_line_size = pitches.size ();
         
         notename_midi_map["A0"] = 21;
         notename_midi_map["A#0"] = 22;
@@ -537,10 +539,15 @@ public:
 	void Set (int f) { flag = f; };
 	string GetCode () { return code; };
 	void SetNote (string n) { note = n; };
-    void SetPitchLine (int i) { mel_line = i; }
+    void SetPitchLine (int i) { mel_line = i; mel_count = 0;}
     vector<int> GetLastMidiNote () { return midi_note; } // int to vector<int>
     //void SetLastMidiNote (int i) { last_midi_note.push_back(i); } //obsolete or int to vector<int>
-    void SaveNote () { mel_count--; }
+    void SaveNote () {
+        mel_count--;
+        if (mel_count < 0)
+            mel_count = pitches_line_size-1;
+        cout << "savenote " << mel_count << endl;
+    }
     string GetNote () { return note; }
     void AdvanceNote () {
         if (flag == -2) return; // -2 is opening bracket flag - if there is one of the symbols ( ), brackets do not write to note
@@ -552,7 +559,7 @@ public:
             flag = 0;
             return;
         }
-        
+        cout << "AdvanceNote " << mel_count << endl;
         //cout << "check pitches vec size at mel_line#: " << mel_line << " = " << pitches[mel_line].size () << endl;
         
         //cout << "clear midi_note vec: " << midi_note.size () << endl;
@@ -560,6 +567,7 @@ public:
         midi_note.erase (midi_note.begin (), midi_note.end ());
         
         int size = pitches[mel_line].size ();
+        pitches_line_size = size;
         //cout << "s:" << size << " ";
         string pstring = pitches.at(mel_line).at(mel_count);
         //cout << pstring << " ";
@@ -583,6 +591,7 @@ public:
         //midi_note.push_back( atoi( pitches.at(mel_line).at(mel_count++).c_str () ));
    
         int midi_note_size = midi_note.size ();
+        
         //cout << "midi_note_size: " << midi_note_size << " ";
         if (midi_note_size > 1) { // if there is a chord
             int i = 0;
