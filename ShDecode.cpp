@@ -241,6 +241,30 @@ string ShDecode::print_lp_values (const vector<float>& v, int scale, bool restfl
 }
 #endif
 
+void ShDecode::manage_group (const vector<float>& v, string& lps, const int& i) {
+    int group = v.size();
+    if (group == 1) return;
+    if (group == 2 && i == 0 && v[0] == 1.f && v[1] == 1.f) {
+        lps += "[";
+    }
+    if (group == 2 && i == 1 && v[0] == 1.f && v[1] == 1.f) {
+        lps += "]";
+    }
+    if (group == 3 && i == 0 && v[0] == 1.f && v[1] == 1.f && v[2] == 1.f) {
+        lps += "[";
+    }
+    if (group == 3 && i == 2 && v[0] == 1.f && v[1] == 1.f && v[2] == 1.f) {
+        lps += "]";
+    }
+    if (group == 3 && i == 1 && v[0] == -1.f && v[1] == 1.f && v[2] == 1.f) {
+        lps += "[";
+    }
+    if (group == 3 && i == 2 && v[0] == -1.f && v[1] == 1.f && v[2] == 1.f) {
+        lps += "]";
+    }
+    
+}
+
 string ShDecode::print_lp_values (const vector<float>& v, int scale, bool restflag) {
     // translating shorthand pulse values to lilypond score notes
     // scale = 2 halves all note values : quarter => eighth (4 => 8)
@@ -257,6 +281,7 @@ string ShDecode::print_lp_values (const vector<float>& v, int scale, bool restfl
     char rest = 'r';
     string res = "";
     bool shrest = false; //shorthand notation rests
+    
     for (int i = 0; i < v.size(); i++) {
         float dur = wp/fabs(v[i]);
         if (v[i] < 0)
@@ -277,6 +302,8 @@ string ShDecode::print_lp_values (const vector<float>& v, int scale, bool restfl
         }
         translate_dur(dur, 0., lp_note);
         //cout << lp_note << " ";
+
+        manage_group( v, lp_note, i);
         res += lp_note;
         res += " ";
     }

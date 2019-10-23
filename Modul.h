@@ -559,7 +559,7 @@ public:
             flag = 0;
             return;
         }
-        cout << "AdvanceNote " << mel_count << endl;
+        //cout << "AdvanceNote " << mel_count << endl;
         //cout << "check pitches vec size at mel_line#: " << mel_line << " = " << pitches[mel_line].size () << endl;
         
         //cout << "clear midi_note vec: " << midi_note.size () << endl;
