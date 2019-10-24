@@ -546,7 +546,7 @@ public:
         mel_count--;
         if (mel_count < 0)
             mel_count = pitches_line_size-1;
-        cout << "savenote " << mel_count << endl;
+        //cout << "savenote " << mel_count << endl;
     }
     string GetNote () { return note; }
     void AdvanceNote () {
