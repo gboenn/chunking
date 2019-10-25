@@ -372,5 +372,20 @@ void chunking_tests () {
     cout << "///////////////////////////// TEST ////////////////////////////////////////////" << endl;
     mdl.BendFarey (5);
     cout << "Usage: chunking -m bendf <farey_number int>" << endl;
-    
+    cout << "///////////////////////////// TEST ////////////////////////////////////////////" << endl;
+    StringToFile np("snmr_new_parser.txt");
+    np.Append("[4H~IH~IH~IH~I]");
+    np.Append("IIII");
+    np.Append("[4W~IW~IW~IW~I]");
+    np.Append("----");
+    np.Append("[5HHHHH]");
+    np.Append("[5H~IH~IH~IH~IH~I]");
+    np.Append("[5WWWWW]");
+    np.Append("IIIII");
+    StringToFile npp("snmr_new_parser_pitches.txt");
+    npp.Append("60, 60:67, 60:67:71, 74");
+    npp.Append("76, 67:69, 69, 76");
+    npp.Append("77, 65, 65:67, 64");
+    npp.Append("62");
+    mdl.Translate_Shorthand ("snmr_new_parser.txt", "snmr_new_parser_pitches.txt");
 }
