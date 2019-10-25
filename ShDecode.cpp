@@ -95,7 +95,7 @@ string ShDecode::transcribe_sh (string& in) {
 
 float ShDecode::list_feed (vector<string>& sh_parsed, vector<string>& outs) {
     float duration = 0.f;
-    bool open_tuplet = false;
+    vector<bool> open_tuplet;
     auto len = sh_parsed.size();
     for (int i = 0; i < len; i++) {
         string item = sh_parsed[i];
@@ -103,12 +103,12 @@ float ShDecode::list_feed (vector<string>& sh_parsed, vector<string>& outs) {
             if (isdigit(sh_parsed[i+1].c_str()[0]) == false) {
                 divlist.push_back(2.f);
             } else {
-                open_tuplet = true;
+                open_tuplet.push_back (true);
             }
         } else if (item == "]") {
-            if (open_tuplet) { //}(divlist.back() > 2) {
+            if (open_tuplet.size() > 0) { //}(divlist.back() > 2) {
                 outs.push_back(close_tuplet ());
-                open_tuplet = false;
+                open_tuplet.pop_back();
             }
             divlist.pop_back();
         } else if (item == "(") {
