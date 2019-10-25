@@ -122,7 +122,7 @@ int Interpret::DetermineInstallDirectory ()
 }
 
 
-void Interpret::Dispatch(Modul& mdl)
+void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
 {
     user_method = ms;
     

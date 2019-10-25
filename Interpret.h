@@ -62,7 +62,7 @@ class Interpret {
 
 		Interpret();
 		~Interpret();
-		void Dispatch (Modul& mdl);
+		void Dispatch ( TextIO& coms, Modul& mdl, int from_cmd_line=0 );
 		void TypeError (TextIO& coms, string ms);
 		void SetArgs (string arg, int index) { strcpy (args_obj[index].text, arg.c_str()); }
 		void SetModulFunct (string function_name) { ms = function_name; }
