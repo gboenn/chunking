@@ -546,7 +546,7 @@ void Interpret::Dispatch(Modul& mdl)
     if (ms == modulTable[kdb]) {
       if (args_obj[0].text[0] != '\0') {
           string s1 = args_obj[0].text;
-          mdl.DB_search (s1);
+          cout << mdl.DB_search (s1) << endl;
       }
       else {
           cout << "Usage: chunking -m db <search string in shorthand notation>" << endl;
@@ -841,6 +841,16 @@ void Interpret::Dispatch(Modul& mdl)
         }
         else {
             cout << "Usage: chunking -m bendf <farey_number int>" << endl;
+        }
+    }
+    
+    if (ms == modulTable[ktsnmr]) {
+        if (args_obj[1].text[0] != '\0') {
+            string s1 = args_obj[0].text;
+            string s2 = args_obj[1].text;
+            mdl.Translate_Shorthand (s1, s2);
+        } else {
+            cout << "Usage: chunking -m tsnmr <string snmr_file> <string pitch_file>" << endl;
         }
     }
     

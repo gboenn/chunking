@@ -9,15 +9,15 @@
 
 #define __TextIO_h__
 
-#ifndef __Standards_h__
-#include "Standards.h"
+#ifndef __chunking_Standards_h__
+#include "chunking_Standards.h"
 #endif
 
 #ifndef __DList_h__
 #include "DList.h"
 #endif
 
-#if 1
+
 enum
 {
     kPropSeries=0,
@@ -69,6 +69,7 @@ enum
     kaddrep,
     krepeat,
     knest,
+    ktsnmr,
 	kNumModules
 };	
 
@@ -122,10 +123,11 @@ static const char* modulTable[kNumModules] =
     "bendf",
     "addrep",
 	"repeat",
-	"nest"
+	"nest",
+    "tsnmr"
     };
 
-#endif
+
 
 struct TextBuf 
 {
@@ -183,14 +185,15 @@ class StringToFile {
     if (!output)
       cerr << "cannot write file: " << filename << endl;
   }
-  ~StringToFile () {
+
+  ~StringToFile () { 
     if (output)
       output.close ();
   }
   void Append (string text) {
     if (output) {
       output << text << endl;
-    } else {
+	} else {
       cerr << "cannot append to file: " << filename << endl;
     }
   }

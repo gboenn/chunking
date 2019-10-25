@@ -22,10 +22,15 @@
 #include "ReciprocalFilter.h"
 #include "SubdivisionFilter.h"
 #include "Christoffel.h"
+#include "PitchParser.h"
+#include "LilypondTranscription.h"
+
 #include <iostream>
 #include <sqlite3.h>
 #include <random>
 #include <functional>
+
+
 
 #include "gc_switch_ssh.h"
 #if BOEHM_GC_SWITCH
@@ -88,6 +93,7 @@ Modul::Modul () {
     Interpret::DetermineInstallDirectory ();
     file_prefix = Interpret::install_dir;
     //cout << file_prefix << endl;
+
     //vectors of partitions
 	matrix = new vector <vector <float> >;
     // all_COPRIME_partitions_until_120_with_2_distinct_parts.txt:
@@ -1882,22 +1888,23 @@ void Modul::WriteToLilyfile (ofstream& s, string pattern, bool init, bool finish
       s << "\\score {" << endl << "\t" << "\\new Staff  {";
   }
 
-  Decoder* dec = new Decoder;
-  dec->SetPitches (GetPitches ());
-  dec->SetPitchLine (GetPitchLine ());
+//  Decoder* dec = new Decoder;
+    Decoder dec;
+  dec.SetPitches (GetPitches ());
+  dec.SetPitchLine (GetPitchLine ());
   int meter = 0;
   string lilypond_code = "";
   string measure_grouping = "#\'(";
   for (string::iterator it=pattern.begin(); it!=pattern.end(); ++it) {
     if (char(*it) != ' ') { //ignore empty spaces                                                                                                    
       //s << *it;
-      int code = dec->decode_shorthand_length (int(*it));
+      int code = dec.decode_shorthand_length (int(*it));
         if (code > 0) {
             meter += code;
             if (grouping)
                 measure_grouping = measure_grouping + to_string(code) + " ";
         }
-        lilypond_code += dec->decode_for_lilypond (int(*it));
+        lilypond_code += dec.decode_for_lilypond (int(*it));
         lilypond_code += " ";
         //cout << (int(*it)) << "=" << *it << endl; //lilypond_code << endl;
             //s << " " << code << " ";
@@ -1920,7 +1927,7 @@ void Modul::WriteToLilyfile (ofstream& s, string pattern, bool init, bool finish
   s << endl;
   
   //  s << pattern << endl;
-  delete dec;
+  //delete dec;
 
 }
 
@@ -2926,7 +2933,7 @@ void Modul::PrintPhrases (string filename, string pitches, float bpm, int flag) 
             string shstring;
             string temp = "";
             if (atoi(rowlink->data->c_str()) == 0) {
-                if (rowlink->data->find ("$") == string::npos) { // if the line does not start with a comment
+                if (rowlink->data->find ("$") == string::npos) { // if the line does not have a comment
                     irow = new DList<int>;
                     for (; rowlink != NULL; rowlink	= rowlink->next) {
                         string cur = *rowlink->data;
@@ -4141,7 +4148,7 @@ void Modul::DB_insert_from_file (string filename, string patname, string origin,
 
 }
 
-void Modul::DB_search (string searchstring) {
+string Modul::DB_search (string searchstring) {
 
   sqlite3 *rhy;
   int db_err;
@@ -4162,9 +4169,10 @@ void Modul::DB_search (string searchstring) {
     cerr << "error when setting case_sensitive_like = true." << endl;
     sqlite3_finalize (statement);
     sqlite3_close (rhy);
-    return;
+    return "";
   }
 
+    stringstream s;
   sql = "SELECT pattern, name, origin, composer, ID FROM rhythm WHERE pattern LIKE '" + searchstring + "'";
     int countrow = 0;
   if (sqlite3_prepare (rhy, sql.c_str(), -1, &statement, 0) == SQLITE_OK) {
@@ -4179,8 +4187,8 @@ void Modul::DB_search (string searchstring) {
               string origin = (char*)sqlite3_column_text(statement, 2);
               string composer = (char*)sqlite3_column_text(statement, 3);
               int id = sqlite3_column_int(statement, 4);
-              cout << "$ " << name << " " << origin << " " << composer << " ID: "<< id << " " << countrow << endl;
-              cout << rhythm << endl;
+              s << "$ " << name << " " << origin << " " << composer << " ID: "<< id << " " << countrow << endl;
+              s << rhythm << endl;
           }
           if (res == SQLITE_DONE || res==SQLITE_ERROR) {
               break;
@@ -4189,6 +4197,7 @@ void Modul::DB_search (string searchstring) {
   }
   sqlite3_finalize (statement);
   sqlite3_close (rhy);
+    return s.str();
 }
 
 void Modul::extract_from_analysephrases_output (string filename) {
@@ -4376,13 +4385,15 @@ string Modul::Fragment (string rhythm) {
     vector <int> mutpos;
     srand (time(NULL));
     
-    int r = 0;
-    int i = rand() % 71;
-    while (--i > 0)
-        r = rand() % rlen;
+    int lenm1 = rlen - 1;
+    random_device rd;
+    mt19937 md(rd());
+    uniform_real_distribution<double> dist(0, lenm1);
+    int r = dist(md);
     mutpos.push_back(r);
+    
     while (1) {
-        int r2 = rand() % rlen;
+        int r2 = dist(md);
         if (r != r2) {
             mutpos.push_back(r2);
             break;
@@ -4392,7 +4403,7 @@ string Modul::Fragment (string rhythm) {
     sort (mutpos.begin (), mutpos.end ());
     //cout << "Fragment: " << mutpos.at(0) << " " << mutpos.at(1) << endl;
     string result = rhythm.substr (mutpos.at(0), mutpos.at(1));
-    //cout << result << endl;
+    //cout << "Fragment result: " << result << endl;
     return result;
 }
 
@@ -4407,11 +4418,11 @@ string Modul::Rotation (string rhythm) {
     size_t rlen = rhythm.length ();
     if (rlen == 1)
         return rhythm;
-    srand (time(NULL));
-    int r = 0;
-    int i = rand() % 89;
-    while (--i > 0)
-        r = rand() % rlen;
+    int lenm1 = rlen - 1;
+    random_device rd;
+    mt19937 md(rd());
+    uniform_real_distribution<double> dist(0, lenm1);
+    int r = dist(md);
     
     string temp = rhythm;
     while (--r >= 0) {
@@ -4435,7 +4446,7 @@ string Modul::Mutation (string rhythm, int n) {
 
     size_t rlen = rhythm.length ();
     vector <int> mutpos;
-    srand (time(NULL));
+    //srand (time(NULL));
     int m = n;
     int lenm1 = rlen - 1;
     random_device rd;
@@ -4504,7 +4515,7 @@ string Modul::Mutation (string rhythm, int n) {
         }
     }
 
-    //cout << rhythm << endl;
+    cout << "Mutaion result: " << rhythm << endl;
     return rhythm;
 }
 
@@ -4530,8 +4541,10 @@ string Modul::Swap (string rhythm, int n) {
     cout << endl;
     for (i=0; i < n; i++) {
         char c = rhythm[mutpos.at(i)];
-        rhythm[mutpos.at(i)] = rhythm[mutpos.at(i)+1];
-        rhythm[mutpos.at(i)+1] = c;
+        int swapindex = mutpos.at(i)+1;
+	if (swapindex > lenm1) swapindex = 0;
+	rhythm[mutpos.at(i)] = rhythm[swapindex];
+        rhythm[swapindex] = c;
         //cout << "swap at pos: " << i << endl;
     }
     
@@ -4599,10 +4612,8 @@ void Modul::Compose (string rhythm) {
     }
 }
 
-string Modul::Reverse (string rhythm) {
-    reverse(rhythm.begin (), rhythm.end ());
-    return rhythm;
-}
+
+
 
 void Modul::AddAndRepeat (string rhythm, int n, int k) {
     Christoffel c;
@@ -4654,4 +4665,195 @@ void Modul::Nest (string input) {
   
   string result = Mutation(Mutation(Mutation(input,1), 1), 1);
   cout << result << endl;
+}
+
+string Modul::Inverse (string pitches) {
+  vector<float> p;
+  size_t found = pitches.find (",");
+  if (found != string::npos) {
+    stringstream aline (pitches);
+    string cell;
+    while (getline (aline, cell, ',')) {
+      p.push_back (atof (cell.c_str()));
+    }
+    vector<float> dx (p.size ());
+    adjacent_difference (p.begin(), p.end(), dx.begin());
+
+    stringstream pres;
+    int count = p.size ();
+    float cur = p[0]; int i=1;
+    while (count--) {
+      pres << cur << ",";
+      cur -= dx[i++];
+
+    }
+    return pres.str ();
+  } else {
+    cout << "Error: input pitches are strings of MIDI note numbers (float or int) seperated by commas." << endl;
+    return "";
+  }
+}
+
+string Modul::Inverse2 (string pitches) {
+    vector<vector<float> > p;
+    PitchParser pp;
+    int valid = pp.check (pitches);
+    if (valid) {
+        pp.process (p, pitches);
+        vector<float> dx (p.size ());
+        // extract contour of pitches to calculate intervals
+        vector<float> contour;
+        int count = p.size ();
+        int i = 0;
+        for (; i < count; i++) {
+            contour.push_back (p[i][0]);
+        }
+        
+        adjacent_difference (contour.begin(), contour.end(), dx.begin());
+        
+        stringstream pres;
+        count = p.size ();
+        float cur = p[0][0];
+        i=1; int k = 0;
+        while (count--) {
+            // check length of each element of p
+            // if > 1 then analyze intervals and invert and reassemble to output stringstream
+            if (p[k].size() > 1) {
+                vector<float> subdx (p[k].size ());
+                adjacent_difference (p[k].begin(), p[k].end(), subdx.begin());
+                int t = 1;
+                float oldcur = cur;
+                int ct = p[k].size ();
+                while (ct--) {
+                    pres << cur << ":";
+                    cur -= subdx[t++];
+                }
+                pres << ",";
+                cur = oldcur - dx[i++];
+            } else {
+                pres << cur << ",";
+                cur -= dx[i++];
+            }
+            k++;
+        }
+        return pres.str ();
+    } else {
+        return "";
+    }
+}
+
+string Modul::Transpose (string pitches, float interval) {
+  vector<float> p;
+  size_t found = pitches.find (",");
+  if (found != string::npos) {
+    stringstream aline (pitches);
+    string cell;
+    while (getline (aline, cell, ',')) {
+      p.push_back (atof (cell.c_str()));
+    }
+
+    stringstream pres;
+    int count = p.size ();
+    int i=0;
+    while (count--) {
+      pres << (p[i++] + interval) << ",";
+    }
+    return pres.str ();
+  } else {
+    cout << "Error: input pitches are strings of MIDI note numbers (float or int) seperated by commas." << endl;
+    return "";
+  }
+}
+
+string Modul::Transpose2 (string pitches, float interval) {
+    vector<vector<float> > p;
+    PitchParser pp;
+    int valid = pp.check (pitches);
+    if (valid) {
+
+        pp.process (p, pitches);
+        
+        // algorithm for transposition starts here: arguments: vector<vector<float> > p; and interval
+        stringstream pres;
+        int count = p.size ();
+        int i=0;
+        while (count--) {
+            vector<float> r = p[i++];
+            int count2 = r.size ();
+            int i2 = 0;
+            if (count2 == 1) {
+                pres << (r[0] + interval) << ",";
+                cout << pres.str() << endl;
+            } else {
+                count2--;
+                while (count2--) {
+                    pres << (r[i2++] + interval) << ":";
+                }
+                pres << (r[i2] + interval) << ",";
+                cout << pres.str() << endl;
+            }
+        }
+        // end algorithm
+        return pres.str ();
+    } else {
+        return "";
+    }
+}
+
+string Modul::Reverse (string rhythm) {
+    vector<float> p;
+    size_t found = rhythm.find (",");
+    if (found != string::npos) {
+        stringstream aline (rhythm);
+        string cell;
+        while (getline (aline, cell, ',')) {
+            p.push_back (atof (cell.c_str()));
+        }
+        stringstream prev;
+        int len = p.size ();
+        while (--len > -1)
+            prev << p[len] << ",";
+        return prev.str ();
+    } else {
+        reverse(rhythm.begin (), rhythm.end ());
+        return rhythm;
+    }
+}
+
+string Modul::Reverse2 (string rhythm) {
+    vector<vector<float> > p;
+    PitchParser pp;
+    int valid = pp.check (rhythm);
+    if (valid) {
+        pp.process (p, rhythm);
+        stringstream prev;
+        int len = p.size ();
+        while (--len > -1) {
+            vector<float> r = p[len];
+            int count2 = r.size ();
+            if (count2 == 1) {
+                prev << r[0] << ",";
+            } else {
+                while (count2-- > 1) {
+                    prev << r[count2] << ":";
+                }
+                prev << r[0] << ",";
+            }
+        }
+        return prev.str ();
+    } else {
+        reverse(rhythm.begin (), rhythm.end ());
+        return rhythm;
+    }
+}
+
+void Modul::Translate_Shorthand (string filename, string pitchfile) {
+    cout << "translation of " << filename << endl;
+    LilypondTranscription lt;
+    lt.open_pitch_file (pitchfile);
+    lt.open_lily_file ("transcription.ly");
+    lt.create_header ();
+    lt.parse_sh (filename);
+    lt.pass_lines ();
+    lt.create_footer ();
 }

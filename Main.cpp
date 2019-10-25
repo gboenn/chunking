@@ -24,8 +24,11 @@ int main(int argc, char* argv[]) {
 			for (int i = 3; i<argc; i++, k++)
 				interpreter.SetArgs (string(argv[i]), k);
 			
+			TextIO text ("init program...");
 			Modul module;
-			interpreter.Dispatch (module);
+						
+			interpreter.Dispatch (text, module, 1);
+
 			return 0;
 		}
 	}

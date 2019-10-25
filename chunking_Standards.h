@@ -1,12 +1,12 @@
 ///////////////////////////////////////////
-// Standards.h
+// chunking_Standards.h
 // Copyright (C) 2018 Georg Boenn
 // GNU General Public License version 3.0
 // Free Software Foundation
 ///////////////////////////////////////////
 
-#ifndef __Standards_h__
-#define __Standards_h__
+#ifndef __chunking_Standards_h__
+#define __chunking_Standards_h__
 
 #include <iostream>
 #include <fstream>
@@ -29,4 +29,4 @@ using namespace std;
 	const int MAXWORTE = 88;
 	const int MAXZEILEN = 128;
 	
-#endif // __Standards_h__
+#endif // __chunking_Standards_h__

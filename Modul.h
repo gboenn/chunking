@@ -8,8 +8,8 @@
 #ifndef	__Modul_h__
 #define	__Modul_h__ 
  
-#ifndef __Standards_h__ 
-#include "Standards.h" 
+#ifndef __chunking_Standards_h__ 
+#include "chunking_Standards.h" 
 #endif 
  
 #ifndef	__AlgoComp_h__ 
@@ -166,6 +166,7 @@ struct analysisentry {
 	DList<float>* musicentry;
 };
 
+/*
 int digest_list_compare (const void* arg1, const void* arg2); 
 int digest_list_compare2 (const void* arg1, const void* arg2); 
 int digest_list_compare_weight (const void* arg1, const void* arg2); 
@@ -180,7 +181,7 @@ int sort_projlist (const void* arg1, const void* arg2);
 int sort_quant_euclidean (const void* arg1, const void* arg2);
 int sort_freqdat (const void* arg1, const void* arg2);
 int sort_mlist (const void* arg1, const void* arg2);
-
+*/
 
 class Modul 
 	{ 
@@ -190,12 +191,6 @@ class Modul
 	 
 	private: 
 	 
-		string 		file_type; 
-		unsigned long 	channels; 
-		unsigned long 	sample_frames; 
-		unsigned long 	sample_size; // in bits 
-		unsigned long	sample_rate; 
- 
 		ifstream* sound_stream; 
 		ofstream* record_stream; 
 		bool doRecord; 
@@ -207,7 +202,6 @@ class Modul
 		 
 		string planetSoundFileName; 
 		double progressVal; 
-		DList<float_digest>* digest_list; 
 		 
 		TextIO* logfile;
 		quant_global_info* QGI;
@@ -277,7 +271,10 @@ class Modul
         
 	public: 
 
-	        Modul ();
+
+	Modul ();
+	//		Modul( string filtyp, unsigned long chan, unsigned long samframs, unsigned long samsiz, unsigned long samrat ); 
+
 		~Modul(); 
  	
 		void CircleMap ();
@@ -341,7 +338,7 @@ class Modul
         void iBWTspecific (string input, int k, int l);
         void iBWTpathway (string shorthand, string filename);
         void iBWTonBWTword (string bwtword);
-	void DB_search (string searchstring);
+	string DB_search (string searchstring);
         void DB_insert_from_file (string filename, string patname, string origin, string composer);
         void extract_from_analysephrases_output (string filename);
         string Shortening (string rhythm, int flag);
@@ -362,6 +359,14 @@ class Modul
         void AddAndRepeat (string rhythm, int n, int k);
         void Repeat (string input, int n);
 	void Nest (string input);
+	string Inverse (string pitches);
+	string Transpose (string pitches, float interval);
+        string Inverse2 (string pitches);
+        string Transpose2 (string pitches, float interval);
+        string Reverse2 (string rhythm);
+        
+        void Translate_Shorthand (string filename, string pitchfile);
+        
 };
 
 class Decoder {
@@ -374,10 +379,12 @@ private:
     vector<vector<string> > pitches;
     int mel_line; //test to pick a new melody line
     int mel_count;
+    int pitches_line_size;
     vector<string> pitch_classes;
     //vector<int> last_midi_note; // int to vector<int>
     vector<int> midi_note; // int to vector<int>
     map<string,int> notename_midi_map;
+    vector<string> default_pitch;
     
 public:
     Decoder () { flag = 0; code=""; note="a"; mel_line=0; mel_count=0;
@@ -396,9 +403,10 @@ public:
         pitch_classes.push_back ("a");
         pitch_classes.push_back ("bes");
         pitch_classes.push_back ("b");
-        vector<string> default_pitch;
+        //vector<string> default_pitch;
         default_pitch.push_back ("a");
         pitches.push_back (default_pitch);
+        pitches_line_size = pitches.size ();
         
         notename_midi_map["A0"] = 21;
         notename_midi_map["A#0"] = 22;
@@ -534,10 +542,16 @@ public:
 	void Set (int f) { flag = f; };
 	string GetCode () { return code; };
 	void SetNote (string n) { note = n; };
-    void SetPitchLine (int i) { mel_line = i; }
+    void SetPitchLine (int i) { mel_line = i; mel_count = 0;}
     vector<int> GetLastMidiNote () { return midi_note; } // int to vector<int>
     //void SetLastMidiNote (int i) { last_midi_note.push_back(i); } //obsolete or int to vector<int>
-    void SaveNote () { mel_count--; }
+    void SaveNote () {
+        mel_count--;
+        if (mel_count < 0)
+            mel_count = pitches_line_size-1;
+        //cout << "savenote " << mel_count << endl;
+    }
+    string GetNote () { return note; }
     void AdvanceNote () {
         if (flag == -2) return; // -2 is opening bracket flag - if there is one of the symbols ( ), brackets do not write to note
         if (flag == -3) {
@@ -548,10 +562,15 @@ public:
             flag = 0;
             return;
         }
-        //clear midi_note
+        //cout << "AdvanceNote " << mel_count << endl;
+        //cout << "check pitches vec size at mel_line#: " << mel_line << " = " << pitches[mel_line].size () << endl;
+        
+        //cout << "clear midi_note vec: " << midi_note.size () << endl;
+        //if (midi_note.size () > 0)
         midi_note.erase (midi_note.begin (), midi_note.end ());
         
         int size = pitches[mel_line].size ();
+        pitches_line_size = size;
         //cout << "s:" << size << " ";
         string pstring = pitches.at(mel_line).at(mel_count);
         //cout << pstring << " ";
@@ -575,6 +594,7 @@ public:
         //midi_note.push_back( atoi( pitches.at(mel_line).at(mel_count++).c_str () ));
    
         int midi_note_size = midi_note.size ();
+        
         //cout << "midi_note_size: " << midi_note_size << " ";
         if (midi_note_size > 1) { // if there is a chord
             int i = 0;
@@ -619,7 +639,6 @@ public:
             note = pitch + octave; // for lilypond
             //cout << note << " ";
         }
-        
         
         if (++mel_count == size) mel_count = 0;
     }
