@@ -46,10 +46,6 @@ class Interpret {
 		int nchars; // length of line 
 		int nullcount;
 		
-		char zeile[MAXZEILEN];
-		string args[MAXLINES];
-		string wort[MAXLINES][MAXWORTE];
-
 		string prompt;
 
 		struct ArgBuf args_obj[MAXLINES];
@@ -60,18 +56,24 @@ class Interpret {
     int add_flag;
     string user_session;
     string user_method;
+    
+    
 	public:
 
 		Interpret();
 		~Interpret();
-		void DoInterpret( TextIO& coms, Modul& mdl );
-		void Dispatch( TextIO& coms, Modul& mdl, int from_cmd_line=0 );
-		void TypeError( TextIO& coms, string ms );
+		void Dispatch (Modul& mdl);
+		void TypeError (TextIO& coms, string ms);
 		void SetArgs (string arg, int index) { strcpy (args_obj[index].text, arg.c_str()); }
 		void SetModulFunct (string function_name) { ms = function_name; }
     void InsertIntoDB (string);
     void PrintSession (string session_name);
-
+    static int DetermineInstallDirectory ();
+    string GetInstallDirectory () { return install_dir; };
+    string GetVersionNumber () { return version_number; }
+    
+    static string install_dir;
+    static string version_number;
 };
 
 #endif // __Interpret_h__

@@ -185,6 +185,7 @@ class StringToFile {
     if (!output)
       cerr << "cannot write file: " << filename << endl;
   }
+
   ~StringToFile () { 
     if (output)
       output.close ();

@@ -1,3 +1,4 @@
+# Makefile adapted for homebrew
 # Makefile for chunking - last updated May 26 2017
 # Makefile for chunking - last updated Aug 7 2017
     
@@ -5,28 +6,24 @@ SRCS = Alea.cpp AlgoComp.cpp Interpret.cpp Main.cpp Modul.cpp TextIO.cpp \
 Power.cpp Visitor.cpp Farey.cpp FareyVisitor.cpp Ratio.cpp \
 FareyFilter.cpp SmoothFilter.cpp ProbFilter.cpp PrimeFilter.cpp \
 FareyFilterFarey.cpp DList.cpp SternBrocot.cpp ReciprocalFilter.cpp SubdivisionFilter.cpp \
-Christoffel.cpp PitchParser.cpp RhythmParser.cpp ShDecode.cpp LilypondTranscription.cpp
-
+Christoffel.cpp
 
 HDRS = Alea.h AlgoComp.h Interpret.h Modul.h TextIO.h \
 Power.h Visitor.h Farey.h FareyVisitor.h Ratio.h \
 FareyFilter.h SmoothFilter.h ProbFilter.h PrimeFilter.h \
 FareyFilterFarey.h DList.h SternBrocot.h ReciprocalFilter.h SubdivisionFilter.h \
-Christoffel.h gc_switch_ssh.h chunking_Standards.h PitchParser.h RhythmParser.h ShDecode.hpp \
-LilypondTranscription.h
+Christoffel.h
 
 
 OBJS = Alea.o AlgoComp.o Interpret.o Main.o Modul.o TextIO.o \
 Power.o Visitor.o Farey.o FareyVisitor.o Ratio.o \
 FareyFilter.o SmoothFilter.o ProbFilter.o PrimeFilter.o \
 FareyFilterFarey.o DList.o SternBrocot.o ReciprocalFilter.o SubdivisionFilter.o \
-Christoffel.o PitchParser.o RhythmParser.o ShDecode.o LilypondTranscription.o
+Christoffel.o
 
-
-#CC = g++-9
 CC = g++
-#CC = clang++
-CFLAGS = -std=gnu++14 -g -O0 -Wall
+#CC = g++-7
+CFLAGS = -g -O0 -Wall
 #CFLAGS = -O0 -Wall
 #CFLAGS = -Os -Wno-deprecated-declarations -Wall -Wunused -Wno-format-y2k  -fno-exceptions -fno-strict-aliasing
 #PROFILER = -pg
@@ -37,53 +34,56 @@ LIBRARY = libchunking
 LIBGC =
 SQLITE = -lsqlite3
 INCLUDES = 
-LIBRHYLANG = librhylang.dylib
+BREWPATH = /usr/local/Cellar/chunking
+CELLARPATH = $(BREWPATH)/1.2.5
+SHAREPATH = $(CELLARPATH)/share
 
 .PHONY: install uninstall
 
 all: $(TARGETS) $(LIBRARY)
 
 libchunking: $(OBJS) $(HDRS)
-	$(CC) -dynamiclib $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) $(LIBRHYLANG) -o libchunking.dylib
+	$(CC) -dynamiclib $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) -o libchunking.dylib
 
 chunking: $(OBJS) $(HDRS)
-	$(CC) $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) $(LIBRHYLANG) -o chunking
+	$(CC) $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) -o chunking
 
 clean:
-	rm -f $(TARGETS) $(LIBRARY).dylib $(OBJS)
+	rm -f $(TARGETS) $(OBJS)
 
 tidy:
 	rm -f $(OBJS)
 
 install:
-	cp chunking /usr/local/bin/.
-	mkdir /usr/local/share/chunking/
-	cp ./text/all_partitions_until_41_parts_only_2s_and_3s.txt /usr/local/share/chunking/
-	cp ./text/all_COPRIME_partitions_until_120_with_2_distinct_parts.txt /usr/local/share/chunking/
-	cp ./text/all_COPRIME_partitions_until_120_with_3_distinct_parts.txt /usr/local/share/chunking/	
-	cp ./text/all_COPRIME_partitions_until_120_with_4_distinct_parts.txt /usr/local/share/chunking/
-	cp ./text/all_COPRIME_partitions_until_120_with_5_distinct_parts.txt /usr/local/share/chunking/
-	cp ./text/resistor.txt /usr/local/share/chunking/
-	cp ./text/release.txt /usr/local/share/chunking/
-	cp ./text/arch.txt /usr/local/share/chunking/
-	cp ./text/catenary.txt /usr/local/share/chunking/
-	cp ./text/alternating.txt /usr/local/share/chunking/
-	cp ./text/growth.txt /usr/local/share/chunking/
-	cp ./text/decrease.txt /usr/local/share/chunking/
-	cp ./text/bracelets.txt /usr/local/share/chunking/
-	cp rhy.db /usr/local/share/chunking/
-	cp libchunking.dylib /usr/local/lib
-	mkdir /usr/local/include/chunking
-	cp $(HDRS) /usr/local/include/chunking
-	cp librhylang.dylib /usr/local/lib
+	mkdir $(BREWPATH)
+	mkdir $(CELLARPATH)
+	cp chunking $(CELLARPATH)/.
+	mkdir $(SHAREPATH)
+	cp ./text/all_partitions_until_41_parts_only_2s_and_3s.txt $(SHAREPATH)
+	cp ./text/all_COPRIME_partitions_until_120_with_2_distinct_parts.txt $(SHAREPATH)
+	cp ./text/all_COPRIME_partitions_until_120_with_3_distinct_parts.txt $(SHAREPATH)
+	cp ./text/all_COPRIME_partitions_until_120_with_4_distinct_parts.txt $(SHAREPATH)
+	cp ./text/all_COPRIME_partitions_until_120_with_5_distinct_parts.txt $(SHAREPATH)
+	cp ./text/resistor.txt $(SHAREPATH)
+	cp ./text/release.txt $(SHAREPATH)
+	cp ./text/arch.txt $(SHAREPATH)
+	cp ./text/catenary.txt $(SHAREPATH)
+	cp ./text/alternating.txt $(SHAREPATH)
+	cp ./text/growth.txt $(SHAREPATH)
+	cp ./text/decrease.txt $(SHAREPATH)
+	cp ./text/bracelets.txt $(SHAREPATH)
+	cp rhy.db $(SHAREPATH)
+	mkdir $(CELLARPATH)/lib 
+	cp libchunking.dylib $(CELLARPATH)/lib
+	mkdir $(CELLARPATH)/include
+	cp $(HDRS) $(CELLARPATH)/include
+
 
 uninstall:
-	rm /usr/local/bin/chunking
-	rm -r /usr/local/share/chunking/
-	rm /usr/local/lib/libchunking.dylib
-	rm -r /usr/local/include/chunking
-	rm /usr/local/lib/librhylang.dylib
-
+	rm $(CELLARPATH)/chunking
+	rm -r $(CELLARPATH)/share/chunking/
+	rm $(CELLARPATH)/lib/libchunking.dylib
+	rm -r $(CELLARPATH)/include/chunking
 
 	
 Alea.o: Alea.cpp
@@ -152,14 +152,7 @@ SubdivisionFilter.o: SubdivisionFilter.cpp
 Christoffel.o: Christoffel.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
 
-PitchParser.o: PitchParser.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
 
-RhythmParser.o: RhythmParser.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
 
-ShDecode.o: ShDecode.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
 
-LilypondTranscription.o: LilypondTranscription.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
+

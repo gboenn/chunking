@@ -267,11 +267,14 @@ class Modul
         vector<vector<string> > mel_matrix;
         int pitch_line;
         float BPM;
+        string file_prefix;
         
 	public: 
 
+
 	Modul ();
 	//		Modul( string filtyp, unsigned long chan, unsigned long samframs, unsigned long samsiz, unsigned long samrat ); 
+
 		~Modul(); 
  	
 		void CircleMap ();
