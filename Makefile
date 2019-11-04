@@ -36,12 +36,18 @@ LIBRARY = libchunking
 #LIBPTHREADS = -lpthreads -framework Cocoa
 LIBGC =
 SQLITE = -lsqlite3
-INCLUDES = 
+INCLUDES =
+RHYLANG = librhylang 
+RHYLANGPATH = ./rhylang/
 LIBRHYLANG = librhylang.dylib
 
 .PHONY: install uninstall
 
-all: $(TARGETS) $(LIBRARY)
+all: $(RHYLANG) $(TARGETS) $(LIBRARY)
+
+
+librhylang: 
+	$(MAKE) -C $(RHYLANGPATH)
 
 libchunking: $(OBJS) $(HDRS)
 	$(CC) -dynamiclib $(PROFILER) $(OBJS) $(LIBGC) $(SQLITE) $(LIBRHYLANG) -o libchunking.dylib
@@ -51,6 +57,7 @@ chunking: $(OBJS) $(HDRS)
 
 clean:
 	rm -f $(TARGETS) $(LIBRARY).dylib $(OBJS)
+	cd $(RHYLANGPATH) && $(MAKE) clean
 
 tidy:
 	rm -f $(OBJS)

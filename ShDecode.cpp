@@ -26,6 +26,7 @@ float ShDecode::calculate_length (string& item) {
             res += (abs(sh_durs[c][k]) / factor);
         }
     }
+    cout << res << endl;
     return res;
 }
 
@@ -45,9 +46,17 @@ void ShDecode::fill_sh_values () {
     sh_durs['X'] = {1.f, 2.f};
     sh_durs['>'] = {2.f, 1.f};
     sh_durs['+'] = {-1.f, 1.f, 1.f};
-    sh_durs['H'] = {4.f};
     sh_durs['!'] = {1.f, 3.f};
-    sh_durs['W'] = {8.f};
+    sh_durs['H'] = {4.f};
+    sh_durs['G'] = {6.f}; // half pointed
+    sh_durs['F'] = {7.f}; // double pointed
+    
+    sh_durs['W'] = {8.f}; // whole
+    sh_durs['Q'] = {12.f}; // whole pointed
+    sh_durs['E'] = {14.f}; // whole double pointed
+    
+    sh_durs['B'] = {16.f}; // breve
+    sh_durs['L'] = {32.f}; // longa
 }
 
 string ShDecode::process_tie () {
@@ -82,13 +91,38 @@ string ShDecode::process_silence (string& in) {
     return res;
 }
 
+//string ShDecode::transcribe_sh (string& in) {
+//    auto len = divlist.size();
+//    int subdiv = 1;
+//    for (int i = 0; i < len; i++) {
+//        subdiv *= divlist[i];
+//    }
+//    int prop = power2below (subdiv);
+//    string t = transcribe_tuplet (in, prop, sh_durs);
+//    return t;
+//}
+
 string ShDecode::transcribe_sh (string& in) {
     auto len = divlist.size();
     int subdiv = 1;
+    int count_3 = 0;
     for (int i = 0; i < len; i++) {
-        subdiv *= divlist[i];
+        int div = divlist[i];
+        if (div == 3) {
+            count_3++;
+        }
+        subdiv *= div;
     }
     int prop = power2below (subdiv);
+    if ((count_3 > 0) && (divlist[len-2] == 3)) {
+        int curdiv = divlist.back();
+        if (curdiv == 3 || curdiv == 7 || curdiv == 11 || curdiv == 13) {
+            prop *= 0.5;
+        }
+    }
+    //    if (count_3 > 0 && len > 1) {
+    //        prop *= 0.5;
+    //    }
     string t = transcribe_tuplet (in, prop, sh_durs);
     return t;
 }
@@ -128,6 +162,8 @@ float ShDecode::list_feed (vector<string>& sh_parsed, vector<string>& outs) {
                 continue;
             }
             outs.push_back(process_tie ());
+	} else if (item == "S") {
+	  cout << "NEW STAFF" << endl;
         } else {
             duration += calculate_length(item);
             outs.push_back(transcribe_sh (item));
@@ -187,12 +223,19 @@ void ShDecode::translate_dur (double dur, double prev, string& lp_note) {
             } else {
                 lp_note += to_string(int(dur));
             }
+            
         } else {
             if (fabs((dur / prev) - 2.)  < 0.0001) {
                 lp_note += ".";
             }
         }
     } else {
+        if (fabs((dur / prev) - 1.3333f)  < 0.0001) {
+            // this is to process the 7 duration as in double-dotted note values
+            // important is the ratio of 4/3
+            lp_note += "..";
+            return;
+        }
         int pos = find_nearest_dur (1./dur);
         if (pos > -1) {
             lp_note += to_string(int(1./inv_bin_durs[pos]));

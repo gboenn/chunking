@@ -47,7 +47,8 @@
      OP = 263,
      CP = 264,
      EOL = 265,
-     NEWVOICE = 266
+     NEWVOICE = 266,
+     NEWSTAFF = 267
    };
 #endif
 /* Tokens.  */
@@ -60,6 +61,7 @@
 #define CP 264
 #define EOL 265
 #define NEWVOICE 266
+#define NEWSTAFF 267
 
 
 
