@@ -34,7 +34,7 @@
 
 class LilypondTranscription {
 public:
-    LilypondTranscription () { sh_dec.SetDecoder (&dec); }
+    LilypondTranscription () { sh_dec.SetDecoder (&dec); linevar = "line_"; }
     ~LilypondTranscription ();
     
     void open_lily_file (string filename);
@@ -46,6 +46,13 @@ public:
     void create_footer ();
     string create_meter (int pulses);
     
+    void create_header2 ();
+    void create_variable ();
+    void create_ly_book ();
+    void write_variable ();
+    void create_footer2 ();
+    void close_variable ();
+    
 private:
     ifstream sh_file; // sh_file.open (filename.c_str());
     ofstream lily_file;
@@ -54,6 +61,8 @@ private:
     Decoder dec;
     vector<vector<string> > matrix; // holding the lines of pitches
     
+    vector<string> var_names; // storing variable names
+    string linevar;
 };
 
 #endif

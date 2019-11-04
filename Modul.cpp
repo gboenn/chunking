@@ -2901,7 +2901,7 @@ void Modul::PrintPhrases (string filename, string pitches, float bpm, int flag) 
         cerr << "cannot write file: " << orcfile << endl;
     float onset = 0.f;
     //float onset_sentence = 0.f; float onset_phrase = 0.f;
-    float period = 60.f/bpm; //.22f;
+    float period = 60.f/bpm;
     BPM = bpm;
 
     while (file) {

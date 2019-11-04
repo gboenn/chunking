@@ -23,6 +23,7 @@
 %token OB CB OP CP 
 %token EOL
 %token NEWVOICE
+%token NEWSTAFF
 
 %%
 
@@ -52,7 +53,8 @@ exp: term { cout << "term." << endl; }
  | exp OP exp CP { cout << "exp op exp cp." << endl; }
  | OP exp CP exp { cout << "op exp cp exp." << endl; }
  | exp OP exp CP exp { cout << "exp op exp cp exp." << endl; }
- | NEWVOICE exp { cout << "newvoice exp." << endl; }
+ | NEWVOICE EOL exp { cout << "newvoice eol exp." << endl; }
+ | NEWSTAFF EOL exp { cout << "newstaff eol exp." << endl; }
 ;
 
 term: RSTR { cout << "rstr." << endl; }
