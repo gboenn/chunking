@@ -12,12 +12,18 @@
 extern vector<string> vrh;
 
 LilypondTranscription::~LilypondTranscription () {
+//    if (lily_file)
+//        lily_file.close ();
+//    if (sh_file)
+//        sh_file.close ();
+}
+
+void LilypondTranscription::close_files () {
     if (lily_file)
         lily_file.close ();
     if (sh_file)
         sh_file.close ();
 }
-
 void LilypondTranscription::open_lily_file (string filename) {
     lily_file.open (filename);
     if (!lily_file) {
@@ -98,6 +104,56 @@ void LilypondTranscription::pass_lines () {
     }
 }
 
+void LilypondTranscription::pass_lines2 () {
+    if (vrh.size() > 0) {
+        auto npl = matrix.size (); // number of lines in pitch file
+        u_long ln = 0; // line counter for pitch lines
+        vector<string> shline;
+        vector<string> outs;
+        auto len = vrh.size();
+        cout << endl << endl;
+        float prevdur = 0;
+        //create new var first time
+        create_variable ();
+        for (auto i = 0; i < len; i++) {
+            string item = vrh[i];
+            if (item != "newline") {
+                if (item == "S") {
+                    if (var_opened)
+                        close_variable ();
+//                    cout << "create new var" << endl;
+                    create_variable ();
+                    continue;
+                }
+                shline.push_back (item);
+            } else {
+                // a new line of snmr code is decoded:
+                dec.SetPitchLine (ln++);
+                float dur = sh_dec.list_feed (shline, outs);
+                //cout << "duration: " << dur << endl;
+                if (fabs(prevdur - dur) > 0.01f) {
+                    cout << create_meter (dur) << endl;
+                    lily_file << create_meter (dur) << endl;
+                }
+                prevdur = dur;
+                auto tlen = outs.size ();
+                for (auto k = 0; k < tlen; k++) {
+                    cout << outs[k] << endl;
+                    lily_file << outs[k] << endl;
+                }
+//                if (var_opened)
+//                    close_variable ();
+                outs.clear();
+                shline.clear();
+                if (ln == npl) ln = 0;
+            }
+        }
+        if (var_opened)
+            close_variable ();
+    }
+}
+
+
 void LilypondTranscription::create_footer () {
     if (lily_file) {
         lily_file << endl << "}" << endl << "\\layout { }" << endl;
@@ -162,12 +218,14 @@ void LilypondTranscription::create_variable () {
     linevar += char(letter);
     var_names.push_back (linevar);
     if (lily_file) {
-        lily_file << linevar << "{" << endl;
+        lily_file << linevar << " = {" << endl;
     }
+    var_opened = true;
 }
 
 void LilypondTranscription::close_variable () {
     lily_file << "}" << endl;
+    var_opened = false;
 }
 
 void LilypondTranscription::create_ly_book () {
@@ -180,7 +238,7 @@ void LilypondTranscription::write_variable () {
     auto vlen = var_names.size ();
     for (int i = 0; i < vlen; i++) {
         lily_file << "          \\new Staff  {" << endl;
-        lily_file << "              \\new Voice  " << var_names[i] << endl;
+        lily_file << "              \\new Voice  \\" << var_names[i] << endl;
         lily_file << "          }" << endl;
         
     }

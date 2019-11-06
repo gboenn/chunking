@@ -140,7 +140,7 @@ float ShDecode::list_feed (vector<string>& sh_parsed, vector<string>& outs) {
                 open_tuplet.push_back (true);
             }
         } else if (item == "]") {
-            if (open_tuplet.size() > 0) { //}(divlist.back() > 2) {
+            if (open_tuplet.size() > 0) { 
                 outs.push_back(close_tuplet ());
                 open_tuplet.pop_back();
             }

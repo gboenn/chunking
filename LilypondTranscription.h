@@ -34,7 +34,7 @@
 
 class LilypondTranscription {
 public:
-    LilypondTranscription () { sh_dec.SetDecoder (&dec); linevar = "line_"; }
+    LilypondTranscription () { sh_dec.SetDecoder (&dec); linevar = "line_"; var_opened = false;}
     ~LilypondTranscription ();
     
     void open_lily_file (string filename);
@@ -52,6 +52,8 @@ public:
     void write_variable ();
     void create_footer2 ();
     void close_variable ();
+    void pass_lines2 ();
+    void close_files ();
     
 private:
     ifstream sh_file; // sh_file.open (filename.c_str());
@@ -63,6 +65,7 @@ private:
     
     vector<string> var_names; // storing variable names
     string linevar;
+    bool var_opened;
 };
 
 #endif
