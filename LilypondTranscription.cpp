@@ -123,12 +123,26 @@ void LilypondTranscription::pass_lines2 () {
                         close_variable ();
 //                    cout << "create new var" << endl;
                     create_variable ();
+                    // advance pitch matrix to line after next S
+                    if (s_count < staff_pitch_beg.size ()) {
+                        ln = staff_pitch_beg[s_count++];
+                        ln++;
+                    }
                     continue;
                 }
                 shline.push_back (item);
             } else {
                 // a new line of snmr code is decoded:
-                dec.SetPitchLine (ln++);
+                if (ln+1 <= matrix.size()-1) {
+                    dec.SetPitchLine (ln++);
+                    string curline = matrix[ln][0];
+                    if (curline.find ("S") != string::npos) {
+                        // check if this pitch line starts with 'S'
+                        // if so, reset ln to either th beginning or to the line after previous S
+                        // neeed to store the line numbers for the S in the pitchfile in separate vector
+                        ln = staff_pitch_beg[s_count];
+                    }
+                }
                 float dur = sh_dec.list_feed (shline, outs);
                 //cout << "duration: " << dur << endl;
                 if (fabs(prevdur - dur) > 0.01f) {
@@ -141,11 +155,12 @@ void LilypondTranscription::pass_lines2 () {
                     cout << outs[k] << endl;
                     lily_file << outs[k] << endl;
                 }
-//                if (var_opened)
-//                    close_variable ();
                 outs.clear();
                 shline.clear();
-                if (ln == npl) ln = 0;
+                if (ln >= matrix.size()) {
+                    ln = staff_pitch_beg.back();
+                    ln++;
+                }
             }
         }
         if (var_opened)
@@ -182,19 +197,45 @@ void LilypondTranscription::open_pitch_file (string filename) {
     vector<string> row;
     string line;
     string cell;
-    
+    staff_pitch_beg.clear();
+    int line_number = -1;
     while (file) {
         getline (file,line);
+        cout << line << endl;
+        // ignore empty lines
+        if (line == "") {
+            continue;
+        }
+        if (line.find ("$") != string::npos) {
+            continue;
+        }
+        line_number++;
+        if (line.find ("S") != string::npos) {
+            staff_pitch_beg.push_back (line_number);
+            cout << "staff_pitch_beg.push_back " << line_number << endl;
+        }
+        
         stringstream lineStream (line);
         row.clear();
         
+        cout << "line_number " << line_number << endl;
         while (getline(lineStream, cell, ',' )) {
-            if (cell.find ("$") == string::npos)
-                row.push_back (cell);
+            row.push_back (cell);
+//            if (cell.find ("$") == string::npos) {
+//                row.push_back (cell);
+//                if (cell.find ("S") != string::npos) {
+//                    staff_pitch_beg.push_back (line_number);
+//                    cout << "staff_pitch_beg.push_back " << line_number << endl;
+//                }
+//            }
         }
         
-        if (!row.empty ())
+        if (!row.empty ()) {
+            cout << "row.size " << row.size() << endl;
             matrix.push_back (row);
+            cout << "matrix.push_back (row) " << line_number << endl;
+            //cout << row.back() << endl;
+        }
     }
     
     dec.SetPitches (matrix);

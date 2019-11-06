@@ -380,6 +380,7 @@ private:
     int mel_line; //test to pick a new melody line
     int mel_count;
     int pitches_line_size;
+    int pitches_num_rows;
     vector<string> pitch_classes;
     //vector<int> last_midi_note; // int to vector<int>
     vector<int> midi_note; // int to vector<int>
@@ -542,7 +543,12 @@ public:
 	void Set (int f) { flag = f; };
 	string GetCode () { return code; };
 	void SetNote (string n) { note = n; };
-    void SetPitchLine (int i) { mel_line = i; mel_count = 0;}
+    void SetPitchLine (int i) {
+        if (i > -1 && i < pitches.size()) {
+            mel_line = i;
+        }
+        mel_count = 0;
+    }
     vector<int> GetLastMidiNote () { return midi_note; } // int to vector<int>
     //void SetLastMidiNote (int i) { last_midi_note.push_back(i); } //obsolete or int to vector<int>
     void SaveNote () {
@@ -643,7 +649,10 @@ public:
         if (++mel_count == size) mel_count = 0;
     }
     
-    void SetPitches (vector<vector<string> > matrix) { pitches = matrix; };
+    void SetPitches (vector<vector<string> > matrix) {
+        pitches = matrix;
+        pitches_num_rows = pitches.size();
+    };
     
 	int decode_shorthand_length (int s) {
 		// . (46)  | I (73)  | : (58)  | / (47)  | X (88)  | > (62)  | < (60)  | + (43)  | i (105)  | - (45)   (32)  | ~ (126)  | ( (40)  | ) (41)  |
