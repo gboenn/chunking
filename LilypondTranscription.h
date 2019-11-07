@@ -55,6 +55,7 @@ public:
     void pass_lines2 ();
     void close_files ();
     
+    void automatic_clef (int row);
 private:
     ifstream sh_file; // sh_file.open (filename.c_str());
     ofstream lily_file;

@@ -11,12 +11,7 @@
 
 extern vector<string> vrh;
 
-LilypondTranscription::~LilypondTranscription () {
-//    if (lily_file)
-//        lily_file.close ();
-//    if (sh_file)
-//        sh_file.close ();
-}
+LilypondTranscription::~LilypondTranscription () {}
 
 void LilypondTranscription::close_files () {
     if (lily_file)
@@ -24,6 +19,7 @@ void LilypondTranscription::close_files () {
     if (sh_file)
         sh_file.close ();
 }
+
 void LilypondTranscription::open_lily_file (string filename) {
     lily_file.open (filename);
     if (!lily_file) {
@@ -41,6 +37,7 @@ void LilypondTranscription::open_ssh_file (string filename) {
 }
 
 void LilypondTranscription::create_header () {
+    //deprecated use create_header2()
     if (lily_file) {
         lily_file << "\\version \"2.18.2\"" << endl;
         lily_file << "\\header { tagline = \" \" }" << endl;
@@ -50,20 +47,16 @@ void LilypondTranscription::create_header () {
 }
 
 void LilypondTranscription::parse_sh (string filename) {
+    // invokes the snmr parser with the snmr file
     open_ssh_file (filename); // check whether file exists
     if (sh_file) {
         sh_file.close ();
         rh_parser.process (filename);
     }
-//    cout << "---------------" << endl;
-//    auto len = vrh.size();
-//    for (auto i = 0; i < len; i++) {
-//        cout << vrh[i] << endl;
-//    }
-//    cout << "---------------" << endl;
 }
 
 void LilypondTranscription::pass_lines () {
+    // deprecated precursor of pass_lines2()
     if (vrh.size() > 0) {
         auto npl = matrix.size (); // number of lines in pitch file
         u_long ln = 0; // line counter for pitch lines
@@ -105,9 +98,10 @@ void LilypondTranscription::pass_lines () {
 }
 
 void LilypondTranscription::pass_lines2 () {
+    // new method to process lines in seperate snmr and midi pitch files
+    // allows for multiple staves in the score
     if (vrh.size() > 0) {
-        auto npl = matrix.size (); // number of lines in pitch file
-        u_long ln = 0; // line counter for pitch lines
+        int ln = 0; // line counter for pitch lines
         vector<string> shline;
         vector<string> outs;
         auto len = vrh.size();
@@ -118,35 +112,49 @@ void LilypondTranscription::pass_lines2 () {
         for (auto i = 0; i < len; i++) {
             string item = vrh[i];
             if (item != "newline") {
-                if (item == "S") {
+                if (item == "S") { // rhythm code new staff
+                    // the previous staff is closed
+                    // and a new staff can start
                     if (var_opened)
                         close_variable ();
-//                    cout << "create new var" << endl;
                     create_variable ();
                     // advance pitch matrix to line after next S
-                    if (s_count < staff_pitch_beg.size ()) {
-                        ln = staff_pitch_beg[s_count++];
-                        ln++;
+                    // only process as many pitch staves as there are in the file
+                    // after all pitch material has run out, the last pitch line just repeats
+                    if (++s_count < staff_pitch_beg.size ()) {
+                        ln = staff_pitch_beg[s_count];
+                    } else {
+                        if (staff_pitch_beg.size () > 1) {
+                            // if multiple staves in pitches then repeat last staff's pitches for remaining bars on all remaining staves
+                            ln = staff_pitch_beg.back();
+                        } else
+                            // if no staves in pitches then jump back
+                            // results in all staves having same pitches
+                            // but they can have different rhythms, and different number of bars
+                            ln = 0;
                     }
                     continue;
                 }
                 shline.push_back (item);
             } else {
                 // a new line of snmr code is decoded:
-                if (ln+1 <= matrix.size()-1) {
-                    dec.SetPitchLine (ln++);
+                if (ln < int(matrix.size())) {
                     string curline = matrix[ln][0];
                     if (curline.find ("S") != string::npos) {
                         // check if this pitch line starts with 'S'
-                        // if so, reset ln to either th beginning or to the line after previous S
-                        // neeed to store the line numbers for the S in the pitchfile in separate vector
-                        ln = staff_pitch_beg[s_count];
+                        // meaning new staff has to start
+                        // line numbers for the S in the pitchfile are stored in vector staff_pitch_beg
+                        if (s_count == staff_pitch_beg.size())
+                            s_count = staff_pitch_beg.size()-1;
+                        ln = staff_pitch_beg[s_count]+1;
                     }
+                    dec.SetPitchLine (ln);
+                    automatic_clef (ln);
                 }
                 float dur = sh_dec.list_feed (shline, outs);
                 //cout << "duration: " << dur << endl;
                 if (fabs(prevdur - dur) > 0.01f) {
-                    cout << create_meter (dur) << endl;
+                    //cout << create_meter (dur) << endl;
                     lily_file << create_meter (dur) << endl;
                 }
                 prevdur = dur;
@@ -157,9 +165,9 @@ void LilypondTranscription::pass_lines2 () {
                 }
                 outs.clear();
                 shline.clear();
+                ln++;
                 if (ln >= matrix.size()) {
-                    ln = staff_pitch_beg.back();
-                    ln++;
+                    ln = staff_pitch_beg.back()+1;
                 }
             }
         }
@@ -170,6 +178,7 @@ void LilypondTranscription::pass_lines2 () {
 
 
 void LilypondTranscription::create_footer () {
+    //deperectaed, use create_footer2()
     if (lily_file) {
         lily_file << endl << "}" << endl << "\\layout { }" << endl;
         lily_file << "\\midi {\\tempo 8 = 200 }" << endl;
@@ -199,6 +208,7 @@ void LilypondTranscription::open_pitch_file (string filename) {
     string cell;
     staff_pitch_beg.clear();
     int line_number = -1;
+    staff_pitch_beg.push_back (line_number);
     while (file) {
         getline (file,line);
         cout << line << endl;
@@ -206,9 +216,11 @@ void LilypondTranscription::open_pitch_file (string filename) {
         if (line == "") {
             continue;
         }
+        // ignore lines that are comments
         if (line.find ("$") != string::npos) {
             continue;
         }
+        //store the line number where pitch information for a new staff begins
         line_number++;
         if (line.find ("S") != string::npos) {
             staff_pitch_beg.push_back (line_number);
@@ -218,28 +230,53 @@ void LilypondTranscription::open_pitch_file (string filename) {
         stringstream lineStream (line);
         row.clear();
         
-        cout << "line_number " << line_number << endl;
+        //        cout << "line_number " << line_number << endl;
         while (getline(lineStream, cell, ',' )) {
             row.push_back (cell);
-//            if (cell.find ("$") == string::npos) {
-//                row.push_back (cell);
-//                if (cell.find ("S") != string::npos) {
-//                    staff_pitch_beg.push_back (line_number);
-//                    cout << "staff_pitch_beg.push_back " << line_number << endl;
-//                }
-//            }
         }
         
         if (!row.empty ()) {
-            cout << "row.size " << row.size() << endl;
+            //cout << "row.size " << row.size() << endl;
             matrix.push_back (row);
-            cout << "matrix.push_back (row) " << line_number << endl;
+            //cout << "matrix.push_back (row) " << line_number << endl;
             //cout << row.back() << endl;
         }
     }
-    
+    // all rows of pitch data is now in matrix and passed on to the lilypond decoder object
     dec.SetPitches (matrix);
+    
+    cout << "++++++++++ matrix ++++++++++++" << endl;
+    auto templen = matrix.size();
+    for (auto i = 0; i < templen; i++) {
+        cout << "vec " << i << ": " << endl;
+        vector<string> tempvec = matrix[i];
+        auto tvlen = tempvec.size();
+        for (auto k = 0; k < tvlen; k++) {
+            cout << tempvec[k] << " ";
+        }
+        cout << endl;
+    }
+    cout << "++++++++++ matrix ++++++++++++" << endl;
 }
+
+void LilypondTranscription::automatic_clef (int row) {
+    // claculates the correct clef, treble or bass
+    // if data is below g3 (55) 20% of the time and below f4 (65) otherwise, then use bass
+    // but if only 5% of notes in line are below g3 then be graceful and don;t change from treble to bass
+    // if note is < 49 the set bass clef
+    
+    // count how many notes are >= 55 and <= 65. If the ratio is 90% set bass clef
+    // if treble (default) is set, and note is < 55, set bass clef
+    // if bass clef is set, and note is > 65 set treble clef
+    
+    vector<string> pline = matrix[row];
+    auto len = pline.size();
+    for (auto i = 0; i < len; i++) {
+        cout << pline[i] << endl;
+    }
+    
+}
+
 
 void LilypondTranscription::create_header2 () {
     if (lily_file) {
@@ -296,7 +333,7 @@ void LilypondTranscription::create_footer2 () {
 
 
 /*
-
+ 
  to do:
  develop gereal LY structure:
  %%%%%%%%%% header
@@ -339,5 +376,5 @@ void LilypondTranscription::create_footer2 () {
  }
  \paper {}
  }
-%%%%%%%%%% EOF
+ %%%%%%%%%% EOF
  */

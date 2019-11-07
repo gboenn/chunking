@@ -4849,18 +4849,18 @@ string Modul::Reverse2 (string rhythm) {
 
 void Modul::Translate_Shorthand (string filename, string pitchfile) {
     cout << "translation of " << filename << endl;
-    LilypondTranscription lt;
-    lt.open_pitch_file (pitchfile);
-    lt.open_lily_file ("transcription.ly");
-    lt.create_header ();
-    lt.parse_sh (filename);
-    lt.pass_lines ();
-    lt.create_footer ();
-    lt.close_files ();
+//    LilypondTranscription lt;
+//    lt.open_pitch_file (pitchfile);
+//    lt.open_lily_file ("transcription.ly");
+//    lt.create_header ();
+//    lt.parse_sh (filename);
+//    lt.pass_lines ();
+//    lt.create_footer ();
+//    lt.close_files ();
     
     LilypondTranscription lt2;
     lt2.open_pitch_file (pitchfile);
-    lt2.open_lily_file ("transcription2.ly");
+    lt2.open_lily_file ("transcription.ly");
     lt2.create_header2 ();
     lt2.parse_sh (filename);
     lt2.pass_lines2 ();
