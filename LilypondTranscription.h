@@ -55,7 +55,7 @@ public:
     void pass_lines2 ();
     void close_files ();
     
-    void automatic_clef (int row);
+    string automatic_clef (int row);
 private:
     ifstream sh_file; // sh_file.open (filename.c_str());
     ofstream lily_file;
@@ -69,6 +69,7 @@ private:
     bool var_opened;
     vector<int> staff_pitch_beg;
     int s_count;
+    string current_clef;
 };
 
 #endif

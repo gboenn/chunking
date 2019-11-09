@@ -149,8 +149,9 @@ void LilypondTranscription::pass_lines2 () {
                         ln = staff_pitch_beg[s_count]+1;
                     }
                     dec.SetPitchLine (ln);
-                    automatic_clef (ln);
                 }
+                //cout << automatic_clef (ln) << endl;
+                lily_file << automatic_clef (ln) << endl;
                 float dur = sh_dec.list_feed (shline, outs);
                 //cout << "duration: " << dur << endl;
                 if (fabs(prevdur - dur) > 0.01f) {
@@ -245,36 +246,66 @@ void LilypondTranscription::open_pitch_file (string filename) {
     // all rows of pitch data is now in matrix and passed on to the lilypond decoder object
     dec.SetPitches (matrix);
     
-    cout << "++++++++++ matrix ++++++++++++" << endl;
-    auto templen = matrix.size();
-    for (auto i = 0; i < templen; i++) {
-        cout << "vec " << i << ": " << endl;
-        vector<string> tempvec = matrix[i];
-        auto tvlen = tempvec.size();
-        for (auto k = 0; k < tvlen; k++) {
-            cout << tempvec[k] << " ";
-        }
-        cout << endl;
-    }
-    cout << "++++++++++ matrix ++++++++++++" << endl;
+//    cout << "++++++++++ matrix ++++++++++++" << endl;
+//    auto templen = matrix.size();
+//    for (auto i = 0; i < templen; i++) {
+//        cout << "vec " << i << ": " << endl;
+//        vector<string> tempvec = matrix[i];
+//        auto tvlen = tempvec.size();
+//        for (auto k = 0; k < tvlen; k++) {
+//            cout << tempvec[k] << " ";
+//        }
+//        cout << endl;
+//    }
+//    cout << "++++++++++ matrix ++++++++++++" << endl;
 }
 
-void LilypondTranscription::automatic_clef (int row) {
-    // claculates the correct clef, treble or bass
-    // if data is below g3 (55) 20% of the time and below f4 (65) otherwise, then use bass
-    // but if only 5% of notes in line are below g3 then be graceful and don;t change from treble to bass
-    // if note is < 49 the set bass clef
+string LilypondTranscription::automatic_clef (int row) {
+// re calculates clef per bar and resets if necessary
     
     // count how many notes are >= 55 and <= 65. If the ratio is 90% set bass clef
     // if treble (default) is set, and note is < 55, set bass clef
     // if bass clef is set, and note is > 65 set treble clef
     
+    string clef = "\\clef treble ";
     vector<string> pline = matrix[row];
+    vector<float> midi_line;
     auto len = pline.size();
+    
     for (auto i = 0; i < len; i++) {
-        cout << pline[i] << endl;
+        string curline = pline[i];
+        if (curline.find(":") != string::npos) {
+            stringstream sstr1 (curline);
+            string n;
+            // chord tones are separated by ":"
+            while (getline (sstr1, n, ':')) {
+                midi_line.push_back (atof (n.c_str ()));
+            }
+        } else {
+            midi_line.push_back (atof (curline.c_str ()));
+        }
     }
     
+    len = midi_line.size();
+    int count_hibass_range = 0;
+    int count_lobass_range = 0;
+    int count_treble_range = 0;
+    for (auto i = 0; i < len; i++) {
+        int cur = midi_line[i];
+        if (cur >= 55 && cur <= 60)
+            count_hibass_range++;
+        if (cur < 55)
+            count_lobass_range++;
+        if (cur > 60)
+            count_treble_range++;
+        //cout << pline[i] << endl;
+    }
+    float perc = float(count_hibass_range) / float (len);
+    float perclo = float(count_lobass_range) / float (len);
+    if (perc > 0.89f || perclo > 0.f)
+        clef = "\\clef bass ";
+    current_clef = clef;
+    return clef;
 }
 
 

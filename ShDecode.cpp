@@ -163,7 +163,7 @@ float ShDecode::list_feed (vector<string>& sh_parsed, vector<string>& outs) {
             }
             outs.push_back(process_tie ());
 	} else if (item == "S") {
-	  cout << "NEW STAFF" << endl;
+        cout << "NEW STAFF" << endl;
         } else {
             duration += calculate_length(item);
             outs.push_back(transcribe_sh (item));
