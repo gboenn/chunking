@@ -127,7 +127,8 @@ string ShDecode::transcribe_sh (string& in) {
     return t;
 }
 
-float ShDecode::list_feed (vector<string>& sh_parsed, vector<string>& outs) {
+float ShDecode::list_feed (vector<string>& sh_parsed, vector<string>& outs, string autoclef) {
+    clef = autoclef;
     float duration = 0.f;
     vector<bool> open_tuplet;
     auto len = sh_parsed.size();
@@ -140,7 +141,7 @@ float ShDecode::list_feed (vector<string>& sh_parsed, vector<string>& outs) {
                 open_tuplet.push_back (true);
             }
         } else if (item == "]") {
-            if (open_tuplet.size() > 0) { //}(divlist.back() > 2) {
+            if (open_tuplet.size() > 0) { 
                 outs.push_back(close_tuplet ());
                 open_tuplet.pop_back();
             }
@@ -163,7 +164,7 @@ float ShDecode::list_feed (vector<string>& sh_parsed, vector<string>& outs) {
             }
             outs.push_back(process_tie ());
 	} else if (item == "S") {
-	  cout << "NEW STAFF" << endl;
+        cout << "NEW STAFF" << endl;
         } else {
             duration += calculate_length(item);
             outs.push_back(transcribe_sh (item));
@@ -337,7 +338,9 @@ string ShDecode::print_lp_values (const vector<float>& v, int scale, bool restfl
             lp_note += rest;
             //dur *= -1.f;
         } else {
-            dec->AdvanceNote ();
+            dec->SetClef (clef);
+            //cout << "dec->SetClef (clef); " << clef << endl;
+            clef = dec->AdvanceNote ();
             note = dec->GetNote ();
             lp_note += note; // use AdvanceNote() and the getNote() to receive lilypond code
         }

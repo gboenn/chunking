@@ -34,7 +34,7 @@
 
 class LilypondTranscription {
 public:
-    LilypondTranscription () { sh_dec.SetDecoder (&dec); linevar = "line_"; }
+    LilypondTranscription () { sh_dec.SetDecoder (&dec); linevar = "line_"; var_opened = false; s_count = 0; }
     ~LilypondTranscription ();
     
     void open_lily_file (string filename);
@@ -44,7 +44,7 @@ public:
     void parse_sh (string filename);
     void pass_lines ();
     void create_footer ();
-    string create_meter (int pulses);
+    string create_meter (float pulses);
     
     void create_header2 ();
     void create_variable ();
@@ -52,6 +52,11 @@ public:
     void write_variable ();
     void create_footer2 ();
     void close_variable ();
+    void pass_lines2 ();
+    void close_files ();
+    void create_context ();
+    string automatic_clef (int row);
+    string get_clef () { return current_clef; }
     
 private:
     ifstream sh_file; // sh_file.open (filename.c_str());
@@ -63,6 +68,10 @@ private:
     
     vector<string> var_names; // storing variable names
     string linevar;
+    bool var_opened;
+    vector<int> staff_pitch_beg;
+    int s_count;
+    string current_clef;
 };
 
 #endif

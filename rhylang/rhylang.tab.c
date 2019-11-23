@@ -1752,21 +1752,6 @@ if ] -> pop_back from divlist
 if XXI -> decode XXI and divide by ach element in divlist one by one
 if ] -> pop_back from divlist
 
-
-> IX(IIX)~I
-rstr.
-term.
-rstr term.
-term.
-rstr.
-exp tie term.
-IX, (, IIX, ), ~, I,
-
-if ( -> then following decodes will be negative influencing next events start time and past events duration
-in lilypond this triggers rests of the durations within the ()
-
-if ) behaviour turns back to positive decodings
-
 if ~ (, or if ) ~ then ~ will be ignored in both cases
 
 */

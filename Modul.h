@@ -380,6 +380,7 @@ private:
     int mel_line; //test to pick a new melody line
     int mel_count;
     int pitches_line_size;
+    int pitches_num_rows;
     vector<string> pitch_classes;
     //vector<int> last_midi_note; // int to vector<int>
     vector<int> midi_note; // int to vector<int>
@@ -542,7 +543,12 @@ public:
 	void Set (int f) { flag = f; };
 	string GetCode () { return code; };
 	void SetNote (string n) { note = n; };
-    void SetPitchLine (int i) { mel_line = i; mel_count = 0;}
+    void SetPitchLine (int i) {
+        if (i > -1 && i < pitches.size()) {
+            mel_line = i;
+        }
+        mel_count = 0;
+    }
     vector<int> GetLastMidiNote () { return midi_note; } // int to vector<int>
     //void SetLastMidiNote (int i) { last_midi_note.push_back(i); } //obsolete or int to vector<int>
     void SaveNote () {
@@ -552,15 +558,15 @@ public:
         //cout << "savenote " << mel_count << endl;
     }
     string GetNote () { return note; }
-    void AdvanceNote () {
-        if (flag == -2) return; // -2 is opening bracket flag - if there is one of the symbols ( ), brackets do not write to note
+    string AdvanceNote () {
+        if (flag == -2) return ""; // -2 is opening bracket flag - if there is one of the symbols ( ), brackets do not write to note
         if (flag == -3) {
             // -3 is end of brackets flag
             flag = 0; //reset flag
         }
         if (flag == -1) {
             flag = 0;
-            return;
+            return "";
         }
         //cout << "AdvanceNote " << mel_count << endl;
         //cout << "check pitches vec size at mel_line#: " << mel_line << " = " << pitches[mel_line].size () << endl;
@@ -594,12 +600,33 @@ public:
         //midi_note.push_back( atoi( pitches.at(mel_line).at(mel_count++).c_str () ));
    
         int midi_note_size = midi_note.size ();
-        
+        note = "";
         //cout << "midi_note_size: " << midi_note_size << " ";
         if (midi_note_size > 1) { // if there is a chord
             int i = 0;
-            note = "<";
+            int newclef = 0;
+            // if treble (default) is set, and note is < 55, set bass clef
+            // if bass clef is set, and note is > 65 set treble clef
             for (; i < midi_note_size; i++) {
+                if (midi_note.at(i) < 55 && clef == "\\clef treble ") {
+                    newclef = -1; // set bass clef
+                }
+                if (midi_note.at(i) > 65 && clef == "\\clef bass ") {
+                    newclef = 1; // set treble clef
+                }
+            }
+            if (newclef != 0) {
+                if (newclef < 0) {
+                    clef = "\\clef bass ";
+                    note = note + " " + clef;
+                }
+                if (newclef > 0) {
+                    clef = "\\clef treble ";
+                    note = note + " " + clef;
+                }
+            }
+            note += "<";
+            for (i=0; i < midi_note_size; i++) {
                 string octave = "";
                 int oct = midi_note.at(i) / 12;
                 //cout << oct << " ";
@@ -619,7 +646,28 @@ public:
             }
             note += ">";
         } else {
-            //cout << "midi " << midi_note.at(0) << " ";
+            int newclef = 0;
+            // if treble (default) is set, and note is < 55, set bass clef
+            // if bass clef is set, and note is > 65 set treble clef
+            if (midi_note.at(0) < 55 && clef == "\\clef treble ") {
+                newclef = -1; // set bass clef
+            }
+            if (midi_note.at(0) > 65 && clef == "\\clef bass ") {
+                newclef = 1; // set treble clef
+            }
+            
+            if (newclef != 0) {
+                if (newclef < 0) {
+                    clef = "\\clef bass ";
+                    note = note + " " + clef;
+                }
+                if (newclef > 0) {
+                    clef = "\\clef treble ";
+                    note = note + " " + clef;
+                }
+            }
+            
+             //cout << "midi " << midi_note.at(0) << " ";
             string octave = "";
             int oct = midi_note.at(0) / 12;
             //cout << oct << " ";
@@ -636,14 +684,20 @@ public:
             //last_midi_note.at(0) = midi_note.at(0); // for csound
             //for chords in lilypond: pitches and octaves have to be assembled via loop, ex.: <c' e' g'>
             string pitch = pitch_classes[(midi_note.at(0) % 12)];
-            note = pitch + octave; // for lilypond
+            note += pitch + octave; // for lilypond
             //cout << note << " ";
         }
         
-        if (++mel_count == size) mel_count = 0;
+        if (++mel_count == size)
+            mel_count = 0;
+        
+        return clef;
     }
     
-    void SetPitches (vector<vector<string> > matrix) { pitches = matrix; };
+    void SetPitches (vector<vector<string> > matrix) {
+        pitches = matrix;
+        pitches_num_rows = pitches.size();
+    };
     
 	int decode_shorthand_length (int s) {
 		// . (46)  | I (73)  | : (58)  | / (47)  | X (88)  | > (62)  | < (60)  | + (43)  | i (105)  | - (45)   (32)  | ~ (126)  | ( (40)  | ) (41)  |
@@ -2125,6 +2179,10 @@ public:
         return note_string;
     }
 
+    void SetClef (string aclef) { clef = aclef; }
+    
+private:
+    string clef;
 };
 #endif // __Modul_h__ 
  
