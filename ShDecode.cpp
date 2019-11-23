@@ -339,7 +339,7 @@ string ShDecode::print_lp_values (const vector<float>& v, int scale, bool restfl
             //dur *= -1.f;
         } else {
             dec->SetClef (clef);
-            cout << "dec->SetClef (clef); " << clef << endl;
+            //cout << "dec->SetClef (clef); " << clef << endl;
             clef = dec->AdvanceNote ();
             note = dec->GetNote ();
             lp_note += note; // use AdvanceNote() and the getNote() to receive lilypond code

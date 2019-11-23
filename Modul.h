@@ -619,12 +619,10 @@ public:
                 if (newclef < 0) {
                     clef = "\\clef bass ";
                     note = note + " " + clef;
-                    cout << "newclef < 0 " << note << endl;
                 }
                 if (newclef > 0) {
                     clef = "\\clef treble ";
                     note = note + " " + clef;
-                    cout << "newclef > 0 " << note << endl;
                 }
             }
             note += "<";
@@ -662,12 +660,10 @@ public:
                 if (newclef < 0) {
                     clef = "\\clef bass ";
                     note = note + " " + clef;
-                    cout << "newclef < 0 " << note << endl;
                 }
                 if (newclef > 0) {
                     clef = "\\clef treble ";
                     note = note + " " + clef;
-                    cout << "newclef > 0 " << note << endl;
                 }
             }
             
@@ -692,7 +688,9 @@ public:
             //cout << note << " ";
         }
         
-        if (++mel_count == size) mel_count = 0;
+        if (++mel_count == size)
+            mel_count = 0;
+        
         return clef;
     }
     
