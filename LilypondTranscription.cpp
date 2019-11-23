@@ -55,47 +55,47 @@ void LilypondTranscription::parse_sh (string filename) {
     }
 }
 
-void LilypondTranscription::pass_lines () {
-    // deprecated precursor of pass_lines2()
-    if (vrh.size() > 0) {
-        auto npl = matrix.size (); // number of lines in pitch file
-        u_long ln = 0; // line counter for pitch lines
-        vector<string> shline;
-        vector<string> outs;
-        auto len = vrh.size();
-        cout << endl << endl;
-        float prevdur = 0;
-        //create new var first time
-        for (auto i = 0; i < len; i++) {
-            string item = vrh[i];
-            if (item != "newline") {
-                shline.push_back (item);
-                // else if (item == "S") {
-                // create new var
-                //}
-            } else {
-                // a new line of snmr code is decoded:
-                dec.SetPitchLine (ln++);
-                float dur = sh_dec.list_feed (shline, outs);
-                //cout << "duration: " << dur << endl;
-                if (fabs(prevdur - dur) > 0.01f) {
-                    cout << create_meter (dur) << endl;
-                    lily_file << create_meter (dur) << endl;
-                }
-                prevdur = dur;
-                auto tlen = outs.size ();
-                for (auto k = 0; k < tlen; k++) {
-                    cout << outs[k] << endl;
-                    lily_file << outs[k] << endl;
-                }
-                // close_variable ();
-                outs.clear();
-                shline.clear();
-                if (ln == npl) ln = 0;
-            }
-        }
-    }
-}
+//void LilypondTranscription::pass_lines () {
+//    // deprecated precursor of pass_lines2()
+//    if (vrh.size() > 0) {
+//        auto npl = matrix.size (); // number of lines in pitch file
+//        u_long ln = 0; // line counter for pitch lines
+//        vector<string> shline;
+//        vector<string> outs;
+//        auto len = vrh.size();
+//        cout << endl << endl;
+//        float prevdur = 0;
+//        //create new var first time
+//        for (auto i = 0; i < len; i++) {
+//            string item = vrh[i];
+//            if (item != "newline") {
+//                shline.push_back (item);
+//                // else if (item == "S") {
+//                // create new var
+//                //}
+//            } else {
+//                // a new line of snmr code is decoded:
+//                dec.SetPitchLine (ln++);
+//                float dur = sh_dec.list_feed (shline, outs);
+//                //cout << "duration: " << dur << endl;
+//                if (fabs(prevdur - dur) > 0.01f) {
+//                    cout << create_meter (dur) << endl;
+//                    lily_file << create_meter (dur) << endl;
+//                }
+//                prevdur = dur;
+//                auto tlen = outs.size ();
+//                for (auto k = 0; k < tlen; k++) {
+//                    cout << outs[k] << endl;
+//                    lily_file << outs[k] << endl;
+//                }
+//                // close_variable ();
+//                outs.clear();
+//                shline.clear();
+//                if (ln == npl) ln = 0;
+//            }
+//        }
+//    }
+//}
 
 void LilypondTranscription::pass_lines2 () {
     // new method to process lines in seperate snmr and midi pitch files
@@ -152,7 +152,8 @@ void LilypondTranscription::pass_lines2 () {
                 }
                 //cout << automatic_clef (ln) << endl;
                 lily_file << automatic_clef (ln) << endl;
-                float dur = sh_dec.list_feed (shline, outs);
+                float dur = sh_dec.list_feed (shline, outs, current_clef);
+                cout <<  current_clef << endl;
                 //cout << "duration: " << dur << endl;
                 if (fabs(prevdur - dur) > 0.01f) {
                     //cout << create_meter (dur) << endl;

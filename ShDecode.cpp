@@ -127,7 +127,8 @@ string ShDecode::transcribe_sh (string& in) {
     return t;
 }
 
-float ShDecode::list_feed (vector<string>& sh_parsed, vector<string>& outs) {
+float ShDecode::list_feed (vector<string>& sh_parsed, vector<string>& outs, string autoclef) {
+    clef = autoclef;
     float duration = 0.f;
     vector<bool> open_tuplet;
     auto len = sh_parsed.size();
@@ -337,7 +338,9 @@ string ShDecode::print_lp_values (const vector<float>& v, int scale, bool restfl
             lp_note += rest;
             //dur *= -1.f;
         } else {
-            dec->AdvanceNote ();
+            dec->SetClef (clef);
+            cout << "dec->SetClef (clef); " << clef << endl;
+            clef = dec->AdvanceNote ();
             note = dec->GetNote ();
             lp_note += note; // use AdvanceNote() and the getNote() to receive lilypond code
         }

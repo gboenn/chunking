@@ -35,7 +35,7 @@ public:
     bool find_bin_dur (double dur);
     int find_nearest_dur (double dur);
     bool isPower2(int x);
-    float list_feed (vector<string>& sh_parsed, vector<string>& outs);
+    float list_feed (vector<string>& sh_parsed, vector<string>& outs, string autoclef);
     int power2below (int x);
     string print_lp_values (const vector<float>& v, int scale, bool restflag);
     string process_silence (string& in);
@@ -52,7 +52,7 @@ private:
     vector<double> inv_bin_durs;
     vector<float> divlist;
     Decoder* dec;
-    
+    string clef;
 };
 
 #endif /* ShDecode_hpp */
