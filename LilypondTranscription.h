@@ -44,7 +44,7 @@ public:
     void parse_sh (string filename);
     void pass_lines ();
     void create_footer ();
-    string create_meter (int pulses);
+    string create_meter (float pulses);
     
     void create_header2 ();
     void create_variable ();
@@ -54,8 +54,10 @@ public:
     void close_variable ();
     void pass_lines2 ();
     void close_files ();
-    
+    void create_context ();
     string automatic_clef (int row);
+    string get_clef () { return current_clef; }
+    
 private:
     ifstream sh_file; // sh_file.open (filename.c_str());
     ofstream lily_file;

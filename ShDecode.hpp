@@ -52,6 +52,7 @@ private:
     vector<double> inv_bin_durs;
     vector<float> divlist;
     Decoder* dec;
+    
 };
 
 #endif /* ShDecode_hpp */

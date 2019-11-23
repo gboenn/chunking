@@ -187,11 +187,32 @@ void LilypondTranscription::create_footer () {
     }
 }
 
-string LilypondTranscription::create_meter (int pulses) {
-    if (pulses == 0) {
-        return ("\\time 1/16 ");
+
+
+string LilypondTranscription::create_meter (float pulses) {
+//    if (pulses <= 0.5f) {
+//        return ("\\time 1/16 ");
+//    }
+    string denom = "8";
+    string numer = to_string(pulses);
+    
+    if (remainder (pulses, 0.25f) < 0.00001) {
+        denom = "32";
+        numer = to_string (int(pulses / 0.25f));
     }
-    string meter = to_string(pulses) + "/8";
+    if (remainder (pulses, 0.5f) < 0.00001) {
+        denom = "16";
+        numer = to_string (int(pulses / 0.5f));
+    }
+    if (remainder (pulses, 1.0f) < 0.00001) {
+        denom = "8";
+        numer = to_string (int(pulses));
+    }
+    // If (remainder (pulses, 0.5f) < 0.00001f)
+    // then denom = 16;
+    // If (remainder (pulses, 0.25f) < 0.00001f)
+    // then denom = 32;
+    string meter = numer + "/" + denom;
     if (meter == "8/8")
         meter = "4/4";
     return ("\\time " + meter + " ");
@@ -355,13 +376,30 @@ void LilypondTranscription::write_variable () {
 
 void LilypondTranscription::create_footer2 () {
     lily_file << ">>" << endl;
-    lily_file << "\\layout { }" << endl;
+    //lily_file << "\\layout { }" << endl;
+    lily_file << "\\layout {" << endl;
+    create_context ();
+    lily_file << "}" << endl;
     lily_file << "\\midi {\\tempo 8 = 200 }" << endl;
     lily_file << "} " << endl;
     lily_file << "\\paper {}" << endl;
     lily_file << "} " << endl;
 }
 
+void LilypondTranscription::create_context () {
+    if (lily_file) {
+        lily_file << "\\context {" << endl;
+        lily_file << "\\Score" << endl;
+        lily_file << "\\remove \"Timing_translator\"" << endl;
+        lily_file << "\\remove \"Default_bar_line_engraver\"" << endl;
+        lily_file << "}" << endl;
+        lily_file << "\\context {" << endl;
+        lily_file << "\\Staff" << endl;
+        lily_file << "\\consists \"Timing_translator\"" << endl;
+        lily_file << "\\consists \"Default_bar_line_engraver\"" << endl;
+        lily_file << "}" << endl;
+    }
+}
 
 /*
  
