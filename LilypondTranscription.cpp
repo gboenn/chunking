@@ -157,7 +157,11 @@ void LilypondTranscription::pass_lines2 () {
                 //cout << "duration: " << dur << endl;
                 if (fabs(prevdur - dur) > 0.01f) {
                     //cout << create_meter (dur) << endl;
-                    lily_file << create_meter (dur) << endl;
+                    if (default_meter) {
+                        lily_file << create_meter (default_meter_pulses) << endl;
+                    } else {
+                        lily_file << create_meter (dur) << endl;
+                    }
                 }
                 prevdur = dur;
                 auto tlen = outs.size ();
@@ -379,7 +383,7 @@ void LilypondTranscription::create_footer2 () {
     lily_file << ">>" << endl;
     //lily_file << "\\layout { }" << endl;
     lily_file << "\\layout {" << endl;
-    create_context ();
+    create_context (1);
     lily_file << "}" << endl;
     lily_file << "\\midi {\\tempo 8 = 200 }" << endl;
     lily_file << "} " << endl;
@@ -387,18 +391,31 @@ void LilypondTranscription::create_footer2 () {
     lily_file << "} " << endl;
 }
 
-void LilypondTranscription::create_context () {
-    if (lily_file) {
-        lily_file << "\\context {" << endl;
-        lily_file << "\\Score" << endl;
-        lily_file << "\\remove \"Timing_translator\"" << endl;
-        lily_file << "\\remove \"Default_bar_line_engraver\"" << endl;
-        lily_file << "}" << endl;
-        lily_file << "\\context {" << endl;
-        lily_file << "\\Staff" << endl;
-        lily_file << "\\consists \"Timing_translator\"" << endl;
-        lily_file << "\\consists \"Default_bar_line_engraver\"" << endl;
-        lily_file << "}" << endl;
+void LilypondTranscription::create_context (int option) {
+    if (option == 0) {
+        if (lily_file) {
+            lily_file << "\\context {" << endl;
+            lily_file << "\\Score" << endl;
+            lily_file << "\\remove \"Timing_translator\"" << endl;
+            lily_file << "\\remove \"Default_bar_line_engraver\"" << endl;
+            lily_file << "}" << endl;
+            lily_file << "\\context {" << endl;
+            lily_file << "\\Staff" << endl;
+            lily_file << "\\consists \"Timing_translator\"" << endl;
+            lily_file << "\\consists \"Default_bar_line_engraver\"" << endl;
+            lily_file << "}" << endl;
+        }
+    }
+    if (option == 1) {
+        if (lily_file) {
+            lily_file << "\\context {" << endl;
+            lily_file << "\\Voice" << endl;
+            lily_file << "\\remove \"Note_heads_engraver\"" << endl;
+            lily_file << "\\remove \"Rest_engraver\"" << endl;
+            lily_file << "\\consists \"Completion_heads_engraver\"" << endl;
+            lily_file << "\\consists \"Completion_rest_engraver\"" << endl;
+            lily_file << "}" << endl;
+        }
     }
 }
 

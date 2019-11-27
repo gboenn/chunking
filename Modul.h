@@ -365,7 +365,7 @@ class Modul
         string Transpose2 (string pitches, float interval);
         string Reverse2 (string rhythm);
         
-        void Translate_Shorthand (string filename, string pitchfile);
+        void Translate_Shorthand (string filename, string pitchfile, float meter_pulses);
         
 };
 

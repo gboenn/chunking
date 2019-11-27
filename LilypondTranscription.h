@@ -34,7 +34,7 @@
 
 class LilypondTranscription {
 public:
-    LilypondTranscription () { sh_dec.SetDecoder (&dec); linevar = "line_"; var_opened = false; s_count = 0; }
+    LilypondTranscription () { sh_dec.SetDecoder (&dec); linevar = "line_"; var_opened = false; s_count = 0; default_meter = false; default_meter_pulses = 8.f; }
     ~LilypondTranscription ();
     
     void open_lily_file (string filename);
@@ -54,9 +54,13 @@ public:
     void close_variable ();
     void pass_lines2 ();
     void close_files ();
-    void create_context ();
+    void create_context (int option);
     string automatic_clef (int row);
     string get_clef () { return current_clef; }
+    void set_meter (float pulses) {
+        default_meter = true;
+        default_meter_pulses = pulses;
+    }
     
 private:
     ifstream sh_file; // sh_file.open (filename.c_str());
@@ -72,6 +76,8 @@ private:
     vector<int> staff_pitch_beg;
     int s_count;
     string current_clef;
+    float default_meter_pulses;
+    bool default_meter;
 };
 
 #endif

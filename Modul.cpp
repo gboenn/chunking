@@ -4847,7 +4847,7 @@ string Modul::Reverse2 (string rhythm) {
     }
 }
 
-void Modul::Translate_Shorthand (string filename, string pitchfile) {
+void Modul::Translate_Shorthand (string filename, string pitchfile, float meter_pulses) {
     cout << "translation of " << filename << endl;
 //    LilypondTranscription lt;
 //    lt.open_pitch_file (pitchfile);
@@ -4862,6 +4862,8 @@ void Modul::Translate_Shorthand (string filename, string pitchfile) {
     lt2.open_pitch_file (pitchfile);
     lt2.open_lily_file ("transcription.ly");
     lt2.create_header2 ();
+    if (meter_pulses > 0.f)
+        lt2.set_meter (meter_pulses);
     lt2.parse_sh (filename);
     lt2.pass_lines2 ();
     lt2.create_ly_book ();
