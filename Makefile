@@ -5,7 +5,8 @@ SRCS = Alea.cpp AlgoComp.cpp Interpret.cpp Main.cpp Modul.cpp TextIO.cpp \
 Power.cpp Visitor.cpp Farey.cpp FareyVisitor.cpp Ratio.cpp \
 FareyFilter.cpp SmoothFilter.cpp ProbFilter.cpp PrimeFilter.cpp \
 FareyFilterFarey.cpp DList.cpp SternBrocot.cpp ReciprocalFilter.cpp SubdivisionFilter.cpp \
-Christoffel.cpp PitchParser.cpp RhythmParser.cpp ShDecode.cpp LilypondTranscription.cpp
+Christoffel.cpp PitchParser.cpp RhythmParser.cpp ShDecode.cpp LilypondTranscription.cpp \
+Mutations.cpp
 
 
 HDRS = Alea.h AlgoComp.h Interpret.h Modul.h TextIO.h \
@@ -13,14 +14,15 @@ Power.h Visitor.h Farey.h FareyVisitor.h Ratio.h \
 FareyFilter.h SmoothFilter.h ProbFilter.h PrimeFilter.h \
 FareyFilterFarey.h DList.h SternBrocot.h ReciprocalFilter.h SubdivisionFilter.h \
 Christoffel.h gc_switch_ssh.h chunking_Standards.h PitchParser.h RhythmParser.h ShDecode.hpp \
-LilypondTranscription.h
+LilypondTranscription.h Mutations.h
 
 
 OBJS = Alea.o AlgoComp.o Interpret.o Main.o Modul.o TextIO.o \
 Power.o Visitor.o Farey.o FareyVisitor.o Ratio.o \
 FareyFilter.o SmoothFilter.o ProbFilter.o PrimeFilter.o \
 FareyFilterFarey.o DList.o SternBrocot.o ReciprocalFilter.o SubdivisionFilter.o \
-Christoffel.o PitchParser.o RhythmParser.o ShDecode.o LilypondTranscription.o
+Christoffel.o PitchParser.o RhythmParser.o ShDecode.o LilypondTranscription.o \
+Mutations.o
 
 
 #CC = g++-9
@@ -169,4 +171,7 @@ ShDecode.o: ShDecode.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
 
 LilypondTranscription.o: LilypondTranscription.cpp
+	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
+
+Mutations.o: Mutations.cpp
 	$(CC) $(CFLAGS) $(INCLUDES) -c $(@:.o=.cpp)
