@@ -105,7 +105,7 @@ void LilypondTranscription::pass_lines2 () {
         vector<string> shline;
         vector<string> outs;
         auto len = vrh.size();
-        cout << endl << endl;
+        //cout << endl << endl;
         float prevdur = 0;
         //create new var first time
         create_variable ();
@@ -153,7 +153,7 @@ void LilypondTranscription::pass_lines2 () {
                 //cout << automatic_clef (ln) << endl;
                 lily_file << automatic_clef (ln) << endl;
                 float dur = sh_dec.list_feed (shline, outs, current_clef);
-                cout <<  current_clef << endl;
+                //cout <<  current_clef << endl;
                 //cout << "duration: " << dur << endl;
                 if (fabs(prevdur - dur) > 0.01f) {
                     //cout << create_meter (dur) << endl;
@@ -166,7 +166,7 @@ void LilypondTranscription::pass_lines2 () {
                 prevdur = dur;
                 auto tlen = outs.size ();
                 for (auto k = 0; k < tlen; k++) {
-                    cout << outs[k] << endl;
+                    //cout << outs[k] << endl;
                     lily_file << outs[k] << endl;
                 }
                 outs.clear();
@@ -238,7 +238,7 @@ void LilypondTranscription::open_pitch_file (string filename) {
     staff_pitch_beg.push_back (line_number);
     while (file) {
         getline (file,line);
-        cout << line << endl;
+        //cout << line << endl;
         // ignore empty lines
         if (line == "") {
             continue;
@@ -251,7 +251,7 @@ void LilypondTranscription::open_pitch_file (string filename) {
         line_number++;
         if (line.find ("S") != string::npos) {
             staff_pitch_beg.push_back (line_number);
-            cout << "staff_pitch_beg.push_back " << line_number << endl;
+            //cout << "staff_pitch_beg.push_back " << line_number << endl;
         }
         
         stringstream lineStream (line);

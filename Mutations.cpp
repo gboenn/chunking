@@ -185,7 +185,7 @@ string Mutations::Mutation (string rhythm, int n) {
         }
     }
     
-    cout << "Mutation result: " << rhythm << endl;
+//    cout << "Mutation result: " << rhythm << endl;
     return rhythm;
 }
 

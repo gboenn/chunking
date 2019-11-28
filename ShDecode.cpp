@@ -26,7 +26,7 @@ float ShDecode::calculate_length (string& item) {
             res += (abs(sh_durs[c][k]) / factor);
         }
     }
-    cout << res << endl;
+//    cout << res << endl;
     return res;
 }
 
@@ -60,7 +60,7 @@ void ShDecode::fill_sh_values () {
 }
 
 string ShDecode::process_tie () {
-    cout << "process_tie " << endl;
+    //cout << "process_tie " << endl;
     dec->SaveNote ();
     return " ~ ";
     
@@ -164,7 +164,7 @@ float ShDecode::list_feed (vector<string>& sh_parsed, vector<string>& outs, stri
             }
             outs.push_back(process_tie ());
 	} else if (item == "S") {
-        cout << "NEW STAFF" << endl;
+        //cout << "NEW STAFF" << endl;
         } else {
             duration += calculate_length(item);
             outs.push_back(transcribe_sh (item));

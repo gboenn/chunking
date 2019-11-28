@@ -4460,15 +4460,67 @@ string Modul::Mutation (string rhythm, int n) {
     f.Append(rhythm);
     rp.process ("_mutation_temp.txt");
     
+    vector<int> snmr_occurs;
+    vector<int> tilde_occurs;
     if (vrh.size() > 0) {
         auto len = vrh.size();
         for (auto i = 0; i < len; i++) {
             string item = vrh[i];
-            
+            if (item == "newline") {
+                continue;
+            }
+            if (item == "[") {
+                continue;
+            } else if (item == "]") {
+                continue;
+            } else if (item == "(") {
+                continue;
+            } else if (item == ")") {
+                continue;
+            } else if (isdigit(item.c_str()[0])) {
+                continue;
+            } else if (item == "~") {
+                tilde_occurs.push_back(i);
+            } else if (item == "S") {
+                continue;
+            } else {
+                snmr_occurs.push_back(i);
+            }
         }
     }
-    
-    return mu.Mutation (rhythm, n);
+    vector <int> snmr_affected;
+    for (int i = 0; i < n; i++) {
+        random_device rd;
+        mt19937 md(rd());
+        int lenm1 = snmr_occurs.size () - 1;
+        uniform_real_distribution<double> dist(0, lenm1);
+        int r = dist(md);
+        snmr_affected.push_back(r);
+    }
+    int len = vrh.size();
+    string result = "";
+    for (int i = 0; i < len; i++){
+        string temp = vrh[i];
+        if (temp == "newline") {
+            continue;
+        }
+        if (temp == "S") {
+            continue;
+        }
+        int len1 = snmr_occurs.size ();
+        for (int j = 0; j < len1; j++) {
+            if (i == snmr_occurs[j]) {
+                int len2 = snmr_affected.size ();
+                for (int k = 0; k < len2; k++) {
+                    if (i == snmr_affected[k]) {
+                        temp = mu.Mutation (vrh[i], n);
+                    }
+                }
+            }
+        }
+        result += temp;
+    }
+    return result;
     //
     //    size_t rlen = rhythm.length ();
     //    vector <int> mutpos;
