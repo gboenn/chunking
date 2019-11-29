@@ -53,3 +53,18 @@ void RhythmParser::detect_snmr (vector<int>& occurence, vector<int>& tilde) {
         }
     }
 }
+
+void RhythmParser::render_online_string (string& result) {
+    int len = vrh.size();
+    result = "";
+    for (int i = 0; i < len; i++){ // go through parsed snmr
+        string temp = vrh[i];
+        if (temp == "newline") { // ignore newlines and new staves because of single line input
+            continue;
+        }
+        if (temp == "S") {
+            continue;
+        }
+        result += temp;
+    }
+}
