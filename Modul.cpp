@@ -4470,26 +4470,35 @@ string Modul::Mutation (string rhythm, int n) {
     }
     
     string result = "";
-    
     rp.render_online_string (result);
-//    int len = vrh.size();
-//    string result = "";
-//    for (int i = 0; i < len; i++){ // go through parsed snmr
-//        string temp = vrh[i];
-//        if (temp == "newline") { // ignore newlines and new staves because of single line input
-//            continue;
-//        }
-//        if (temp == "S") {
-//            continue;
-//        }
-//        result += temp;
-//    }
+
     return result;
  }
 
 string Modul::Swap (string rhythm, int n) {
     Mutations mu;
-    return mu.Swap (rhythm, n);
+    RhythmParser rp;
+    rp.parse_snmr_line (rhythm);
+    vector<int> snmr_occurs;
+    vector<int> tilde_occurs;
+    rp.detect_snmr (snmr_occurs, tilde_occurs);
+    
+    int lenm1 = snmr_occurs.size () - 1;
+    for (int i = 0; i < n; i++) { // distribute n mutations
+        random_device rd;
+        mt19937 md(rd());
+        uniform_real_distribution<double> dist(0, lenm1);
+        int r = dist(md);
+        //cout << "mutating " << vrh[snmr_occurs[r]] << endl;
+        vrh[snmr_occurs[r]] = mu.Swap (vrh[snmr_occurs[r]], 1);
+    }
+    
+    string result = "";
+    rp.render_online_string (result);
+    
+    return result;
+//    Mutations mu;
+//    return mu.Swap (rhythm, n);
 }
 
 string Modul::Silence (string rhythm, int n, int k) {
@@ -4711,7 +4720,23 @@ string Modul::Transpose2 (string pitches, float interval) {
 
 string Modul::Reverse (string rhythm) {
     Mutations mu;
-    return mu.Reverse (rhythm);
+    RhythmParser rp;
+    rp.parse_snmr_line (rhythm);
+    vector<int> snmr_occurs;
+    vector<int> tilde_occurs;
+    rp.detect_snmr (snmr_occurs, tilde_occurs);
+    
+    int lenm1 = snmr_occurs.size () - 1;
+    for (int i = 0; i < lenm1; i++) {
+        vrh[snmr_occurs[i]] = mu.Reverse (vrh[snmr_occurs[i]]);
+    }
+    
+    string result = "";
+    rp.render_online_string (result);
+    
+    return result;
+//    Mutations mu;
+//    return mu.Reverse (rhythm);
 }
 
 string Modul::Reverse2 (string rhythm) {
