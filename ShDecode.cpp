@@ -35,6 +35,8 @@ string ShDecode::close_tuplet () {
 }
 
 void ShDecode::fill_sh_values () {
+    // pareser:
+    // [LBQEFG'.:Iv><Xi+w!HW-]
     sh_durs['.'] = {1.f};
     sh_durs['I'] = {2.f};
     sh_durs[':'] = {1.f, 1.f};

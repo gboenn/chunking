@@ -6,6 +6,8 @@
 ///////////////////////////////////////////
 
 #include "RhythmParser.h"
+#include "TextIO.h"
+#include <vector>
 
 void RhythmParser::process (string filename) {
     vrh.clear ();
@@ -13,4 +15,41 @@ void RhythmParser::process (string filename) {
         cout << "RhythmParser says: error opening " << filename << endl;
     }
     yyparse();
+}
+
+void RhythmParser::parse_snmr_line (string rhythm) {
+    StringToFile f ("_mutation_temp.txt");
+    //f.Append(s2.str());
+    f.Append(rhythm);
+    process ("_mutation_temp.txt");
+}
+
+void RhythmParser::detect_snmr (vector<int>& occurence, vector<int>& tilde) {
+    if (vrh.size() > 0) {
+        auto len = vrh.size();
+        for (auto i = 0; i < len; i++) {
+            string item = vrh[i];
+            if (item == "newline") {
+                continue;
+            }
+            if (item == "[") {
+                continue;
+            } else if (item == "]") {
+                continue;
+            } else if (item == "(") {
+                continue;
+            } else if (item == ")") {
+                continue;
+            } else if (isdigit(item.c_str()[0])) {
+                continue;
+            } else if (item == "~") {
+                tilde.push_back(i);
+            } else if (item == "S") {
+                continue;
+            } else {
+                cout << "detect " << vrh[i] << endl;
+                 occurence.push_back(i);
+            }
+        }
+    }
 }

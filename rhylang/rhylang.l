@@ -13,7 +13,7 @@
 %option yylineno
 %%
 
-[LBQEFG'.:Iv><Xi+wHW-]+ { vrh.push_back(string(yytext));  return RSTR; }
+[LBQEFG'.:Iv><Xi+w!HW-]+ { vrh.push_back(string(yytext));  return RSTR; }
 "~"     { vrh.push_back(string(yytext)); return TIE; }
 "["     { vrh.push_back(string(yytext)); return OB; }
 "]"     { vrh.push_back(string(yytext)); return CB; }

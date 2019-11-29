@@ -4454,221 +4454,44 @@ string Modul::Mutation (string rhythm, int n) {
     // random mutations, n = number of mutations
     Mutations mu;
     RhythmParser rp;
-    
-    StringToFile f ("_mutation_temp.txt");
-    //f.Append(s2.str());
-    f.Append(rhythm);
-    rp.process ("_mutation_temp.txt");
-    
+    rp.parse_snmr_line (rhythm);
     vector<int> snmr_occurs;
     vector<int> tilde_occurs;
-    if (vrh.size() > 0) {
-        auto len = vrh.size();
-        for (auto i = 0; i < len; i++) {
-            string item = vrh[i];
-            if (item == "newline") {
-                continue;
-            }
-            if (item == "[") {
-                continue;
-            } else if (item == "]") {
-                continue;
-            } else if (item == "(") {
-                continue;
-            } else if (item == ")") {
-                continue;
-            } else if (isdigit(item.c_str()[0])) {
-                continue;
-            } else if (item == "~") {
-                tilde_occurs.push_back(i);
-            } else if (item == "S") {
-                continue;
-            } else {
-                snmr_occurs.push_back(i);
-            }
-        }
-    }
-    vector <int> snmr_affected;
-    for (int i = 0; i < n; i++) {
+    rp.detect_snmr (snmr_occurs, tilde_occurs);
+
+    int lenm1 = snmr_occurs.size () - 1;
+    for (int i = 0; i < n; i++) { // distribute n mutations
         random_device rd;
         mt19937 md(rd());
-        int lenm1 = snmr_occurs.size () - 1;
         uniform_real_distribution<double> dist(0, lenm1);
         int r = dist(md);
-        snmr_affected.push_back(r);
+        //cout << "mutating " << vrh[snmr_occurs[r]] << endl;
+        vrh[snmr_occurs[r]] = mu.Mutation (vrh[snmr_occurs[r]], 1);
     }
+    
     int len = vrh.size();
     string result = "";
-    for (int i = 0; i < len; i++){
+    for (int i = 0; i < len; i++){ // go through parsed snmr
         string temp = vrh[i];
-        if (temp == "newline") {
+        if (temp == "newline") { // ignore newlines and new staves because of single line input
             continue;
         }
         if (temp == "S") {
             continue;
         }
-        int len1 = snmr_occurs.size ();
-        for (int j = 0; j < len1; j++) {
-            if (i == snmr_occurs[j]) {
-                int len2 = snmr_affected.size ();
-                for (int k = 0; k < len2; k++) {
-                    if (i == snmr_affected[k]) {
-                        temp = mu.Mutation (vrh[i], n);
-                    }
-                }
-            }
-        }
         result += temp;
     }
     return result;
-    //
-    //    size_t rlen = rhythm.length ();
-    //    vector <int> mutpos;
-    //    //srand (time(NULL));
-    //    int m = n;
-    //    int lenm1 = rlen - 1;
-    //    random_device rd;
-    //    mt19937 md(rd());
-    //    uniform_real_distribution<double> dist(0, lenm1);
-    //    while (--m >= 0) {
-    //      int r = dist(md);
-    //      mutpos.push_back(r);
-    //    }
-    //
-    //    int i = 0;
-    //    cout << "$ mutations at positions: ";
-    //    for (; i < n; i++) {
-    //        cout << mutpos.at(i) << ", ";
-    //    }
-    //    cout << endl;
-    //    string dual = "I:v";
-    //    int dual_length = dual.length ();
-    //    string ternary = "-iX><w";
-    //    int ternary_length = ternary.length ();
-    //    string quaternary = "H!";
-    //    const int quat_repl_length = 8;
-    //    string quat_repl[quat_repl_length] = {"!", "H", "::", "II", "-.", ":I", "I:", ".I."};
-    //    i = 0;
-    //    for (string::iterator it=rhythm.begin(); it!=rhythm.end(); ++it, i++) {
-    //        int k = 0;
-    //        int flag = 0;
-    //        for (; k < n; k++) {
-    //            if (i == mutpos.at(k)) {
-    //                flag = 1;
-    //                break;
-    //            }
-    //        }
-    //        if (flag) {
-    //            for (string::iterator it2=dual.begin(); it2!=dual.end(); ++it2) {
-    //                if (int(*it2) == int(*it)) {
-    //                    char c = *it;
-    //                    while (1) {
-    //                        c = dual[rand() % dual_length];
-    //                        if (int(c) != int(*it))
-    //                            break;
-    //                    }
-    //                    rhythm[i] = c;
-    //                    break;
-    //                }
-    //            }
-    //            for (string::iterator it2=quaternary.begin(); it2!=quaternary.end(); ++it2) {
-    //                if (int(*it2) == int(*it)) {
-    //                    string temp = quat_repl[rand() % quat_repl_length];
-    //                    rhythm.replace (i,  1,  temp, 0, string::npos);
-    //                    break;
-    //                }
-    //            }
-    //            for (string::iterator it2=ternary.begin(); it2!=ternary.end(); ++it2) {
-    //                if (int(*it2) == int(*it)) {
-    //                    char c = *it;
-    //                    while (1) {
-    //                        c = ternary[rand() % ternary_length];
-    //                        if (int(c) != int(*it))
-    //                            break;
-    //                    }
-    //                    rhythm[i] = c;
-    //                    break;
-    //                }
-    //            }
-    //        }
-    //    }
-    //
-    //    cout << "Mutaion result: " << rhythm << endl;
-    //    return rhythm;
-}
+ }
 
 string Modul::Swap (string rhythm, int n) {
     Mutations mu;
     return mu.Swap (rhythm, n);
-    //random swap(s), n = number of swaps
-    //    size_t rlen = rhythm.length ();
-    //    vector <int> mutpos;
-    //    srand (time(NULL));
-    //    int m = n;
-    //    int lenm1 = rlen - 1;
-    //    random_device rd;
-    //    mt19937 md(rd());
-    //    uniform_real_distribution<double> dist(0, lenm1);
-    //    while (--m >= 0) {
-    //        int r = dist(md);
-    //        mutpos.push_back(r);
-    //    }
-    //    int i = 0;
-    //    cout << "$ swapping at positions: ";
-    //    for (; i < n; i++) {
-    //        cout << mutpos.at(i) << ", ";
-    //    }
-    //    cout << endl;
-    //    for (i=0; i < n; i++) {
-    //        char c = rhythm[mutpos.at(i)];
-    //        int swapindex = mutpos.at(i)+1;
-    //    if (swapindex > lenm1) swapindex = 0;
-    //    rhythm[mutpos.at(i)] = rhythm[swapindex];
-    //        rhythm[swapindex] = c;
-    //        //cout << "swap at pos: " << i << endl;
-    //    }
-    //
-    //    //cout << rhythm << endl;
-    //    return rhythm;
 }
 
 string Modul::Silence (string rhythm, int n, int k) {
     Mutations mu;
     return mu.Silence (rhythm, n, k);
-    // renders a silence with symbols between pos n and k
-    
-    // check whether there is already silence in the string
-    // if yes, then remove the brackets
-    //    int i = 0;
-    //    for (string::iterator it=rhythm.begin(); it!=rhythm.end(); ++it, i++) {
-    //        if (int(*it) == 40 || int(*it) == 41) // == '(' or ')'
-    //            rhythm.erase(rhythm.begin()+i);
-    //    }
-    //    // check boundaries and assert (n<k)
-    //    // k can be >= list length in which case the right bracket is simply appended
-    //    size_t rlen = rhythm.length ();
-    //    if (k == n) {
-    //        cout << "$ " << rhythm << " has " << rlen << " characters. <from_pos> and <to_pos> should be different." << endl;
-    //        return rhythm;
-    //    }
-    //    if (k < n) {
-    //        cout << "$ " << rhythm << " has " << rlen << " characters. <from_pos> should be smaller than <to_pos>." << endl;
-    //        return rhythm;
-    //    }
-    //    if (n < 0) n = 0;
-    //    if (n > rlen - 1) n = rlen - 1;
-    //    i = 0;
-    //    for (string::iterator it=rhythm.begin(); it!=rhythm.end(); ++it, i++) {
-    //        if (i == n)
-    //            rhythm.insert(it, '(');
-    //        if (i == k+1) // insert is always before index, and since we already inserted a char (n<k)...
-    //            rhythm.insert(it, ')');
-    //    }
-    //    if (k >= rlen)
-    //        rhythm.push_back(')'); // the above loop cannot go past the list
-    //
-    //    //cout << rhythm << endl;
-    //    return rhythm;
 }
 
 
@@ -4886,23 +4709,6 @@ string Modul::Transpose2 (string pitches, float interval) {
 string Modul::Reverse (string rhythm) {
     Mutations mu;
     return mu.Reverse (rhythm);
-    //    vector<float> p;
-    //    size_t found = rhythm.find (",");
-    //    if (found != string::npos) {
-    //        stringstream aline (rhythm);
-    //        string cell;
-    //        while (getline (aline, cell, ',')) {
-    //            p.push_back (atof (cell.c_str()));
-    //        }
-    //        stringstream prev;
-    //        int len = p.size ();
-    //        while (--len > -1)
-    //            prev << p[len] << ",";
-    //        return prev.str ();
-    //    } else {
-    //        reverse(rhythm.begin (), rhythm.end ());
-    //        return rhythm;
-    //    }
 }
 
 string Modul::Reverse2 (string rhythm) {
@@ -4928,22 +4734,10 @@ string Modul::Reverse2 (string rhythm) {
         return prev.str ();
     } else {
         return Reverse (rhythm);
-//        reverse(rhythm.begin (), rhythm.end ());
-//        return rhythm;
     }
 }
 
 void Modul::Translate_Shorthand (string filename, string pitchfile, float meter_pulses) {
-    cout << "translation of " << filename << endl;
-//    LilypondTranscription lt;
-//    lt.open_pitch_file (pitchfile);
-//    lt.open_lily_file ("transcription.ly");
-//    lt.create_header ();
-//    lt.parse_sh (filename);
-//    lt.pass_lines ();
-//    lt.create_footer ();
-//    lt.close_files ();
-    
     LilypondTranscription lt2;
     lt2.open_pitch_file (pitchfile);
     lt2.open_lily_file ("transcription.ly");

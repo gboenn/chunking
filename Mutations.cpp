@@ -132,6 +132,7 @@ string Mutations::Mutation (string rhythm, int n) {
     for (; i < n; i++) {
         cout << mutpos.at(i) << ", ";
     }
+    
     cout << endl;
     string dual = "I:v";
     int dual_length = dual.length ();
@@ -166,7 +167,7 @@ string Mutations::Mutation (string rhythm, int n) {
             for (string::iterator it2=quaternary.begin(); it2!=quaternary.end(); ++it2) {
                 if (int(*it2) == int(*it)) {
                     string temp = quat_repl[rand() % quat_repl_length];
-                    rhythm.replace (i,  1,  temp, 0, string::npos);
+                    rhythm.replace (i,  1,  temp, 0, temp.length()); //, 0, string::npos);
                     break;
                 }
             }
@@ -185,7 +186,7 @@ string Mutations::Mutation (string rhythm, int n) {
         }
     }
     
-//    cout << "Mutation result: " << rhythm << endl;
+    cout << "Mutation result: " << rhythm << endl;
     return rhythm;
 }
 
