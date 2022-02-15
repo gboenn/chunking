@@ -488,6 +488,19 @@ float Ratio::Indig_ab ()
     return (Digest (p) + Digest (q));
 }
 
+float Ratio::Indig_ab2 ()
+{
+    // new RIM measure June 23 2020
+    if (this->GetFloat () < 0.5 && this->GetFloat () >= 0.) {
+        Ratio temp (1,1);
+        Ratio res (temp - *this);
+        return (Digest (res.GetP()) + Digest (res.GetQ()));
+        
+    } else {
+        return (Digest (p) + Digest (q));
+    }
+}
+
 float Ratio::Harmon_ab ()
 {
     if ((p - q) == 0)

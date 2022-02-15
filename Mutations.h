@@ -27,6 +27,8 @@ public:
     string Reverse (string rhythm);
     string Silence (string rhythm, int n, int k);
     string ProcessToShapes (string rhythm, int flag);
-    
+    int CloseBracketInd (int index);
+    void ReverseBrackets(int openb, int closb);
+    bool isNum (string line);
 };
 #endif // __Mutations_h__

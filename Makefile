@@ -28,7 +28,7 @@ Mutations.o
 #CC = g++-9
 CC = g++
 #CC = clang++
-CFLAGS = -std=gnu++14 -g -O0 -Wall
+CFLAGS = -std=c++11 -g -O0 -Wall
 #CFLAGS = -O0 -Wall
 #CFLAGS = -Os -Wno-deprecated-declarations -Wall -Wunused -Wno-format-y2k  -fno-exceptions -fno-strict-aliasing
 #PROFILER = -pg

@@ -255,8 +255,11 @@ void Modul::FareyToBinaryRhythm (int farey_index, int dig, int flag) {
 		//s2_3,
 		//s2_3_5,
 		//s2_3_5_7,
-		SmoothFilter* sf = new SmoothFilter; 
-		sf->SetFilterVal (s2_3_5);
+		SmoothFilter* sf = new SmoothFilter;
+        if (flag == 1)
+            sf->SetFilterVal (s2_3);
+        else
+            sf->SetFilterVal (s2_3_5);
 		Visitor* v = sf;
 		afar->Accept (*v); 
 		afar->SetFareySeq (sf->GetRatioList ()); // override Ratio list in Farey object
@@ -264,7 +267,7 @@ void Modul::FareyToBinaryRhythm (int farey_index, int dig, int flag) {
 		cout << "Filtered Farey Sequence " << farey_index <<  " according to smooth number filtering :" << endl;
 		DLink<Ratio>* r; 
 		for (r = afar->GetFirst (); r != NULL; r = r->next) 
-			cout << (r->data->GetP ()) << "/" << (r->data->GetQ ()) << " " ; 
+			cout << (r->data->GetP ()) << "./" << (r->data->GetQ ()) << ", " ; 
 		cout << endl;
 		
 //		afar->CreateDiffList (); 
@@ -273,7 +276,7 @@ void Modul::FareyToBinaryRhythm (int farey_index, int dig, int flag) {
 		cout << endl << "Filtered Farey Sequence with common denominator:" << endl;
 		
 		for (r = afar->GetFirstCommonDenom (); r != NULL; r = r->next) 
-			cout << (r->data->GetP ()) << "/" << (r->data->GetQ ()) << " " ; 
+			cout << (r->data->GetP ()) << "./" << (r->data->GetQ ()) << ", " ; 
 		cout << endl;
 		
 		cout << endl << "in integer distance notation:" << endl;
@@ -2833,7 +2836,7 @@ void Modul::AnalysePhrases (string filename, int minbeat, int maxbeat, int bwt_o
 		
 #if 1
 		for (; rl != NULL; rl = rl->next) {
-			ac += rl->data->Indig_ab ();
+			ac += rl->data->Indig_ab2 ();
 		}
 #endif
 #if 0
@@ -3086,12 +3089,15 @@ void Modul::PrintFareySeq (int n) {
     l = a.GetFirst ();
     for ( ; l != NULL; l = l->next) {
         string c1 = l->data->Christoffel (true);
-        int length = l->data->GetP() + l->data->GetQ();
-        cout << length << "\t : " << l->data->GetP() << "/" << l->data->GetQ() << "\t : " << c1 << endl;
-        Christoffel c;
-        c.SetWord (c1);
-        c.display_all ();
-        c.word_to_rhythm_chunks3 (c1);
+        //int length = l->data->GetP() + l->data->GetQ();
+
+        cout << l->data->GetFloat() << "\t : " << l->data->GetP() << "/" << l->data->GetQ() << "\t : " << Digest (l->data->GetQ()) << endl;
+        
+//        cout << length << "\t : " << l->data->GetP() << "/" << l->data->GetQ() << "\t : " << c1 << "\t : " << Digest (l->data->GetQ()) << endl;
+//        Christoffel c;
+//        c.SetWord (c1);
+//        c.display_all ();
+//        c.word_to_rhythm_chunks3 (c1);
     }
     
 }
@@ -4722,6 +4728,8 @@ string Modul::Reverse (string rhythm) {
     Mutations mu;
     RhythmParser rp;
     rp.parse_snmr_line (rhythm);
+    return mu.Reverse (rhythm);
+#if 0
     vector<int> snmr_occurs;
     vector<int> tilde_occurs;
     rp.detect_snmr (snmr_occurs, tilde_occurs);
@@ -4737,6 +4745,8 @@ string Modul::Reverse (string rhythm) {
     return result;
 //    Mutations mu;
 //    return mu.Reverse (rhythm);
+#endif
+
 }
 
 string Modul::Reverse2 (string rhythm) {

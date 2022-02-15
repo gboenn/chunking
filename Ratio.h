@@ -90,6 +90,7 @@ public:
 	float Indig_a ();
 	float Indig_b ();
 	float Indig_ab ();
+    float Indig_ab2 ();
 	float Harmon_ab ();
     string Christoffel (bool flag);
     void GetNeighbours (DList<Ratio>* p, int flag);

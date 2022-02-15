@@ -4,6 +4,11 @@
 #include "Mutations.h"
 #endif
 
+#ifndef __RhythmParser_h__
+#include "RhythmParser.h"
+#endif
+
+
 #include <random>
 #include <sstream>
 
@@ -326,21 +331,90 @@ string Mutations::ProcessToShapes (string rhythm, int flag) {
 }
 
 string Mutations::Reverse (string rhythm) {
-        vector<float> p;
-        size_t found = rhythm.find (",");
-        if (found != string::npos) {
-            stringstream aline (rhythm);
-            string cell;
-            while (getline (aline, cell, ',')) {
-                p.push_back (atof (cell.c_str()));
-            }
-            stringstream prev;
-            int len = p.size ();
-            while (--len > -1)
-                prev << p[len] << ",";
-            return prev.str ();
-        } else {
-            reverse(rhythm.begin (), rhythm.end ());
-            return rhythm;
+    string result = "";
+    int openb = 0;
+    int num_open = 0;
+    int num_symb = vrh.size ();
+    
+    // how many balanced open brackets?
+    // unbalanced brackets, [ or (, cause parse errors earlier
+    for (int i = 0; i < num_symb; i++) {
+        if (vrh[i] == "[") {
+            num_open++;
         }
+    }
+    
+    while (num_open-- > 0) {
+        for (int i = 0; i < num_symb; i++) {
+            if (vrh[i] == "[") {
+                openb = i;
+                break;
+            }
+        }
+        // find corresponding closing bracket index
+        int closeb = CloseBracketInd (openb);
+        if (closeb > 0)
+            ReverseBrackets (openb, closeb);
+        result = "";
+        // after [ brackets and subdivision integers have been dealt with
+        // reverse the complete shorthand string
+        for (auto it = vrh.rbegin(); it!=vrh.rend(); ++it) {
+            if (*it != "newline") {
+                string temp = *it;
+                if (temp.size() > 1) {
+                    // reverse internal shorthand strings if they are sounding patterns of length > 1
+                    for (auto st = temp.rbegin(); st != temp.rend(); st++) {
+                        result += *st;
+                    }
+                } else {
+                    // reverse silence brackets
+                    if (*it == "(")
+                        result += ")";
+                    else if (*it == ")")
+                        result += "(";
+                    else
+                        // keep everything else as is
+                        result += *it;
+                }
+            }
+        }
+    }
+    return result;
+}
+
+
+int Mutations::CloseBracketInd(int index){
+    int i;
+    if(vrh[index]!="["){
+        return -1;
+    }
+    stack <int> st;
+    for(i = index; i < vrh.size(); i++){
+        if(vrh[i] == "[") {
+            st.push(i);
+        } else if(vrh[i] == "]"){
+            st.pop();
+            if(st.empty()){
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+void Mutations::ReverseBrackets(int openb, int closb) {
+    vrh[openb] = "]";
+    vrh[closb] = "[";
+    if (isNum(vrh[openb+1])) {
+        auto closPos = vrh.begin() + closb;
+        vrh.insert(closPos, vrh[openb+1]);
+        vrh.erase(vrh.begin() + openb + 1);
+    }
+}
+
+
+bool Mutations::isNum (string line) {
+    char* p;
+    strtol(line.c_str(), &p, 10);
+    return (*p == 0);
 }
