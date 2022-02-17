@@ -4346,113 +4346,27 @@ void Modul::ShorteningProcess (string rhythm) {
 string Modul::Jumping (string rhythm, int n, int k, int flag) {
     Mutations mu;
     return mu.Jumping (rhythm, n, k ,flag);
-    //    if (n == 0) {
-    //        cout << "$ n must be positive." << endl;
-    //        return rhythm;
-    //    }
-    //    size_t rlen = rhythm.length ();
-    //    string output;
-    //    if (n < 0) n *= -1;
-    //    if (n > int(rlen)) {
-    //        n = rlen;
-    //        int i = 0;
-    //        for (; i < k; i++) {
-    //            output += '\n';
-    //            output += rhythm;
-    //        }
-    //    }
-    //    else {
-    //        if (flag == 0) {
-    //            int i = 0;
-    //            output = rhythm;
-    //            for (; i < k; i++) {
-    //                output += '\n';
-    //                output += rhythm.substr(rlen-n, n);
-    //            }
-    //        } else {
-    //            int i = 0;
-    //            for (; i < k; i++) {
-    //                output += rhythm.substr(0, n);
-    //                output += '\n';
-    //            }
-    //            output += rhythm;
-    //        }
-    //    }
-    //    if (flag == 0) {
-    //        cout << "$ jumping needle for " << k << " times the last " << n << " symbols." << endl;
-    //    } else {
-    //        cout << "$ jumping needle for " << k << " times the first " << n << " symbols." << endl;
-    //    }
-    //    //cout << output << endl;
-    //    return output;
+    
 }
 
 string Modul::Fragment (string rhythm) {
     Mutations mu;
+    RhythmParser rp;
+    rp.parse_snmr_line (rhythm);
     return mu.Fragment (rhythm);
-    //    size_t rlen = rhythm.length ();
-    //    if (rlen == 1)
-    //        return rhythm;
-    //    vector <int> mutpos;
-    //    srand (time(NULL));
-    //
-    //    int lenm1 = rlen - 1;
-    //    random_device rd;
-    //    mt19937 md(rd());
-    //    uniform_real_distribution<double> dist(0, lenm1);
-    //    int r = dist(md);
-    //    mutpos.push_back(r);
-    //
-    //    while (1) {
-    //        int r2 = dist(md);
-    //        if (r != r2) {
-    //            mutpos.push_back(r2);
-    //            break;
-    //        }
-    //    }
-    //
-    //    sort (mutpos.begin (), mutpos.end ());
-    //    //cout << "Fragment: " << mutpos.at(0) << " " << mutpos.at(1) << endl;
-    //    string result = rhythm.substr (mutpos.at(0), mutpos.at(1));
-    //    //cout << "Fragment result: " << result << endl;
-    //    return result;
+    
 }
 
 string Modul::FragmentRotation (string rhythm) {
     Mutations mu;
     return mu.FragmentRotation (rhythm);
-    //    string temp = Fragment (rhythm);
-    //    temp = Rotation (temp);
-    //    //cout << temp << endl;
-    //    return temp;
+
 }
 
 string Modul::Rotation (string rhythm) {
     Mutations mu;
     return mu.Rotation (rhythm);
-    //    size_t rlen = rhythm.length ();
-    //    if (rlen == 1)
-    //        return rhythm;
-    //    int lenm1 = rlen - 1;
-    //    random_device rd;
-    //    mt19937 md(rd());
-    //    uniform_real_distribution<double> dist(0, lenm1);
-    //    int r = dist(md);
-    //
-    //    string temp = rhythm;
-    //    while (--r >= 0) {
-    //        char last = temp.at(temp.length () - 1);
-    //        temp.erase(temp.length()-1);
-    //        temp = last + temp;
-    //    }
-    //    if (temp == rhythm) {
-    //        char last = temp.at(temp.length () - 1);
-    //        temp.erase(temp.length()-1);
-    //        temp = last + temp;
-    //    }
-    //    //cout << temp << endl;
-    //    return temp;
-    //
+    
 }
 
 
@@ -4749,6 +4663,7 @@ string Modul::Reverse (string rhythm) {
 
 }
 
+#if 0
 string Modul::Reverse2 (string rhythm) {
     vector<vector<float> > p;
     PitchParser pp;
@@ -4774,6 +4689,7 @@ string Modul::Reverse2 (string rhythm) {
         return Reverse (rhythm);
     }
 }
+#endif
 
 void Modul::Translate_Shorthand (string filename, string pitchfile, float meter_pulses) {
     LilypondTranscription lt2;

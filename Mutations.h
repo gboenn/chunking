@@ -28,6 +28,7 @@ public:
     string Silence (string rhythm, int n, int k);
     string ProcessToShapes (string rhythm, int flag);
     int CloseBracketInd (int index);
+    int CloseSilenceBracketInd(int index);
     void ReverseBrackets(int openb, int closb);
     bool isNum (string line);
 };

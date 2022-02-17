@@ -55,32 +55,129 @@ string Mutations::Jumping (string rhythm, int n, int k, int flag) {
 }
 
 string Mutations::Fragment (string rhythm) {
-    size_t rlen = rhythm.length ();
-    if (rlen == 1)
-        return rhythm;
-    vector <int> mutpos;
-    srand (time(NULL));
+    string result = "";
+    vector<int> vopenb;
+    vector<int> vclosb;
+    vector<int> vopens;
+    vector<int> vcloss;
+    vector<vector<int>> vunits;
+    int num_symb = vrh.size ();
+    string e = vrh.back();
+    if (e == "newline")
+        num_symb--;
     
-    int lenm1 = rlen - 1;
-    random_device rd;
-    mt19937 md(rd());
-    uniform_real_distribution<double> dist(0, lenm1);
-    int r = dist(md);
-    mutpos.push_back(r);
+    // unbalanced brackets, [ or (, cause parse errors earlier
+    for (int i = 0; i < num_symb; i++) {
+        if (vrh[i] == "[") vopenb.push_back(i);
+    }
     
-    while (1) {
-        int r2 = dist(md);
-        if (r != r2) {
-            mutpos.push_back(r2);
-            break;
+    for (auto it = vopenb.begin() ; it != vopenb.end(); ++it) {
+        vclosb.push_back (CloseBracketInd (*it));
+    }
+    
+    for (int i = 0; i < num_symb; i++) {
+        if (vrh[i] == "(") vopens.push_back(i);
+    }
+    
+    for (auto it = vopens.begin(); it != vopens.end(); ++it) {
+        vcloss.push_back (CloseSilenceBracketInd (*it));
+    }
+    
+    cout << "non-nested square brackets:" << endl;
+    int last_closed = -1;
+    for (auto it = vopenb.begin(), it2 = vclosb.begin(); it != vopenb.end(); ++it, ++it2) {
+        int openb = *it;
+        if (openb > last_closed) {
+            vector<int> v;
+            v.push_back(*it);
+            v.push_back(*it2);
+            vunits.push_back(v);
+        }
+        last_closed = *it2;
+    }
+    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
+        cout << (*it)[0] << ", " << (*it)[1] << endl;
+    }
+    
+    cout << "with silence brackets outside square brackets:" << endl;
+    for (auto it = vopens.begin(), it2 = vcloss.begin(); it != vopens.end(); ++it, ++it2) {
+        int flag = 0;
+        for (auto vt = vunits.begin(); vt != vunits.end(); ++vt) {
+            if (*it > (*vt)[0] && *it < (*vt)[1]) {
+                flag = 1;
+                break;
+            }
+        }
+        if (!flag) {
+            vector<int> v;
+            v.push_back(*it);
+            v.push_back(*it2);
+            vunits.push_back(v);
+        }
+    }
+    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
+        cout << (*it)[0] << ", " << (*it)[1] << endl;
+    }
+    
+    cout << "with free items:" << endl;
+    for (int i = 0; i < num_symb; i++) {
+        int flag = 0;
+        for (auto vt = vunits.begin(); vt != vunits.end(); ++vt) {
+            if ((*vt).size() == 2){
+                if (i >= (*vt)[0] && i <= (*vt)[1]) {
+                    flag = 1;
+                    break;
+                }
+            } else {
+                if (i == (*vt)[0]) {
+                    flag = 1;
+                    break;
+                }
+            }
+        }
+        if (!flag) {
+            vector<int> v;
+            v.push_back(i);
+            vunits.push_back(v);
         }
     }
     
-    sort (mutpos.begin (), mutpos.end ());
-    //cout << "Fragment: " << mutpos.at(0) << " " << mutpos.at(1) << endl;
-    string result = rhythm.substr (mutpos.at(0), mutpos.at(1));
-    //cout << "Fragment result: " << result << endl;
-    return result;
+    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
+        if ((*it).size() == 2){
+            cout << (*it)[0] << ", " << (*it)[1] << endl;
+        } else {
+            cout << (*it)[0] << endl;
+        }
+    }
+        
+    return rhythm;
+//
+//    size_t rlen = rhythm.length ();
+//    if (rlen == 1)
+//        return rhythm;
+//    vector <int> mutpos;
+//    srand (time(NULL));
+//
+//    int lenm1 = rlen - 1;
+//    random_device rd;
+//    mt19937 md(rd());
+//    uniform_real_distribution<double> dist(0, lenm1);
+//    int r = dist(md);
+//    mutpos.push_back(r);
+//
+//    while (1) {
+//        int r2 = dist(md);
+//        if (r != r2) {
+//            mutpos.push_back(r2);
+//            break;
+//        }
+//    }
+//
+//    sort (mutpos.begin (), mutpos.end ());
+//    //cout << "Fragment: " << mutpos.at(0) << " " << mutpos.at(1) << endl;
+//    string result = rhythm.substr (mutpos.at(0), mutpos.at(1));
+//    //cout << "Fragment result: " << result << endl;
+//    return result;
 }
 
 string Mutations::FragmentRotation (string rhythm) {
@@ -331,6 +428,8 @@ string Mutations::ProcessToShapes (string rhythm, int flag) {
 }
 
 string Mutations::Reverse (string rhythm) {
+    // original rhythm needed?
+    // use of RhythmParser in Modul.cpp
     string result = "";
     int openb = 0;
     int num_open = 0;
@@ -345,6 +444,8 @@ string Mutations::Reverse (string rhythm) {
     }
     
     while (num_open-- > 0) {
+        // find the next open bracket [
+        // because of ReverseBrackets we can always start at i = 0
         for (int i = 0; i < num_symb; i++) {
             if (vrh[i] == "[") {
                 openb = i;
@@ -393,6 +494,25 @@ int Mutations::CloseBracketInd(int index){
         if(vrh[i] == "[") {
             st.push(i);
         } else if(vrh[i] == "]"){
+            st.pop();
+            if(st.empty()){
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+int Mutations::CloseSilenceBracketInd(int index){
+    int i;
+    if(vrh[index]!="("){
+        return -1;
+    }
+    stack <int> st;
+    for(i = index; i < vrh.size(); i++){
+        if(vrh[i] == "(") {
+            st.push(i);
+        } else if(vrh[i] == ")"){
             st.pop();
             if(st.empty()){
                 return i;
