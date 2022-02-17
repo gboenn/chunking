@@ -122,6 +122,10 @@ string Mutations::Fragment (string rhythm) {
     cout << "with free items:" << endl;
     for (int i = 0; i < num_symb; i++) {
         int flag = 0;
+        if (vrh[i] == "~") {
+            // ignoring the ~ ties
+            continue;
+        }
         for (auto vt = vunits.begin(); vt != vunits.end(); ++vt) {
             if ((*vt).size() == 2){
                 if (i >= (*vt)[0] && i <= (*vt)[1]) {
@@ -441,6 +445,26 @@ string Mutations::Reverse (string rhythm) {
         if (vrh[i] == "[") {
             num_open++;
         }
+    }
+    
+    if (num_open == 0) {
+        // reverse each vrh element
+        for (int i = num_symb-1; i > -1; i--) {
+            if (vrh[i] == "newline") {
+                continue;
+            }
+            string cur = vrh[i];
+            if (cur == "(")
+                result += ")";
+            else if (cur == ")")
+                result += "(";
+            else {
+                for (auto st = cur.rbegin(); st != cur.rend(); st++) {
+                    result += *st;
+                }
+            }
+        }
+        return result;
     }
     
     while (num_open-- > 0) {
