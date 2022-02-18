@@ -1853,6 +1853,12 @@ void yyfree (void * ptr )
 
 void yyerror (const char *s) {
   cout << "Parse error!  Message: " << s << " in or before line: " << (yylineno) << endl;
+  int num_symb = vrh.size ();
+  for (int i = 0; i < num_symb; i++) {
+  	cout << vrh[i] << " ";
+  }
+  cout << endl;
+  vrh.clear();
   //  exit (-1);
 }
 

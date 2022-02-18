@@ -115,16 +115,35 @@ string Mutations::Fragment (string rhythm) {
             vunits.push_back(v);
         }
     }
+    
+    if (vunits.size() == 0) {
+        // rhythm has no brackets at all, therefore breaking it up into
+        // single chars
+        cout << "should be 1: " << num_symb << endl;
+        rhythm = vrh[0];
+        vrh.clear();
+        for (auto rt = rhythm.begin(); rt != rhythm.end(); ++rt) {
+            string s;
+            s += (*rt);
+            vrh.push_back(s);
+        }
+        num_symb = vrh.size ();
+        for (int i = 0; i < num_symb; i++) {
+            cout << vrh[i] << endl;
+        }
+    }
+
     for (auto it = vunits.begin(); it != vunits.end(); ++it) {
         cout << (*it)[0] << ", " << (*it)[1] << endl;
     }
+    
     
     cout << "with free items:" << endl;
     for (int i = 0; i < num_symb; i++) {
         int flag = 0;
         if (vrh[i] == "~") {
             // ignoring the ~ ties
-            continue;
+//            continue;
         }
         for (auto vt = vunits.begin(); vt != vunits.end(); ++vt) {
             if ((*vt).size() == 2){
@@ -145,7 +164,7 @@ string Mutations::Fragment (string rhythm) {
             vunits.push_back(v);
         }
     }
-    
+    sort (vunits.begin(), vunits.end());
     for (auto it = vunits.begin(); it != vunits.end(); ++it) {
         if ((*it).size() == 2){
             cout << (*it)[0] << ", " << (*it)[1] << endl;
@@ -154,20 +173,22 @@ string Mutations::Fragment (string rhythm) {
         }
     }
         
-    return rhythm;
-//
-//    size_t rlen = rhythm.length ();
-//    if (rlen == 1)
-//        return rhythm;
-//    vector <int> mutpos;
-//    srand (time(NULL));
-//
+//    return rhythm;
+
+    size_t rlen = vunits.size ();
+    
+    vector <int> mutpos;
+    srand (time(NULL));
+
 //    int lenm1 = rlen - 1;
-//    random_device rd;
-//    mt19937 md(rd());
-//    uniform_real_distribution<double> dist(0, lenm1);
-//    int r = dist(md);
-//    mutpos.push_back(r);
+    random_device rd;
+    mt19937 md(rd());
+    uniform_real_distribution<double> dist(0, rlen);
+    int r = dist(md);
+    mutpos.push_back(r);
+
+    int r2 = dist(md);
+    mutpos.push_back(r2);
 //
 //    while (1) {
 //        int r2 = dist(md);
@@ -176,12 +197,27 @@ string Mutations::Fragment (string rhythm) {
 //            break;
 //        }
 //    }
-//
-//    sort (mutpos.begin (), mutpos.end ());
-//    //cout << "Fragment: " << mutpos.at(0) << " " << mutpos.at(1) << endl;
-//    string result = rhythm.substr (mutpos.at(0), mutpos.at(1));
-//    //cout << "Fragment result: " << result << endl;
-//    return result;
+
+    sort (mutpos.begin (), mutpos.end ());
+    cout << mutpos[0] << ", " << mutpos[1] << endl;
+    
+    int count = 0;
+    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
+        if (count >= mutpos[0] && count <= mutpos[1]) {
+            if (it->size() == 1) {
+                string t = vrh[(*it)[0]];
+                for (auto tt = t.begin(); tt != t.end(); ++tt) {
+                    result += *tt;
+                }
+            } else {
+                for (int i = (*it)[0]; i <= (*it)[1]; i++) {
+                    result += vrh[i];
+                }
+            }
+        }
+        count++;
+    }
+    return result;
 }
 
 string Mutations::FragmentRotation (string rhythm) {
