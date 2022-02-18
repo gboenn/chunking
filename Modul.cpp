@@ -4365,6 +4365,8 @@ string Modul::FragmentRotation (string rhythm) {
 
 string Modul::Rotation (string rhythm) {
     Mutations mu;
+    RhythmParser rp;
+    rp.parse_snmr_line (rhythm);
     return mu.Rotation (rhythm);
     
 }
