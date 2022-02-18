@@ -67,23 +67,24 @@ string Mutations::Fragment (string rhythm) {
         num_symb--;
     
     // unbalanced brackets, [ or (, cause parse errors earlier
+    // finding out where the outer bracket pairs are []
     for (int i = 0; i < num_symb; i++) {
         if (vrh[i] == "[") vopenb.push_back(i);
     }
-    
+    // with knowledge of the opening brackets, find the closing brackets
     for (auto it = vopenb.begin() ; it != vopenb.end(); ++it) {
         vclosb.push_back (CloseBracketInd (*it));
     }
     
+    // finding the pos of the silence brackets ()
     for (int i = 0; i < num_symb; i++) {
         if (vrh[i] == "(") vopens.push_back(i);
     }
-    
     for (auto it = vopens.begin(); it != vopens.end(); ++it) {
         vcloss.push_back (CloseSilenceBracketInd (*it));
     }
     
-    cout << "non-nested square brackets:" << endl;
+//    cout << "non-nested square brackets:" << endl;
     int last_closed = -1;
     for (auto it = vopenb.begin(), it2 = vclosb.begin(); it != vopenb.end(); ++it, ++it2) {
         int openb = *it;
@@ -95,11 +96,11 @@ string Mutations::Fragment (string rhythm) {
         }
         last_closed = *it2;
     }
-    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
-        cout << (*it)[0] << ", " << (*it)[1] << endl;
-    }
+//    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
+//        cout << (*it)[0] << ", " << (*it)[1] << endl;
+//    }
     
-    cout << "with silence brackets outside square brackets:" << endl;
+//    cout << "with silence brackets outside square brackets:" << endl;
     for (auto it = vopens.begin(), it2 = vcloss.begin(); it != vopens.end(); ++it, ++it2) {
         int flag = 0;
         for (auto vt = vunits.begin(); vt != vunits.end(); ++vt) {
@@ -117,9 +118,9 @@ string Mutations::Fragment (string rhythm) {
     }
     
     if (vunits.size() == 0) {
-        // rhythm has no brackets at all, therefore breaking it up into
+        // if rhythm has no brackets at all, then breaking it up into
         // single chars
-        cout << "should be 1: " << num_symb << endl;
+//        cout << "should be 1: " << num_symb << endl;
         rhythm = vrh[0];
         vrh.clear();
         for (auto rt = rhythm.begin(); rt != rhythm.end(); ++rt) {
@@ -133,12 +134,13 @@ string Mutations::Fragment (string rhythm) {
         }
     }
 
-    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
-        cout << (*it)[0] << ", " << (*it)[1] << endl;
-    }
+//    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
+//        cout << (*it)[0] << ", " << (*it)[1] << endl;
+//    }
+//
     
-    
-    cout << "with free items:" << endl;
+//    cout << "with free items:" << endl;
+    // finding the pos of all patterns outside all brackets
     for (int i = 0; i < num_symb; i++) {
         int flag = 0;
         if (vrh[i] == "~") {
@@ -165,18 +167,16 @@ string Mutations::Fragment (string rhythm) {
         }
     }
     sort (vunits.begin(), vunits.end());
-    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
-        if ((*it).size() == 2){
-            cout << (*it)[0] << ", " << (*it)[1] << endl;
-        } else {
-            cout << (*it)[0] << endl;
-        }
-    }
-        
-//    return rhythm;
+//    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
+//        if ((*it).size() == 2){
+//            cout << (*it)[0] << ", " << (*it)[1] << endl;
+//        } else {
+//            cout << (*it)[0] << endl;
+//        }
+//    }
 
+    // generate two random positions
     size_t rlen = vunits.size ();
-    
     vector <int> mutpos;
     srand (time(NULL));
 
@@ -189,23 +189,16 @@ string Mutations::Fragment (string rhythm) {
 
     int r2 = dist(md);
     mutpos.push_back(r2);
-//
-//    while (1) {
-//        int r2 = dist(md);
-//        if (r != r2) {
-//            mutpos.push_back(r2);
-//            break;
-//        }
-//    }
 
     sort (mutpos.begin (), mutpos.end ());
-    cout << mutpos[0] << ", " << mutpos[1] << endl;
+//    cout << mutpos[0] << ", " << mutpos[1] << endl;
     
     int count = 0;
     for (auto it = vunits.begin(); it != vunits.end(); ++it) {
         if (count >= mutpos[0] && count <= mutpos[1]) {
             if (it->size() == 1) {
                 string t = vrh[(*it)[0]];
+// potential for some random fragmentation here:
                 for (auto tt = t.begin(); tt != t.end(); ++tt) {
                     result += *tt;
                 }
