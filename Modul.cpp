@@ -4358,9 +4358,8 @@ string Modul::Fragment (string rhythm) {
 }
 
 string Modul::FragmentRotation (string rhythm) {
-    Mutations mu;
-    return mu.FragmentRotation (rhythm);
-
+    string res = Fragment (rhythm);
+    return Rotation (res);
 }
 
 string Modul::Rotation (string rhythm) {

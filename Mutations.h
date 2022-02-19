@@ -21,7 +21,6 @@ public:
     string Jumping (string rhythm, int n, int k, int flag);
     string Fragment (string rhythm);
     string Rotation (string rhythm);
-    string FragmentRotation (string rhythm);
     string Mutation (string rhythm, int n);
     string Swap (string rhythm, int n);
     string Reverse (string rhythm);

@@ -210,14 +210,15 @@ string Mutations::Fragment (string rhythm) {
         }
         count++;
     }
+    
+    if (result.front () == '~')
+        result.erase (result.begin());
+    if (result.back () == '~')
+        result.erase (result.end()-1);
+    if (result == "")
+        result = vrh[0];
+//        cout << "Error. empty. " << vrh[0] << endl;
     return result;
-}
-
-string Mutations::FragmentRotation (string rhythm) {
-    string temp = Fragment (rhythm);
-    temp = Rotation (temp);
-    //cout << temp << endl;
-    return temp;
 }
 
 string Mutations::Rotation (string rhythm) {
@@ -300,7 +301,7 @@ string Mutations::Rotation (string rhythm) {
     // finding the pos of all patterns outside all brackets
     for (int i = 0; i < num_symb; i++) {
         int flag = 0;
-        cout << vrh[i] << endl;
+//        cout << vrh[i] << endl;
         if (vrh[i] == "~") {
             // ignoring the ~ ties
 //            continue;
