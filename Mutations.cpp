@@ -262,9 +262,6 @@ string Mutations::Rotation (string rhythm) {
         }
         last_closed = *it2;
     }
-//    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
-//        cout << (*it)[0] << ", " << (*it)[1] << endl;
-//    }
     
 //    cout << "with silence brackets outside square brackets:" << endl;
     for (auto it = vopens.begin(), it2 = vcloss.begin(); it != vopens.end(); ++it, ++it2) {
@@ -286,8 +283,12 @@ string Mutations::Rotation (string rhythm) {
     if (vunits.size() == 0) {
         // if rhythm has no brackets at all, then breaking it up into
         // single chars
-//        cout << "should be 1: " << num_symb << endl;
-        rhythm = vrh[0];
+        rhythm = "";
+        for (auto vt = vrh.begin(); vt != vrh.end(); ++vt) {
+            if ((*vt) != "newline")
+                rhythm += (*vt);
+        }
+//        rhythm = vrh[0];
         vrh.clear();
         for (auto rt = rhythm.begin(); rt != rhythm.end(); ++rt) {
             string s;
@@ -295,23 +296,18 @@ string Mutations::Rotation (string rhythm) {
             vrh.push_back(s);
         }
         num_symb = vrh.size ();
-//        for (int i = 0; i < num_symb; i++) {
-//            cout << vrh[i] << endl;
-//        }
     }
-
-//    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
-//        cout << (*it)[0] << ", " << (*it)[1] << endl;
-//    }
-//
-    
-//    cout << "with free items:" << endl;
     // finding the pos of all patterns outside all brackets
     for (int i = 0; i < num_symb; i++) {
         int flag = 0;
+        cout << vrh[i] << endl;
         if (vrh[i] == "~") {
             // ignoring the ~ ties
 //            continue;
+            vector<int> v;
+            v.push_back(i);
+            vunits.push_back(v);
+//            cout << "tie: " << i << endl;
         }
         for (auto vt = vunits.begin(); vt != vunits.end(); ++vt) {
             if ((*vt).size() == 2){
@@ -333,13 +329,13 @@ string Mutations::Rotation (string rhythm) {
         }
     }
     sort (vunits.begin(), vunits.end());
-    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
-        if ((*it).size() == 2){
-            cout << (*it)[0] << ", " << (*it)[1] << endl;
-        } else {
-            cout << (*it)[0] << endl;
-        }
-    }
+//    for (auto it = vunits.begin(); it != vunits.end(); ++it) {
+//        if ((*it).size() == 2){
+//            cout << (*it)[0] << ", " << (*it)[1] << endl;
+//        } else {
+//            cout << (*it)[0] << endl;
+//        }
+//    }
 
     int rlen = vunits.size ();
     random_device rd;
@@ -349,21 +345,26 @@ string Mutations::Rotation (string rhythm) {
     
     rotate(vunits.begin(), vunits.begin()+r, vunits.end());
 
+    if (vunits.front().size() == 1) {
+        if (vrh[vunits.front()[0]] == "~")
+            vunits.erase (vunits.begin());
+    }
+    if (vunits.back().size() == 1) {
+        if (vrh[vunits.back()[0]] == "~")
+            vunits.erase (vunits.end()-1);
+    }
+    
     for (auto it = vunits.begin(); it != vunits.end(); ++it) {
         if ((*it).size() == 2){
             for (int i = (*it)[0]; i <= (*it)[1]; i++ )
                 result += vrh[i];
-            
-            cout << (*it)[0] << ", " << (*it)[1] << endl;
+//            cout << (*it)[0] << ", " << (*it)[1] << endl;
         } else {
-            cout << (*it)[0] << endl;
+//            cout << (*it)[0] << endl;
             result += vrh[(*it)[0]];
         }
     }
-
-    
     return result;
-
 }
 
 string Mutations::Mutation (string rhythm, int n) {
