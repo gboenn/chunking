@@ -4380,13 +4380,13 @@ string Modul::Mutation (string rhythm, unsigned long n) {
     vector<unsigned long> tilde_occurs;
     rp.detect_snmr (snmr_occurs, tilde_occurs);
 
-    unsigned long lenm1 = snmr_occurs.size () - 1;
+    unsigned long lenm1 = snmr_occurs.size ();
     for (unsigned long i = 0; i < n; i++) { // distribute n mutations
         random_device rd;
         mt19937 md(rd());
         uniform_real_distribution<double> dist(0, lenm1);
         unsigned long r = dist(md);
-        //cout << "mutating " << vrh[snmr_occurs[r]] << endl;
+        cout << "mutating " << vrh[snmr_occurs[r]] << endl;
         vrh[snmr_occurs[r]] = mu.Mutation (vrh[snmr_occurs[r]], 1);
     }
     

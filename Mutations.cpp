@@ -375,11 +375,12 @@ string Mutations::Mutation (string rhythm, unsigned long n) {
     vector <unsigned long> mutpos;
     //srand (time(NULL));
     unsigned long m = n;
-    unsigned long lenm1 = rlen - 1;
+//    unsigned long lenm1 = rlen - 1;
     random_device rd;
     mt19937 md(rd());
-    uniform_real_distribution<double> dist(0, lenm1);
-    while (--m >= 0) {
+    uniform_real_distribution<double> dist(0, rlen);
+
+    for (unsigned long i = 0; i < m; i++ ) {
         unsigned long r = static_cast<unsigned long>(dist(md));
         mutpos.push_back(r);
     }
