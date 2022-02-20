@@ -599,11 +599,15 @@ string Mutations::Reverse () {
     
     if (num_open == 0) {
         // reverse each vrh element
-        for (unsigned long i = num_symb-1; i >= 0; i--) {
-            if (vrh[i] == "newline") {
+        for (auto vit = vrh.rbegin(); vit != vrh.rend(); vit++) {
+//        for (unsigned long i = num_symb-1; i != 0; --i) {
+//            if (vrh[i] == "newline") {
+            string cur = *vit;
+            if (cur == "newline") {
                 continue;
             }
-            string cur = vrh[i];
+//            string cur = vrh[i];
+            
             if (cur == "(")
                 result += ")";
             else if (cur == ")")
