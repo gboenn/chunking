@@ -452,11 +452,11 @@ string Mutations::Swap (string rhythm, unsigned long n) {
     vector <unsigned long> mutpos;
     srand (static_cast<unsigned int>(time(NULL)));
     unsigned long m = n;
-    unsigned long lenm1 = rlen - 1;
+//    unsigned long lenm1 = rlen - 1;
     random_device rd;
     mt19937 md(rd());
-    uniform_real_distribution<double> dist(0, lenm1);
-    while (--m >= 0) {
+    uniform_real_distribution<double> dist(0, rlen);
+    for (unsigned long i = 0; i < m; i++) {
         unsigned long r = static_cast<unsigned long>(dist(md));
         mutpos.push_back(r);
     }
@@ -469,7 +469,7 @@ string Mutations::Swap (string rhythm, unsigned long n) {
     for (unsigned long i=0; i < n; i++) {
         char c = rhythm[mutpos.at(i)];
         unsigned long swapindex = mutpos.at(i)+1;
-        if (swapindex > lenm1) swapindex = 0;
+        if (swapindex > rlen) swapindex = 0;
         rhythm[mutpos.at(i)] = rhythm[swapindex];
         rhythm[swapindex] = c;
         //cout << "swap at pos: " << i << endl;
