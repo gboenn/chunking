@@ -4343,7 +4343,7 @@ void Modul::ShorteningProcess (string rhythm) {
     
 }
 
-string Modul::Jumping (string rhythm, int n, int k, int flag) {
+string Modul::Jumping (string rhythm, unsigned long n, int k, int flag) {
     Mutations mu;
     return mu.Jumping (rhythm, n, k ,flag);
     
@@ -4371,21 +4371,21 @@ string Modul::Rotation (string rhythm) {
 }
 
 
-string Modul::Mutation (string rhythm, int n) {
+string Modul::Mutation (string rhythm, unsigned long n) {
     // random mutations, n = number of mutations
     Mutations mu;
     RhythmParser rp;
     rp.parse_snmr_line (rhythm);
-    vector<int> snmr_occurs;
-    vector<int> tilde_occurs;
+    vector<unsigned long> snmr_occurs;
+    vector<unsigned long> tilde_occurs;
     rp.detect_snmr (snmr_occurs, tilde_occurs);
 
-    int lenm1 = snmr_occurs.size () - 1;
-    for (int i = 0; i < n; i++) { // distribute n mutations
+    unsigned long lenm1 = snmr_occurs.size () - 1;
+    for (unsigned long i = 0; i < n; i++) { // distribute n mutations
         random_device rd;
         mt19937 md(rd());
         uniform_real_distribution<double> dist(0, lenm1);
-        int r = dist(md);
+        unsigned long r = dist(md);
         //cout << "mutating " << vrh[snmr_occurs[r]] << endl;
         vrh[snmr_occurs[r]] = mu.Mutation (vrh[snmr_occurs[r]], 1);
     }
@@ -4396,16 +4396,16 @@ string Modul::Mutation (string rhythm, int n) {
     return result;
  }
 
-string Modul::Swap (string rhythm, int n) {
+string Modul::Swap (string rhythm, unsigned long n) {
     Mutations mu;
     RhythmParser rp;
     rp.parse_snmr_line (rhythm);
-    vector<int> snmr_occurs;
-    vector<int> tilde_occurs;
+    vector<unsigned long> snmr_occurs;
+    vector<unsigned long> tilde_occurs;
     rp.detect_snmr (snmr_occurs, tilde_occurs);
     
-    int lenm1 = snmr_occurs.size () - 1;
-    for (int i = 0; i < n; i++) { // distribute n mutations
+    unsigned long lenm1 = snmr_occurs.size () - 1;
+    for (unsigned long i = 0; i < n; i++) { // distribute n mutations
         random_device rd;
         mt19937 md(rd());
         uniform_real_distribution<double> dist(0, lenm1);
@@ -4422,7 +4422,7 @@ string Modul::Swap (string rhythm, int n) {
 //    return mu.Swap (rhythm, n);
 }
 
-string Modul::Silence (string rhythm, int n, int k) {
+string Modul::Silence (string rhythm, unsigned long n, unsigned long k) {
     Mutations mu;
     return mu.Silence (rhythm, n, k);
 }
@@ -4643,7 +4643,7 @@ string Modul::Reverse (string rhythm) {
     Mutations mu;
     RhythmParser rp;
     rp.parse_snmr_line (rhythm);
-    return mu.Reverse (rhythm);
+    return mu.Reverse ();
 #if 0
     vector<int> snmr_occurs;
     vector<int> tilde_occurs;

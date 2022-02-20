@@ -12,15 +12,15 @@
 #include <random>
 #include <sstream>
 
-string Mutations::Jumping (string rhythm, int n, int k, int flag) {
+string Mutations::Jumping (string rhythm, unsigned long n, int k, int flag) {
     if (n == 0) {
         cout << "$ n must be positive." << endl;
         return rhythm;
     }
     size_t rlen = rhythm.length ();
     string output;
-    if (n < 0) n *= -1;
-    if (n > int(rlen)) {
+//    if (n < 0) n *= -1;
+    if (n > rlen) {
         n = rlen;
         int i = 0;
         for (; i < k; i++) {
@@ -56,19 +56,19 @@ string Mutations::Jumping (string rhythm, int n, int k, int flag) {
 
 string Mutations::Fragment (string rhythm) {
     string result = "";
-    vector<int> vopenb;
-    vector<int> vclosb;
-    vector<int> vopens;
-    vector<int> vcloss;
-    vector<vector<int>> vunits;
-    int num_symb = vrh.size ();
+    vector<unsigned long> vopenb;
+    vector<unsigned long> vclosb;
+    vector<unsigned long> vopens;
+    vector<unsigned long> vcloss;
+    vector<vector<unsigned long>> vunits;
+    std::size_t num_symb = vrh.size ();
     string e = vrh.back();
     if (e == "newline")
         num_symb--;
     
     // unbalanced brackets, [ or (, cause parse errors earlier
     // finding out where the outer bracket pairs are []
-    for (int i = 0; i < num_symb; i++) {
+    for (std::size_t i = 0; i < num_symb; i++) {
         if (vrh[i] == "[") vopenb.push_back(i);
     }
     // with knowledge of the opening brackets, find the closing brackets
@@ -77,7 +77,7 @@ string Mutations::Fragment (string rhythm) {
     }
     
     // finding the pos of the silence brackets ()
-    for (int i = 0; i < num_symb; i++) {
+    for (std::size_t i = 0; i < num_symb; i++) {
         if (vrh[i] == "(") vopens.push_back(i);
     }
     for (auto it = vopens.begin(); it != vopens.end(); ++it) {
@@ -85,11 +85,11 @@ string Mutations::Fragment (string rhythm) {
     }
     
 //    cout << "non-nested square brackets:" << endl;
-    int last_closed = -1;
+    unsigned long last_closed = 0;
     for (auto it = vopenb.begin(), it2 = vclosb.begin(); it != vopenb.end(); ++it, ++it2) {
-        int openb = *it;
-        if (openb > last_closed) {
-            vector<int> v;
+        unsigned long openb = *it;
+        if (openb == 0 || openb > last_closed) {
+            vector<unsigned long> v;
             v.push_back(*it);
             v.push_back(*it2);
             vunits.push_back(v);
@@ -110,7 +110,7 @@ string Mutations::Fragment (string rhythm) {
             }
         }
         if (!flag) {
-            vector<int> v;
+            vector<unsigned long> v;
             v.push_back(*it);
             v.push_back(*it2);
             vunits.push_back(v);
@@ -141,7 +141,7 @@ string Mutations::Fragment (string rhythm) {
     
 //    cout << "with free items:" << endl;
     // finding the pos of all patterns outside all brackets
-    for (int i = 0; i < num_symb; i++) {
+    for (std::size_t i = 0; i < num_symb; i++) {
         int flag = 0;
         if (vrh[i] == "~") {
             // ignoring the ~ ties
@@ -161,7 +161,7 @@ string Mutations::Fragment (string rhythm) {
             }
         }
         if (!flag) {
-            vector<int> v;
+            vector<unsigned long> v;
             v.push_back(i);
             vunits.push_back(v);
         }
@@ -178,16 +178,16 @@ string Mutations::Fragment (string rhythm) {
     // generate two random positions
     size_t rlen = vunits.size ();
     vector <int> mutpos;
-    srand (time(NULL));
+    srand (static_cast<unsigned int>(time(NULL)));
 
 //    int lenm1 = rlen - 1;
     random_device rd;
     mt19937 md(rd());
     uniform_real_distribution<double> dist(0, rlen);
-    int r = dist(md);
+    int r = int(dist(md));
     mutpos.push_back(r);
 
-    int r2 = dist(md);
+    int r2 = int(dist(md));
     mutpos.push_back(r2);
 
     sort (mutpos.begin (), mutpos.end ());
@@ -203,7 +203,7 @@ string Mutations::Fragment (string rhythm) {
                     result += *tt;
                 }
             } else {
-                for (int i = (*it)[0]; i <= (*it)[1]; i++) {
+                for (unsigned long i = (*it)[0]; i <= (*it)[1]; i++) {
                     result += vrh[i];
                 }
             }
@@ -223,19 +223,19 @@ string Mutations::Fragment (string rhythm) {
 
 string Mutations::Rotation (string rhythm) {
     string result = "";
-    vector<int> vopenb;
-    vector<int> vclosb;
-    vector<int> vopens;
-    vector<int> vcloss;
-    vector<vector<int>> vunits;
-    int num_symb = vrh.size ();
+    vector<unsigned long> vopenb;
+    vector<unsigned long> vclosb;
+    vector<unsigned long> vopens;
+    vector<unsigned long> vcloss;
+    vector<vector<unsigned long>> vunits;
+    std::size_t num_symb = vrh.size ();
     string e = vrh.back();
     if (e == "newline")
         num_symb--;
         
     // unbalanced brackets, [ or (, cause parse errors earlier
     // finding out where the outer bracket pairs are []
-    for (int i = 0; i < num_symb; i++) {
+    for (unsigned long i = 0; i < num_symb; i++) {
         if (vrh[i] == "[") vopenb.push_back(i);
     }
     // with knowledge of the opening brackets, find the closing brackets
@@ -244,7 +244,7 @@ string Mutations::Rotation (string rhythm) {
     }
     
     // finding the pos of the silence brackets ()
-    for (int i = 0; i < num_symb; i++) {
+    for (unsigned long i = 0; i < num_symb; i++) {
         if (vrh[i] == "(") vopens.push_back(i);
     }
     for (auto it = vopens.begin(); it != vopens.end(); ++it) {
@@ -252,11 +252,11 @@ string Mutations::Rotation (string rhythm) {
     }
     
 //    cout << "non-nested square brackets:" << endl;
-    int last_closed = -1;
+    unsigned long last_closed = 0;
     for (auto it = vopenb.begin(), it2 = vclosb.begin(); it != vopenb.end(); ++it, ++it2) {
-        int openb = *it;
-        if (openb > last_closed) {
-            vector<int> v;
+        unsigned long openb = *it;
+        if (openb == 0 || openb > last_closed) {
+            vector<unsigned long> v;
             v.push_back(*it);
             v.push_back(*it2);
             vunits.push_back(v);
@@ -274,7 +274,7 @@ string Mutations::Rotation (string rhythm) {
             }
         }
         if (!flag) {
-            vector<int> v;
+            vector<unsigned long> v;
             v.push_back(*it);
             v.push_back(*it2);
             vunits.push_back(v);
@@ -299,13 +299,13 @@ string Mutations::Rotation (string rhythm) {
         num_symb = vrh.size ();
     }
     // finding the pos of all patterns outside all brackets
-    for (int i = 0; i < num_symb; i++) {
+    for (unsigned long i = 0; i < num_symb; i++) {
         int flag = 0;
 //        cout << vrh[i] << endl;
         if (vrh[i] == "~") {
             // ignoring the ~ ties
 //            continue;
-            vector<int> v;
+            vector<unsigned long> v;
             v.push_back(i);
             vunits.push_back(v);
 //            cout << "tie: " << i << endl;
@@ -324,7 +324,7 @@ string Mutations::Rotation (string rhythm) {
             }
         }
         if (!flag) {
-            vector<int> v;
+            vector<unsigned long> v;
             v.push_back(i);
             vunits.push_back(v);
         }
@@ -338,11 +338,11 @@ string Mutations::Rotation (string rhythm) {
 //        }
 //    }
 
-    int rlen = vunits.size ();
+    std::size_t rlen = vunits.size ();
     random_device rd;
     mt19937 md(rd());
     uniform_real_distribution<double> dist(0, rlen);
-    int r = dist(md);
+    long r = static_cast<long>(dist(md));
     
     rotate(vunits.begin(), vunits.begin()+r, vunits.end());
 
@@ -357,7 +357,7 @@ string Mutations::Rotation (string rhythm) {
     
     for (auto it = vunits.begin(); it != vunits.end(); ++it) {
         if ((*it).size() == 2){
-            for (int i = (*it)[0]; i <= (*it)[1]; i++ )
+            for (unsigned long i = (*it)[0]; i <= (*it)[1]; i++ )
                 result += vrh[i];
 //            cout << (*it)[0] << ", " << (*it)[1] << endl;
         } else {
@@ -368,41 +368,39 @@ string Mutations::Rotation (string rhythm) {
     return result;
 }
 
-string Mutations::Mutation (string rhythm, int n) {
+string Mutations::Mutation (string rhythm, unsigned long n) {
     // random mutations, n = number of mutations
     
     size_t rlen = rhythm.length ();
-    vector <int> mutpos;
+    vector <unsigned long> mutpos;
     //srand (time(NULL));
-    int m = n;
-    int lenm1 = rlen - 1;
+    unsigned long m = n;
+    unsigned long lenm1 = rlen - 1;
     random_device rd;
     mt19937 md(rd());
     uniform_real_distribution<double> dist(0, lenm1);
     while (--m >= 0) {
-        int r = dist(md);
+        unsigned long r = static_cast<unsigned long>(dist(md));
         mutpos.push_back(r);
     }
     
-    int i = 0;
     cout << "$ mutations at positions: ";
-    for (; i < n; i++) {
+    for (unsigned long i = 0; i < n; i++) {
         cout << mutpos.at(i) << ", ";
     }
     
     cout << endl;
     string dual = "I:v";
-    int dual_length = dual.length ();
+    unsigned long dual_length = dual.length ();
     string ternary = "-iX><w";
-    int ternary_length = ternary.length ();
+    unsigned long ternary_length = ternary.length ();
     string quaternary = "H!";
     const int quat_repl_length = 8;
     string quat_repl[quat_repl_length] = {"!", "H", "::", "II", "-.", ":I", "I:", ".I."};
-    i = 0;
+    unsigned long i = 0;
     for (string::iterator it=rhythm.begin(); it!=rhythm.end(); ++it, i++) {
-        int k = 0;
         int flag = 0;
-        for (; k < n; k++) {
+        for (unsigned long k = 0; k < n; k++) {
             if (i == mutpos.at(k)) {
                 flag = 1;
                 break;
@@ -413,7 +411,7 @@ string Mutations::Mutation (string rhythm, int n) {
                 if (int(*it2) == int(*it)) {
                     char c = *it;
                     while (1) {
-                        c = dual[rand() % dual_length];
+                        c = dual[static_cast<unsigned long>(rand()) % dual_length];
                         if (int(c) != int(*it))
                             break;
                     }
@@ -432,7 +430,7 @@ string Mutations::Mutation (string rhythm, int n) {
                 if (int(*it2) == int(*it)) {
                     char c = *it;
                     while (1) {
-                        c = ternary[rand() % ternary_length];
+                        c = ternary[static_cast<unsigned long>(rand()) % ternary_length];
                         if (int(c) != int(*it))
                             break;
                     }
@@ -447,29 +445,29 @@ string Mutations::Mutation (string rhythm, int n) {
     return rhythm;
 }
 
-string Mutations::Swap (string rhythm, int n) {
+string Mutations::Swap (string rhythm, unsigned long n) {
     //random swap(s), n = number of swaps
     size_t rlen = rhythm.length ();
-    vector <int> mutpos;
-    srand (time(NULL));
-    int m = n;
-    int lenm1 = rlen - 1;
+    vector <unsigned long> mutpos;
+    srand (static_cast<unsigned int>(time(NULL)));
+    unsigned long m = n;
+    unsigned long lenm1 = rlen - 1;
     random_device rd;
     mt19937 md(rd());
     uniform_real_distribution<double> dist(0, lenm1);
     while (--m >= 0) {
-        int r = dist(md);
+        unsigned long r = static_cast<unsigned long>(dist(md));
         mutpos.push_back(r);
     }
-    int i = 0;
+    
     cout << "$ swapping at positions: ";
-    for (; i < n; i++) {
+    for (unsigned long i = 0; i < n; i++) {
         cout << mutpos.at(i) << ", ";
     }
     cout << endl;
-    for (i=0; i < n; i++) {
+    for (unsigned long i=0; i < n; i++) {
         char c = rhythm[mutpos.at(i)];
-        int swapindex = mutpos.at(i)+1;
+        unsigned long swapindex = mutpos.at(i)+1;
         if (swapindex > lenm1) swapindex = 0;
         rhythm[mutpos.at(i)] = rhythm[swapindex];
         rhythm[swapindex] = c;
@@ -480,15 +478,15 @@ string Mutations::Swap (string rhythm, int n) {
     return rhythm;
 }
 
-string Mutations::Silence (string rhythm, int n, int k) {
+string Mutations::Silence (string rhythm, unsigned long n, unsigned long k) {
     // renders a silence with symbols between pos n and k
     
     // check whether there is already silence in the string
     // if yes, then remove the brackets
-    int i = 0;
+    unsigned long i = 0;
     for (string::iterator it=rhythm.begin(); it!=rhythm.end(); ++it, i++) {
         if (int(*it) == 40 || int(*it) == 41) // == '(' or ')'
-            rhythm.erase(rhythm.begin()+i);
+            rhythm.erase(rhythm.begin()+long(i));
     }
     // check boundaries and assert (n<k)
     // k can be >= list length in which case the right bracket is simply appended
@@ -521,7 +519,7 @@ string Mutations::ProcessToShapes (string rhythm, int flag) {
     string result = "";
     //string temp = rhythm;
     vector<string> rev;
-    int i, len;
+    unsigned long i, len;
     switch (flag) {
         case 0: // hourglass
             while (!rhythm.empty ()) {
@@ -533,7 +531,7 @@ string Mutations::ProcessToShapes (string rhythm, int flag) {
             
             len = rev.size ();
             i = len - 2;
-            for (; i > -1; i--) {
+            for (; i >= 0; i--) {
                 result += rev.at(i);
                 result += '\n';
             }
@@ -552,7 +550,7 @@ string Mutations::ProcessToShapes (string rhythm, int flag) {
             }
             len = rev.size ();
             i = len - 1;
-            for (; i > -1; i--) {
+            for (; i >= 0; i--) {
                 result += rev.at(i);
                 result += '\n';
             }
@@ -564,7 +562,7 @@ string Mutations::ProcessToShapes (string rhythm, int flag) {
             }
             len = rev.size ();
             i = len - 1;
-            for (; i > -1; i--) {
+            for (; i >= 0; i--) {
                 result += rev.at(i);
                 result += '\n';
             }
@@ -582,17 +580,17 @@ string Mutations::ProcessToShapes (string rhythm, int flag) {
     return result;
 }
 
-string Mutations::Reverse (string rhythm) {
+string Mutations::Reverse () {
     // original rhythm needed?
     // use of RhythmParser in Modul.cpp
     string result = "";
-    int openb = 0;
+    unsigned long openb = 0;
     int num_open = 0;
-    int num_symb = vrh.size ();
+    unsigned long num_symb = vrh.size ();
     
     // how many balanced open brackets?
     // unbalanced brackets, [ or (, cause parse errors earlier
-    for (int i = 0; i < num_symb; i++) {
+    for (unsigned long i = 0; i < num_symb; i++) {
         if (vrh[i] == "[") {
             num_open++;
         }
@@ -600,7 +598,7 @@ string Mutations::Reverse (string rhythm) {
     
     if (num_open == 0) {
         // reverse each vrh element
-        for (int i = num_symb-1; i > -1; i--) {
+        for (unsigned long i = num_symb-1; i >= 0; i--) {
             if (vrh[i] == "newline") {
                 continue;
             }
@@ -621,14 +619,14 @@ string Mutations::Reverse (string rhythm) {
     while (num_open-- > 0) {
         // find the next open bracket [
         // because of ReverseBrackets we can always start at i = 0
-        for (int i = 0; i < num_symb; i++) {
+        for (unsigned long i = 0; i < num_symb; i++) {
             if (vrh[i] == "[") {
                 openb = i;
                 break;
             }
         }
         // find corresponding closing bracket index
-        int closeb = CloseBracketInd (openb);
+        unsigned long closeb = CloseBracketInd (openb);
         if (closeb > 0)
             ReverseBrackets (openb, closeb);
         result = "";
@@ -659,12 +657,12 @@ string Mutations::Reverse (string rhythm) {
 }
 
 
-int Mutations::CloseBracketInd(int index){
-    int i;
-    if(vrh[index]!="["){
-        return -1;
-    }
-    stack <int> st;
+unsigned long Mutations::CloseBracketInd(unsigned long index){
+    unsigned long i;
+//    if(vrh[index]!="["){
+//        return -1;
+//    }
+    stack <unsigned long> st;
     for(i = index; i < vrh.size(); i++){
         if(vrh[i] == "[") {
             st.push(i);
@@ -675,15 +673,15 @@ int Mutations::CloseBracketInd(int index){
             }
         }
     }
-    return -1;
+    return 0;
 }
 
-int Mutations::CloseSilenceBracketInd(int index){
-    int i;
-    if(vrh[index]!="("){
-        return -1;
-    }
-    stack <int> st;
+unsigned long Mutations::CloseSilenceBracketInd(unsigned long index){
+    unsigned long i;
+//    if(vrh[index]!="("){
+//        return -1;
+//    }
+    stack <unsigned long> st;
     for(i = index; i < vrh.size(); i++){
         if(vrh[i] == "(") {
             st.push(i);
@@ -694,16 +692,16 @@ int Mutations::CloseSilenceBracketInd(int index){
             }
         }
     }
-    return -1;
+    return 0;
 }
 
-void Mutations::ReverseBrackets(int openb, int closb) {
+void Mutations::ReverseBrackets(unsigned long openb, unsigned long closb) {
     vrh[openb] = "]";
     vrh[closb] = "[";
     if (isNum(vrh[openb+1])) {
-        auto closPos = vrh.begin() + closb;
+        auto closPos = vrh.begin() + long(closb);
         vrh.insert(closPos, vrh[openb+1]);
-        vrh.erase(vrh.begin() + openb + 1);
+        vrh.erase(vrh.begin() + long(openb) + 1);
     }
 }
 

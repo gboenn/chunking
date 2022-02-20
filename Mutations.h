@@ -18,17 +18,17 @@ class Mutations {
 public:
     Mutations () {};
     ~Mutations () {};
-    string Jumping (string rhythm, int n, int k, int flag);
+    string Jumping (string rhythm, unsigned long n, int k, int flag);
     string Fragment (string rhythm);
     string Rotation (string rhythm);
-    string Mutation (string rhythm, int n);
-    string Swap (string rhythm, int n);
-    string Reverse (string rhythm);
-    string Silence (string rhythm, int n, int k);
+    string Mutation (string rhythm, unsigned long n);
+    string Swap (string rhythm, unsigned long n);
+    string Reverse ();
+    string Silence (string rhythm, unsigned long n, unsigned long k);
     string ProcessToShapes (string rhythm, int flag);
-    int CloseBracketInd (int index);
-    int CloseSilenceBracketInd(int index);
-    void ReverseBrackets(int openb, int closb);
+    unsigned long CloseBracketInd (unsigned long index);
+    unsigned long CloseSilenceBracketInd(unsigned long index);
+    void ReverseBrackets(unsigned long openb, unsigned long closb);
     bool isNum (string line);
 };
 #endif // __Mutations_h__

@@ -24,7 +24,7 @@ class RhythmParser {
 
   void process (string filename);
     void parse_snmr_line (string rhythm);
-    void detect_snmr (vector<int>& occurence, vector<int>& tilde);
+    void detect_snmr (vector<unsigned long>& occurence, vector<unsigned long>& tilde);
     void render_online_string (string& result);
 };
 

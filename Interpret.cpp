@@ -607,7 +607,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     if (ms == modulTable[kjump]) {
         if (args_obj[3].text[0] != '\0') {
             string s1 = args_obj[0].text;
-            int i1 = atoi (args_obj[1].text);
+            unsigned long i1 = stoul (args_obj[1].text);
             int i2 = atoi (args_obj[2].text);
             int i3 = atoi (args_obj[3].text);
             string result = mdl.Jumping (s1, i1, i2, i3);
@@ -623,7 +623,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     if (ms == modulTable[kmutate]) {
         if (args_obj[1].text[0] != '\0') {
             string s1 = args_obj[0].text;
-            int i1 = atoi (args_obj[1].text);
+            unsigned long i1 = stoul (args_obj[1].text);
             string result = mdl.Mutation (s1, i1);
             if (add_flag)
                 InsertIntoDB (result);
@@ -637,7 +637,7 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     if (ms == modulTable[kswap]) {
         if (args_obj[1].text[0] != '\0') {
             string s1 = args_obj[0].text;
-            int i1 = atoi (args_obj[1].text);
+            unsigned long i1 = stoul (args_obj[1].text);
             string result = mdl.Swap (s1, i1);
             if (add_flag)
                 InsertIntoDB (result);
@@ -651,8 +651,8 @@ void Interpret::Dispatch(TextIO& coms, Modul& mdl, int from_cmd_line)
     if (ms == modulTable[ksilence]) {
         if (args_obj[2].text[0] != '\0') {
             string s1 = args_obj[0].text;
-            int i1 = atoi (args_obj[1].text);
-            int i2 = atoi (args_obj[2].text);
+            unsigned long i1 = stoul (args_obj[1].text);
+            unsigned long i2 = stoul (args_obj[2].text);
             string result = mdl.Silence (s1, i1, i2);
             if (add_flag)
                 InsertIntoDB (result);

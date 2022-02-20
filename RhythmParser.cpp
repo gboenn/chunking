@@ -24,7 +24,7 @@ void RhythmParser::parse_snmr_line (string rhythm) {
     process ("_mutation_temp.txt");
 }
 
-void RhythmParser::detect_snmr (vector<int>& occurence, vector<int>& tilde) {
+void RhythmParser::detect_snmr (vector<unsigned long>& occurence, vector<unsigned long>& tilde) {
     if (vrh.size() > 0) {
         auto len = vrh.size();
         for (auto i = 0; i < len; i++) {
