@@ -4410,7 +4410,7 @@ string Modul::Swap (string rhythm, unsigned long n) {
         mt19937 md(rd());
         uniform_real_distribution<double> dist(0, lenm1);
         int r = dist(md);
-        //cout << "mutating " << vrh[snmr_occurs[r]] << endl;
+//        cout << "mutating " << vrh[snmr_occurs[r]] << endl;
         vrh[snmr_occurs[r]] = mu.Swap (vrh[snmr_occurs[r]], 1);
     }
     

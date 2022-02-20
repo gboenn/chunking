@@ -47,7 +47,7 @@ void RhythmParser::detect_snmr (vector<unsigned long>& occurence, vector<unsigne
             } else if (item == "S") {
                 continue;
             } else {
-                cout << "detect " << vrh[i] << endl;
+//                cout << "detect " << vrh[i] << endl;
                  occurence.push_back(i);
             }
         }

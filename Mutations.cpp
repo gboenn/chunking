@@ -461,18 +461,17 @@ string Mutations::Swap (string rhythm, unsigned long n) {
         mutpos.push_back(r);
     }
     
-    cout << "$ swapping at positions: ";
-    for (unsigned long i = 0; i < n; i++) {
-        cout << mutpos.at(i) << ", ";
-    }
-    cout << endl;
+//    cout << "$ swapping at positions: ";
+//    for (unsigned long i = 0; i < n; i++) {
+//        cout << mutpos.at(i) << ", ";
+//    }
+//    cout << endl;
     for (unsigned long i=0; i < n; i++) {
         char c = rhythm[mutpos.at(i)];
         unsigned long swapindex = mutpos.at(i)+1;
-        if (swapindex > rlen) swapindex = 0;
+        if (swapindex == rlen) swapindex = 0;
         rhythm[mutpos.at(i)] = rhythm[swapindex];
         rhythm[swapindex] = c;
-        //cout << "swap at pos: " << i << endl;
     }
     
     //cout << rhythm << endl;
